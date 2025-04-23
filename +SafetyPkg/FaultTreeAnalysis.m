@@ -2,7 +2,7 @@ function [Pfail, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 %
 % [Pfail, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 13 dec 2024
+% last updated: 23 apr 2025
 %
 % Given an adjacency-like matrix, find the minimum cut sets that account
 % for internal failures and redundant primary events. then, using the
@@ -142,6 +142,17 @@ if (RemoveSrc == 1)
     
 end
 
+% memory for finding connections
+ArchConns = cell(ncomp, 1);
+
+% remember the connections
+for icomp = 1:ncomp
+    
+    % find the connections
+    ArchConns{icomp} = find(Arch(:, icomp));
+    
+end
+
 
 %% PERFORM A BOOLEAN ANALYSIS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -154,7 +165,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % recursively search the system architecture to extract all failure modes
-FailModes = CreateCutSets(Arch, Components, isnk);
+FailModes = CreateCutSets(ArchConns, Components, isnk);
 
 % eliminate duplicate events in single failure mode (idempotent law)
 FailModes = IdempotentLaw(FailModes);
@@ -198,11 +209,11 @@ end
 % ----------------------------------------------------------
 % ----------------------------------------------------------
 
-function [Failures] = CreateCutSets(Arch, Components, icomp)
+function [Failures] = CreateCutSets(ArchConns, Components, icomp)
 %
 % [Failures] = CreateCutSets(Arch, Components, icomp)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 16 dec 2024
+% last updated: 23 apr 2025
 %
 % List out all components in the cut set for a system architecture. For
 % each function call, check whether an internal failure mode exists and if
@@ -237,7 +248,7 @@ function [Failures] = CreateCutSets(Arch, Components, icomp)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % get the downstream components
-idwn = find(Arch(:, icomp));
+idwn = ArchConns{icomp};%find(ArchConns(:, icomp));
 
 % check if there is an internal failure mode
 if (~strcmpi(Components.FailMode(icomp), "") == 1)
@@ -272,7 +283,7 @@ DwnFails = cell(1, ndwn);
 for i = 1:ndwn
         
     % search recursively and remember the downstream failures
-    DwnFails{i} = CreateCutSets(Arch, Components, idwn(i));
+    DwnFails{i} = CreateCutSets(ArchConns, Components, idwn(i));
 
 end
 
