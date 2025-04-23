@@ -280,7 +280,7 @@ ndwn = length(idwn);
 DwnFails = cell(1, ndwn);
 
 % loop through the downstream components
-for i = 1:ndwn
+parfor i = 1:ndwn
         
     % search recursively and remember the downstream failures
     DwnFails{i} = CreateCutSets(ArchConns, Components, idwn(i));
@@ -352,7 +352,7 @@ nrow = zeros(1, nelem);
 ncol = zeros(1, nelem);
 
 % compute the maximum number of elements in a column
-for ielem = 1:nelem
+parfor ielem = 1:nelem
     
     % get the size of the string array
     [nrow(ielem), ncol(ielem)] = size(FailList{ielem});
