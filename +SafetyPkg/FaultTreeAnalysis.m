@@ -280,7 +280,7 @@ ndwn = length(idwn);
 DwnFails = cell(1, ndwn);
 
 % loop through the downstream components
-parfor i = 1:ndwn
+for i = 1:ndwn
         
     % search recursively and remember the downstream failures
     DwnFails{i} = CreateCutSets(ArchConns, Components, idwn(i));
@@ -323,7 +323,7 @@ function [EnumFails] = EnumerateFailures(FailList)
 %
 % [EnumFails] = EnumerateFailures(FailList)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 11 dec 2024
+% last updated: 23 apr 2025
 %
 % Given a set of failures from multiple AND gates, enumerate all possible
 % failures that could cause a system failure.
@@ -352,7 +352,7 @@ nrow = zeros(1, nelem);
 ncol = zeros(1, nelem);
 
 % compute the maximum number of elements in a column
-parfor ielem = 1:nelem
+for ielem = 1:nelem
     
     % get the size of the string array
     [nrow(ielem), ncol(ielem)] = size(FailList{ielem});
@@ -384,20 +384,21 @@ for ielem = 1:nelem
     
     % number of times the repeated matrix repeats
     nrep2 = prod(nrow(1:ielem-1));
-    
+            
     % loop through all columns
-    for icol = 1:ncol(ielem)
+    parfor icol = 1:ncol(ielem)
         
         % repeatedly represent the matrix elements
         TempCol = repelem(CurFail(:, icol), nrep1);
         
         % repeatedly represent the column
-        EnumFails(:, ColIdx) = repmat(TempCol, nrep2, 1);
-        
-        % increment the column index
-        ColIdx = ColIdx + 1;
+        EnumFails(:, ColIdx + icol) = repmat(TempCol, nrep2, 1);
         
     end
+    
+    % update the column index
+    ColIdx = ColIdx + ncol(ielem);
+    
 end
 
 
@@ -411,7 +412,7 @@ function [NewModes] = IdempotentLaw(FailModes)
 %
 % [NewModes] = IdempotentLaw(FailModes)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 11 dec 2024
+% last updated: 23 apr 2025
 %
 % use the idempotent law to eliminate duplicate events in a single failure
 % mode of a fault tree. the idempotent law is a boolean algebra rule,
@@ -442,15 +443,21 @@ function [NewModes] = IdempotentLaw(FailModes)
 
 % loop through all columns except the last one
 for icomp = 1:(ncomp - 1)
-        
+    
+    % remember the current column
+    TempCol = FailModes(:, icomp);
+    
     % loop through remaining columns
-    for jcomp = (icomp+1) : ncomp
-            
-        % compare the strings
-        StrCmp = strcmpi(FailModes(:, icomp), FailModes(:, jcomp));
+    parfor jcomp = (icomp+1) : ncomp
         
-        % eliminate all repeated events
-        FailModes(StrCmp, jcomp) = "";
+        % compare elements in the columns
+        FailModes(:, jcomp) = CompareCols(TempCol, FailModes(:, jcomp));
+        
+%         % compare the strings
+%         StrCmp = strcmpi(FailModes(:, icomp), FailModes(:, jcomp));
+%         
+%         % eliminate all repeated events
+%         FailModes(StrCmp, jcomp) = "";
         
     end
 end
@@ -486,11 +493,45 @@ end
 % ----------------------------------------------------------
 % ----------------------------------------------------------
 
+function [Col2] = CompareCols(Col1, Col2)
+%
+% [Col2] = CompareCols(Col1, Col2)
+% written by Paul Mokotoff, prmoko@umich.edu
+% last updated: 23 apr 2025
+%
+% for the elements in Col2 that match those in Col1, set them to be an
+% empty string. this is a helper function for performing a fault tree
+% analysis in parallel.
+%
+% INPUTS:
+%     Col1 - first  column to be compared.
+%            size/type/units: n-by-1 / string / []
+%
+%     Col2 - second column to be compared.
+%            size/type/units: n-by-1 / string / []
+%
+% OUTPUTS:
+%     Col2 - updated column with empty strings.
+%            size/type/units: n-by-1 / string / []
+%
+
+% compare the two columns
+StrCmp = strcmpi(Col1, Col2);
+
+% remove the ones that match
+Col2(StrCmp, :) = "";
+
+end
+
+% ----------------------------------------------------------
+% ----------------------------------------------------------
+% ----------------------------------------------------------
+
 function [NewModes] = LawOfAbsorption(FailModes)
 %
 % [NewModes] = LawOfAbsorption(FailModes)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 04 dec 2024
+% last updated: 24 apr 2025
 %
 % use the law of absorbption to eliminate duplicate events across multiple
 % failure modes in a fault tree. the law of absorbption is a boolean
@@ -521,17 +562,14 @@ function [NewModes] = LawOfAbsorption(FailModes)
 %% BOOLEAN ALGEBRA SIMPLIFICATION %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% number of components in a failure mode
-icomp = 0;
+% compute the sum of the rows ahead of time
+RowSum = sum(~strcmpi(FailModes, ""), 2);
 
 % use failure modes with icomp components to simplify more complex events
-while (icomp <= ncomp)
-    
-    % increment the number of components in the failure mode
-    icomp = icomp + 1;
+for icomp = 1:ncomp
     
     % get the index of the failure modes with icomp components
-    Baseline = find(sum(~strcmpi(FailModes, ""), 2) == icomp);
+    Baseline = find(RowSum == icomp);
     
     % get the number of failure modes in the baseline
     nmode = length(Baseline);
@@ -550,17 +588,14 @@ while (icomp <= ncomp)
         % get the failure
         CurMode = FailModes(Baseline(imode), 1:icomp);
                 
-        % index for the failure modes
-        ifail = 0;
+        % get the current failure index
+        CurIdx = Baseline(imode);
         
-        % loop through all of the failure modes
-        while (ifail < nfail)
-    
-            % increment the failure mode
-            ifail = ifail + 1;
+        % loop through all failure modes
+        parfor ifail = 1:nfail
             
             % check if failure mode is used for comparison
-            if (ifail == Baseline(imode))
+            if (ifail == CurIdx)
                 
                 % continue on
                 continue;
