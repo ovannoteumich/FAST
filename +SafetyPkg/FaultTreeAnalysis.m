@@ -246,6 +246,7 @@ function [Failures] = CreateCutSets(ArchConns, Components, icomp)
 
 %% CHECK FOR AN INTERNAL FAILURE %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+fprintf("icomp = %2d\n", icomp);
 
 % get the downstream components
 idwn = ArchConns{icomp};%find(ArchConns(:, icomp));
@@ -286,7 +287,7 @@ for i = 1:ndwn
     DwnFails{i} = CreateCutSets(ArchConns, Components, idwn(i));
 
 end
-
+fprintf("simplify %d\n", icomp);
 % enumerate the downstream failures, if any exist
 if (ndwn > 0)
     
@@ -311,7 +312,7 @@ else
     Failures = IntFails;
     
 end
-
+fprintf("done %2d\n", icomp);
 
 end
 
@@ -375,6 +376,8 @@ ColIdx = 1;
 
 % loop through each set of components
 for ielem = 1:nelem
+
+    fprintf("    enumerate %d/%d\n", ielem, nelem);
     
     % get the current failure
     CurFail = FailList{ielem};
@@ -446,19 +449,29 @@ for icomp = 1:(ncomp - 1)
     
     % remember the current column
     TempCol = FailModes(:, icomp);
-    
-    % loop through remaining columns
-    parfor jcomp = (icomp+1) : ncomp
-        
+
+    if (icomp == ncomp - 1)
+
         % compare elements in the columns
-        FailModes(:, jcomp) = CompareCols(TempCol, FailModes(:, jcomp));
-        
-%         % compare the strings
-%         StrCmp = strcmpi(FailModes(:, icomp), FailModes(:, jcomp));
-%         
-%         % eliminate all repeated events
-%         FailModes(StrCmp, jcomp) = "";
-        
+        FailModes(:, ncomp) = CompareCols(TempCol, FailModes(:,ncomp));
+
+    else
+
+        fprintf("    idempotent %d/%d\n", icomp, ncomp - 1);
+    
+        % loop through remaining columns
+        parfor jcomp = (icomp+1) : ncomp
+
+            % compare elements in the columns
+            FailModes(:, jcomp) = CompareCols(TempCol, FailModes(:, jcomp));
+
+            %         % compare the strings
+            %         StrCmp = strcmpi(FailModes(:, icomp), FailModes(:, jcomp));
+            %
+            %         % eliminate all repeated events
+            %         FailModes(StrCmp, jcomp) = "";
+
+        end
     end
 end
 
@@ -567,6 +580,8 @@ RowSum = sum(~strcmpi(FailModes, ""), 2);
 
 % use failure modes with icomp components to simplify more complex events
 for icomp = 1:ncomp
+
+    fprintf("    absorbption %d/%d\n", icomp, ncomp);
     
     % get the index of the failure modes with icomp components
     Baseline = find(RowSum == icomp);
@@ -584,6 +599,8 @@ for icomp = 1:ncomp
     
     % loop through all the failure modes
     for imode = 1:nmode
+
+        fprintf("        mode loop %d/%d\n", imode, nmode);
         
         % get the failure
         CurMode = FailModes(Baseline(imode), 1:icomp);
@@ -601,17 +618,20 @@ for icomp = 1:ncomp
                 continue;
                 
             end
+
+            % find matches
+            FailModes(ifail, :) = CheckMatches(FailModes(ifail, :), CurMode, icomp);
             
-            % look for common components
-            CheckCommon = matches(FailModes(ifail, :), CurMode);
-            
-            % check if the current failure is within other failures
-            if (sum(CheckCommon) == icomp)
-                
-                % a failure mode is shared - eliminate the current one
-                FailModes(ifail, :) = "";
-                
-            end                
+            % % look for common components
+            % CheckCommon = matches(FailModes(ifail, :), CurMode);
+            % 
+            % % check if the current failure is within other failures
+            % if (sum(CheckCommon) == icomp)
+            % 
+            %     % a failure mode is shared - eliminate the current one
+            %     FailModes(ifail, :) = "";
+            % 
+            % end                
         end
     end
 end
@@ -630,4 +650,17 @@ KeepCol = any(~strcmpi(FailModes, ""), 1);
 NewModes = FailModes(KeepRow, KeepCol);
 
 
+end
+
+function [FailModes] = CheckMatches(FailModes, CurMode, icomp)
+            % look for common components
+            CheckCommon = matches(FailModes, CurMode);
+            
+            % check if the current failure is within other failures
+            if (sum(CheckCommon) == icomp)
+                
+                % a failure mode is shared - eliminate the current one
+                FailModes(:) = "";
+                
+            end       
 end
