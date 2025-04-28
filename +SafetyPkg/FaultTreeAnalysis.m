@@ -213,7 +213,7 @@ function [Failures] = CreateCutSets(ArchConns, Components, icomp)
 %
 % [Failures] = CreateCutSets(Arch, Components, icomp)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 23 apr 2025
+% last updated: 28 apr 2025
 %
 % List out all components in the cut set for a system architecture. For
 % each function call, check whether an internal failure mode exists and if
@@ -289,15 +289,49 @@ end
 
 % enumerate the downstream failures, if any exist
 if (ndwn > 0)
+        
+    if (ndwn == 1)
+        
+        % get the final set of downstream failures
+        FinalFails = EnumerateFailures(DwnFails);
+        
+        % eliminate duplicate events in single failure mode (idempotent law)
+        FinalFails = IdempotentLaw(FinalFails);
+        
+        % eliminate duplicate events across failure modes (law of absorption)
+        FinalFails = LawOfAbsorption(FinalFails);
+        
+    else
+        
+        % get the first failure
+        TempFails = {DwnFails{1}, DwnFails{2}};
     
-    % get the final set of downstream failures
-    FinalFails = EnumerateFailures(DwnFails);
-    
-    % eliminate duplicate events in single failure mode (idempotent law)
-    FinalFails = IdempotentLaw(FinalFails);
-    
-    % eliminate duplicate events across failure modes (law of absorption)
-    FinalFails = LawOfAbsorption(FinalFails);
+        % loop through each failure
+        for i = 2:ndwn
+            i
+            % enumerate the failures
+            FinalFails = EnumerateFailures(TempFails);
+            if (icomp == 40)
+                [prow1, pcol1] = size(FinalFails)
+            end
+            
+            % simplify
+            FinalFails = IdempotentLaw(  FinalFails);
+            FinalFails = LawOfAbsorption(FinalFails);
+            if (icomp == 40)
+                [prow2, pcol2] = size(FinalFails)
+            end
+            
+            % check if we're done
+            if (i < (ndwn-1))
+                
+                % add the next failure
+                TempFails = {FinalFails, DwnFails{i+1}};
+                
+            end            
+        end
+        
+    end
     
     % get the size of the downstream failures
     [~, ncol] = size(FinalFails);
@@ -386,7 +420,7 @@ for ielem = 1:nelem
     nrep2 = prod(nrow(1:ielem-1));
             
     % loop through all columns
-    parfor icol = 1:ncol(ielem)
+    for icol = 1:ncol(ielem)
         
         % repeatedly represent the matrix elements
         TempCol = repelem(CurFail(:, icol), nrep1);
@@ -448,7 +482,7 @@ for icomp = 1:(ncomp - 1)
     TempCol = FailModes(:, icomp);
     
     % loop through remaining columns
-    parfor jcomp = (icomp+1) : ncomp
+    for jcomp = (icomp+1) : ncomp
         
         % compare elements in the columns
         FailModes(:, jcomp) = CompareCols(TempCol, FailModes(:, jcomp));
@@ -592,7 +626,7 @@ for icomp = 1:ncomp
         CurIdx = Baseline(imode);
         
         % loop through all failure modes
-        parfor ifail = 1:nfail
+        for ifail = 1:nfail
             
             % check if failure mode is used for comparison
             if (ifail == CurIdx)
