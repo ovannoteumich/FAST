@@ -248,7 +248,7 @@ function [Failures] = CreateCutSets(ArchConns, Components, icomp)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % get the downstream components
-idwn = ArchConns{icomp};%find(ArchConns(:, icomp));
+idwn = ArchConns{icomp};
 
 % check if there is an internal failure mode
 if (~strcmpi(Components.FailMode(icomp), "") == 1)
@@ -345,7 +345,6 @@ else
     Failures = IntFails;
     
 end
-
 
 end
 
@@ -486,13 +485,7 @@ for icomp = 1:(ncomp - 1)
         
         % compare elements in the columns
         FailModes(:, jcomp) = CompareCols(TempCol, FailModes(:, jcomp));
-        
-%         % compare the strings
-%         StrCmp = strcmpi(FailModes(:, icomp), FailModes(:, jcomp));
-%         
-%         % eliminate all repeated events
-%         FailModes(StrCmp, jcomp) = "";
-        
+
     end
 end
 
@@ -601,7 +594,7 @@ RowSum = sum(~strcmpi(FailModes, ""), 2);
 
 % use failure modes with icomp components to simplify more complex events
 for icomp = 1:ncomp
-    
+   
     % get the index of the failure modes with icomp components
     Baseline = find(RowSum == icomp);
     
@@ -618,7 +611,7 @@ for icomp = 1:ncomp
     
     % loop through all the failure modes
     for imode = 1:nmode
-        
+       
         % get the failure
         CurMode = FailModes(Baseline(imode), 1:icomp);
                 
@@ -641,10 +634,10 @@ for icomp = 1:ncomp
             
             % check if the current failure is within other failures
             if (sum(CheckCommon) == icomp)
-                
+            
                 % a failure mode is shared - eliminate the current one
                 FailModes(ifail, :) = "";
-                
+            
             end                
         end
     end
