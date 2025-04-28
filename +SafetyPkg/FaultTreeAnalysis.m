@@ -305,7 +305,7 @@ if (ndwn > 0)
         
         % get the first failure
         TempFails = {DwnFails{1}, DwnFails{2}};
-    
+        
         % loop through each failure
         for i = 2:ndwn
             i
@@ -315,8 +315,16 @@ if (ndwn > 0)
                 [prow1, pcol1] = size(FinalFails)
             end
             
+            % for the first time, evaluate all columns
+            if (i == 2)
+                FinalFails = IdempotentLaw(FinalFails);
+                
+            else
+                FinalFails = IdempotentLaw(FinalFails, ColIdx);
+                
+            end
+            
             % simplify
-            FinalFails = IdempotentLaw(  FinalFails);
             FinalFails = LawOfAbsorption(FinalFails);
             if (icomp == 40)
                 [prow2, pcol2] = size(FinalFails)
@@ -328,6 +336,12 @@ if (ndwn > 0)
                 % add the next failure
                 TempFails = {FinalFails, DwnFails{i+1}};
                 
+                % get the number of columns in the array
+                [~, ColIdx] = size(FinalFails);
+                
+                % start reducing at the following column
+                ColIdx = ColIdx + 1;
+                
             end            
         end
         
@@ -337,7 +351,7 @@ if (ndwn > 0)
     [~, ncol] = size(FinalFails);
         
     % add columns and append downstream failures
-    Failures = [IntFails, strings(1, ncol - FailFlag); FinalFails];
+    Failures = [FinalFails; IntFails, strings(1, ncol - FailFlag)];
     
 else
     
@@ -404,7 +418,7 @@ EnumFails = strings(mrow, mcol);
 %%%%%%%%%%%%%%%
 
 % keep track of the column index
-ColIdx = 1;
+ColIdx = 0;
 
 % loop through each set of components
 for ielem = 1:nelem
@@ -441,7 +455,7 @@ end
 % ----------------------------------------------------------
 % ----------------------------------------------------------
 
-function [NewModes] = IdempotentLaw(FailModes)
+function [NewModes] = IdempotentLaw(FailModes, SplitCol)
 %
 % [NewModes] = IdempotentLaw(FailModes)
 % written by Paul Mokotoff, prmoko@umich.edu
@@ -470,18 +484,34 @@ function [NewModes] = IdempotentLaw(FailModes)
 % get the number of failure modes and maximum number of comopnents
 [nmode, ncomp] = size(FailModes);
 
+% check if two arguments are given
+if (nargin < 2)
+    SplitCol = 0;
+end
+
 
 %% BOOLEAN ALGEBRA SIMPLIFICATION %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% check if there is a column to split at
+if (SplitCol > 0)
+    OutIdx =  1 : SplitCol - 1        ;
+    InrIdx = @(x) SplitCol     : ncomp;
+    
+else
+    OutIdx =          1 : ncomp - 1;
+    InrIdx = @(x) x + 1 : ncomp    ;
+    
+end
+
 % loop through all columns except the last one
-for icomp = 1:(ncomp - 1)
+for icomp = OutIdx % formerly 1:(ncomp-1)
     
     % remember the current column
     TempCol = FailModes(:, icomp);
-    
+        
     % loop through remaining columns
-    for jcomp = (icomp+1) : ncomp
+    for jcomp = InrIdx(icomp) % formerly (icomp+1):ncomp
         
         % compare elements in the columns
         FailModes(:, jcomp) = CompareCols(TempCol, FailModes(:, jcomp));
@@ -589,12 +619,12 @@ function [NewModes] = LawOfAbsorption(FailModes)
 %% BOOLEAN ALGEBRA SIMPLIFICATION %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% compute the sum of the rows ahead of time
-RowSum = sum(~strcmpi(FailModes, ""), 2);
-
 % use failure modes with icomp components to simplify more complex events
 for icomp = 1:ncomp
    
+    % compute the sum of the rows ahead of time
+    RowSum = sum(~strcmpi(FailModes, ""), 2);
+    
     % get the index of the failure modes with icomp components
     Baseline = find(RowSum == icomp);
     
