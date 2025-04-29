@@ -213,7 +213,7 @@ function [Failures] = CreateCutSets(ArchConns, Components, icomp)
 %
 % [Failures] = CreateCutSets(Arch, Components, icomp)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 28 apr 2025
+% last updated: 29 apr 2025
 %
 % List out all components in the cut set for a system architecture. For
 % each function call, check whether an internal failure mode exists and if
@@ -303,36 +303,45 @@ if (ndwn > 0)
         
     else
         
-        % get the first failure
+        % get the first sets of failures
         TempFails = {DwnFails{1}, DwnFails{2}};
         
         % loop through each failure
         for i = 2:ndwn
-            i
-            % enumerate the failures
-            FinalFails = EnumerateFailures(TempFails);
-            if (icomp == 40)
-                [prow1, pcol1] = size(FinalFails)
-            end
             
-            % for the first time, evaluate all columns
-            if (i == 2)
-                FinalFails = IdempotentLaw(FinalFails);
+            % make sure both entries are not empty
+            if (~isempty(TempFails{1})) && (~isempty(TempFails{2}))
                 
-            else
-                FinalFails = IdempotentLaw(FinalFails, ColIdx);
+                % enumerate the failures
+                FinalFails = EnumerateFailures(TempFails);
                 
-            end
-            
-            % simplify
-            FinalFails = LawOfAbsorption(FinalFails);
-            if (icomp == 40)
-                [prow2, pcol2] = size(FinalFails)
+                % for the first time, evaluate all columns
+                if (i == 2)
+                    FinalFails = IdempotentLaw(FinalFails);
+                    
+                else
+                    FinalFails = IdempotentLaw(FinalFails, ColIdx);
+                    
+                end
+                
+                % simplify
+                FinalFails = LawOfAbsorption(FinalFails);
+                
+            elseif (isempty(TempFails{1}))
+                
+                % keep only the second set of failures
+                FinalFails = TempFails{2};
+                
+            else % (isempty(TempFails{2}))
+                
+                % keep only the first set of failures
+                FinalFails = TempFails{1};
+                
             end
             
             % check if we're done
-            if (i < (ndwn-1))
-                
+            if (i < ndwn)
+                                
                 % add the next failure
                 TempFails = {FinalFails, DwnFails{i+1}};
                 
@@ -344,14 +353,19 @@ if (ndwn > 0)
                 
             end            
         end
-        
     end
     
     % get the size of the downstream failures
     [~, ncol] = size(FinalFails);
         
     % add columns and append downstream failures
-    Failures = [FinalFails; IntFails, strings(1, ncol - FailFlag)];
+    if (FailFlag == 1)
+        Failures = [FinalFails; IntFails, strings(1, ncol - FailFlag)];
+        
+    else
+        Failures = FinalFails;
+        
+    end
     
 else
     
@@ -459,7 +473,7 @@ function [NewModes] = IdempotentLaw(FailModes, SplitCol)
 %
 % [NewModes] = IdempotentLaw(FailModes)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 23 apr 2025
+% last updated: 28 apr 2025
 %
 % use the idempotent law to eliminate duplicate events in a single failure
 % mode of a fault tree. the idempotent law is a boolean algebra rule,
@@ -588,7 +602,7 @@ function [NewModes] = LawOfAbsorption(FailModes)
 %
 % [NewModes] = LawOfAbsorption(FailModes)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 24 apr 2025
+% last updated: 28 apr 2025
 %
 % use the law of absorbption to eliminate duplicate events across multiple
 % failure modes in a fault tree. the law of absorbption is a boolean
@@ -644,6 +658,11 @@ for icomp = 1:ncomp
        
         % get the failure
         CurMode = FailModes(Baseline(imode), 1:icomp);
+        
+        % check if the current mode has any failure modes left
+        if (sum(strcmpi(CurMode, ""), 2) == icomp)
+            continue;
+        end
                 
         % get the current failure index
         CurIdx = Baseline(imode);
