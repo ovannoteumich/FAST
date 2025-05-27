@@ -2,7 +2,7 @@ function [Pfail, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 %
 % [Pfail, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 23 apr 2025
+% last updated: 27 may 2025
 %
 % Given an adjacency-like matrix, find the minimum cut sets that account
 % for internal failures and redundant primary events. then, using the
@@ -115,9 +115,15 @@ end
 %% PRE-PROCESSING %%
 %%%%%%%%%%%%%%%%%%%%
     
+% check for connections
+ConnCheck = Arch > 0;
+
 % count the number of input/output connections
-ninput  = sum(Arch, 1)';
-noutput = sum(Arch, 2) ;
+ninput  = sum(ConnCheck, 1)';
+noutput = sum(ConnCheck, 2) ;
+
+% count the number of elements to trigger the gate
+ntrigger = sum(Arch, 1)' ./ ninput;
 
 % find the sources, sinks, and transmitters
 isrc = find(ninput  == 0);
@@ -373,6 +379,7 @@ else
     Failures = IntFails;
     
 end
+
 
 end
 
