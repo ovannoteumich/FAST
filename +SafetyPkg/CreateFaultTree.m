@@ -1,8 +1,8 @@
-function [] = CreateFaultTree(Arch, Components, RemoveSrc)
+function [B, NodeLabels] = CreateFaultTree(Arch, Components, RemoveSrc)
 %
 % CreateFaultTree.m
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 21 oct 2024
+% last updated: 24 apr 2025
 %
 % Given an adjacency-like matrix, assemble a fault tree that accounts for
 % internal failures and redundant primary events.
@@ -27,9 +27,14 @@ function [] = CreateFaultTree(Arch, Components, RemoveSrc)
 %                  size/type/units: 1-by-1 / int / []
 %
 % OUTPUTS:
-%     none
+%     B          - architecture matrix with gates included.
+%                  size/type/units: m-by-m / integer / []
+%
+%     NodeLabels - the names of the nodes in the fault tree.
+%                  size/type/units: m-by-1 / string / []
 %
 
+close all
 
 %% CHECK FOR VALID INPUTS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -151,21 +156,15 @@ for ipath = 1:nsrc
     [~, PathLength(ipath)] = shortestpath(DG, isrc(ipath), isnk);
 end
 
-% get the longest path for the maximum number of redundant primary events
-nred = max(PathLength);
-
-% remember the initial architecture (before adding other failures)
-InitArch = Arch;
-
 
 %% COUNT THE INTERNAL/DOWNSTREAM/PRIMARY FAILURES %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % check which internal failures are available
-iinf = ~strcmpi(Components.FailMode, "") & ninput ~= 0;
+iinf = ~strcmpi(Components.FailMode, "");
 
-% add internal/downstream failures for all components and redundant fails
-nadd = 2 * ncomp + nred; %ndwn + ninf + nred;
+% add internal/downstream failures for all components
+nadd = 2 * ncomp;
 
 % add as many entries to the matrix as needed
 Arch = [Arch, zeros(nrow, nadd); zeros(nadd, ncol), zeros(nadd)];
@@ -175,7 +174,7 @@ NewSize = nrow + nadd;
 
 % add entries to the component structure
 Components.Name     = [Components.Name    ; repmat("", nadd, 1)];
-Components.Type     = [Components.Type    ; repmat("", nadd, 1)];
+% Components.Type     = [Components.Type    ; repmat("", nadd, 1)];
 Components.FailRate = [Components.FailRate; zeros(     nadd, 1)];
 Components.FailMode = [Components.FailMode; repmat("", nadd, 1)];
 
@@ -184,13 +183,10 @@ Components.FailMode = [Components.FailMode; repmat("", nadd, 1)];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % indices for internal failure modes (offset by number of components)
-IntrFailIdx = nrow + (1:ncomp)';%cumsum(iinf);
+IntrFailIdx = nrow + (1:ncomp)';
 
 % indices for downstream failures (offset by maximum index thus far)
-DownFailIdx = max(IntrFailIdx) + (1:ncomp)';%cumsum(ninput > 1);
-
-% indices for redundant primary events (offset by maximum index thus far)
-RednFailIdx = max(DownFailIdx) + (1:nred)';
+DownFailIdx = max(IntrFailIdx) + (1:ncomp)';
 
 % loop through the components
 for irow = 1:nrow
@@ -218,7 +214,7 @@ for irow = 1:nrow
         
         % update the component structure
         Components.Name(    DownFailIdx(irow)) = strcat(Components.Name(irow), " Downstream Failure");
-        Components.Type(    DownFailIdx(irow)) =        Components.Type(irow);
+%         Components.Type(    DownFailIdx(irow)) =        Components.Type(irow);
         Components.FailMode(DownFailIdx(irow)) =                                "Downstream"         ;
                 
     end
@@ -230,8 +226,8 @@ for irow = 1:nrow
         Arch(IntrFailIdx(irow), irow) = 1;
         
         % move the component failure to the internal failure
-        Components.Name(    IntrFailIdx(irow)) = strcat(Components.Name(    irow), " Internal Failure");
-        Components.Type(    IntrFailIdx(irow)) = Components.Type(    irow);
+        Components.Name(    IntrFailIdx(irow)) = strcat(Components.Name(    irow), " Failure");
+%         Components.Type(    IntrFailIdx(irow)) = Components.Type(    irow);
         Components.FailRate(IntrFailIdx(irow)) = Components.FailRate(irow);
         Components.FailMode(IntrFailIdx(irow)) = Components.FailMode(irow);
         
@@ -241,73 +237,8 @@ for irow = 1:nrow
     end
     
     % convert the name of the component to represent a failure
-    Components.Name(    irow) = strcat(Components.Name(irow), " Failure");
-    Components.FailMode(irow) = "Failure";
-    
-end
-
-% assume all redundant primary event spaces will be used
-Components.Name(    RednFailIdx) = strcat("Primary Event Fail", num2str((1:nred)'));
-Components.FailRate(RednFailIdx) = 0;
-Components.FailMode(RednFailIdx) = strcat("Primary Event Fail", num2str((1:nred)'));
-
-
-%% ACCOUNT FOR REDUNDANT PRIMARY EVENTS %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% index for the redundant failure mode
-ired = 1;
-
-% loop through until there's no more redundant events
-while (ired <= nred)
-        
-    % count the number of input/output connections
-    ninput  = sum(InitArch, 1)';
-    noutput = sum(InitArch, 2) ;
-    
-    % find the duplicate primary events
-    DuplicEvents = noutput > 1 & ninput == 0;
-
-    % check if there are any duplicate events
-    if (~any(DuplicEvents))
-        
-        % if there are none, break out of the loop
-        break;
-        
-    end
-    
-    % find the duplicate events
-    idup = find(DuplicEvents');
-    
-    % zero all rows unaffected by the duplicate
-    TempInitArch = zeros(ncomp  );
-    TempArch     = zeros(NewSize);
-    
-    % use only the rows with duplicate events
-    TempInitArch(idup, :) = InitArch(idup, :);
-    TempArch(    idup, :) = Arch(    idup, :);
-    
-    % get the output flows
-    [InitOutRow, InitOutCol] = find(TempInitArch);
-    [OutFlowRow, OutFlowCol] = find(TempArch    );
-    
-    % remove the connections from the duplicates
-    Arch(OutFlowRow, OutFlowCol) = 0;
-    
-    % connect to the primary redundant failure
-    Arch(idup, RednFailIdx(ired)) = 1;
-    
-    % connect the primary redundant failure to the sink
-    Arch(RednFailIdx(ired), isnk) = 1;
-    
-    % update the initial architecture
-    InitArch(InitOutRow, InitOutCol) = 0;
-    
-    % connect the primary reduandant failure to the sink
-    InitArch(idup, isnk) = 1;
-    
-    % increment the reduction failure index
-    ired = ired + 1;
+    Components.Name(    irow) = strcat(Components.Name(irow), " Overall Failure");
+    Components.FailMode(irow) = "Overall Failure";
     
 end
 
@@ -332,8 +263,8 @@ Arch(DownFailIdx(RemoveDownFail), :) = 0;
 ninput  = sum(Arch, 1)';
 noutput = sum(Arch, 2) ;
 
-% find the excess nodes with one input/output
-Extras = find(ninput == 1 & noutput == 1)';
+% find the excess nodes with one input/output --- FIX!
+Extras = find(ninput == 1 & (contains(Components.Name, "Failure") | noutput == 1))';
 
 % loop through each extra
 for iextra = Extras
@@ -362,7 +293,7 @@ Arch(:, Island) = [];
 
 % remove the islands' node labels
 Components.Name(    Island) = [];
-Components.Type(    Island) = [];
+% Components.Type(    Island) = [];
 Components.FailRate(Island) = [];
 Components.FailMode(Island) = [];
 
@@ -430,7 +361,7 @@ for icomp = (nrow+1):NewSize
 end
 
 % draw the fault tree
-SafetyPkg.DrawFaultTree(Arch, Components);
+[B, NodeLabels] = SafetyPkg.DrawFaultTree(Arch, Components);
 
 % ----------------------------------------------------------
 

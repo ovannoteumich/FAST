@@ -1,8 +1,8 @@
-function [] = DrawFaultTree(Arch, Components)
+function [B, NodeLabels] = DrawFaultTree(Arch, Components)
 %
-% [] = DrawFaultTree(Arch, Components)
+% [B, NodeLabels] = DrawFaultTree(Arch, Components)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 04 oct 2024
+% last updated: 27 may 2025
 %
 % Draw a fault tree from the adjacency matrix of a directed graph with
 % the names of the given components.
@@ -28,14 +28,19 @@ function [] = DrawFaultTree(Arch, Components)
 %                  size/type/units: 1-by-1 / struct / []
 %
 % OUTPUTS:
-%     none
+%
+%     B          - the architecture matrix needed to draw the fault tree.
+%                  size/type/units: n-by-n / integer / []
+%
+%     NodeLabels - name of each node in the fault tree (including gates).
+%                  size/type/units: n-by-1 / string / []
 %
 
 
 %% PROCESS THE MATRIX %%
 %%%%%%%%%%%%%%%%%%%%%%%%
 
-% since we move from power sink to energy source, switch the direction
+% since we move from sink to source, switch the direction
 Arch = Arch';
 
 % get the number of nodes
@@ -54,6 +59,12 @@ NodeLabels = Components.Name;
 % create the graph
 G0 = digraph(Arch, NodeLabels);
 
+% remember for the gates' names
+GateLabels = strcat(Components.GateType, num2str(Components.GateIdx));
+
+% create new node labels
+NodeLabels = [NodeLabels; GateLabels];
+
 
 %% ADD THE LOGIC GATES %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -71,7 +82,8 @@ for istep = 1:height(BPath)
     CurEvent = BPath.Event(istep);
     
     if ((CurEvent == "edgetonew"       ) || ...
-        (CurEvent == "edgetodiscovered"))
+        (CurEvent == "edgetodiscovered") || ...
+         CurEvent == "edgetofinished"  )
         
         % get the beginning and ending nodes
         BegNode = BPath.Edge(istep, 1);
@@ -90,11 +102,28 @@ for istep = 1:height(BPath)
     end        
 end
 
-% remember for the gates' names
-GateLabels = strcat(Components.GateType, num2str(Components.GateIdx));
+% find the excess nodes with one input/output
+Extras = find(sum(B, 1)' == 1 & sum(B, 2) == 1)';
 
-% create new node labels
-NodeLabels = [NodeLabels; GateLabels];
+% loop through each extra
+for iextra = Extras
+    
+    % get the row where the flow starts
+    irow = find(B(:, iextra));
+    
+    % get the column where the flow ends
+    icol = find(B(iextra, :));
+    
+    % remove the flows
+    B(irow, iextra) = 0;
+    B(iextra, icol) = 0;
+    
+    % connect the flow directly from beginning to end
+    B(irow, icol) = 1;
+    
+end
+
+
 
 % find vertices that are islands
 Island = find((sum(B, 1)' == 0) & (sum(B, 2) == 0));
