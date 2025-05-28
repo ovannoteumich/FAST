@@ -1,10 +1,10 @@
-function [CDF] = SkinFrictionDrag(Inputs, Options)
+function [CDF] = SkinFrictionDrag(Inputs)
 %
-% [SkinFrictionDragCoeff] = SkinFrictionDrag(Inputs, Options)
+% [SkinFrictionDragCoeff] = SkinFrictionDrag(Inputs)
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after Aviary's "compute" method in skin_friction_drag.py,
 % translated by Cursor, an AI Code Editor
-% last updated: 27 may 2025
+% last updated: 28 may 2025
 %
 % compute the skin friction drag coefficient for a given aircraft
 % configuration.
@@ -13,12 +13,9 @@ function [CDF] = SkinFrictionDrag(Inputs, Options)
 %     Inputs  - data structure with all necessary inputs.
 %               size/type/units: 1-by-1 / struct / []
 %
-%     Options - data structure with configuration options.
-%               size/type/units: 1-by-1 / struct / []
-%
 % OUTPUTS:
 %     CDF     - skin friction drag coefficient
-%               size/type/units: 1-by-1 / double / []
+%               size/type/units: npnt-by-1 / double / []
 %
 
 
@@ -33,11 +30,8 @@ Swet     = Inputs.WettedAreas; % (1-by-ncomp)
 LamUp    = Inputs.LaminarFractionsUpper; % (1-by-ncomp)
 LamLow   = Inputs.LaminarFractionsLower; % (1-by-ncomp)
 Swing    = Inputs.WingArea; % scalar
-
-% extract the options
-Nc               = Options.NumComponents; % scalar
-AirfoilTech      = Options.AirfoilTechnology; % scalar
-ExcrescencesDrag = Options.ExcrescencesDrag; % scalar
+AirfoilTech      = Inputs.AirfoilTechnology; % scalar
+ExcrescencesDrag = Inputs.ExcrescencesDrag; % scalar
 
 
 %% COMPUTE THE SKIN FRICTION DRAG COEFFICIENT %%
@@ -59,7 +53,7 @@ if (LaminarFlow == 1)
 end
 
 % allocate memory for the form factor
-FormFactor = zeros(1, Nc);
+FormFactor = zeros(1, length(Fineness));
 
 % define the factor coefficients
 F = [4.34255, -1.14281,  0.171203,    -0.0138334,    0.621712e-3,      0.137442e-6, -0.145532e-4, ...

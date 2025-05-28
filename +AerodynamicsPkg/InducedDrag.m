@@ -4,7 +4,7 @@ function [CDi] = InducedDrag(Inputs)
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after Aviary's "compute" method in induced_drag.py,
 % translated by Cursor, an AI Code Editor
-% last updated: 27 may 2025
+% last updated: 28 may 2025
 %
 % INPUTS:
 %     Inputs - data structure with all necessary inputs.
@@ -12,7 +12,7 @@ function [CDi] = InducedDrag(Inputs)
 %
 % OUTPUTS:
 %     CDi    - induced drag coefficient.
-%              size/type/units: 1-by-1 / double / []
+%              size/type/units: npnt-by-1 / double / []
 %
 
 
@@ -22,9 +22,9 @@ function [CDi] = InducedDrag(Inputs)
 % get all inputs
 Mach = Inputs.Mach;
 Lift = Inputs.Lift;
-P = Inputs.P;
-Sref = Inputs.Sref;
-AR = Inputs.AR;
+P = Inputs.Pressure;
+Sref = Inputs.WingArea;
+AR = Inputs.AspectRatio;
 SpanEfficiencyFactor = Inputs.SpanEfficiencyFactor;
 SW25 = Inputs.SW25;
 TR = Inputs.TR;
@@ -36,7 +36,7 @@ Redux = Inputs.Redux;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % calculate the lift coefficient
-CL = 2.0 * Lift / (Sref * Gamma * P * Mach ^ 2);
+CL = 2.0 .* Lift ./ (Sref .* Gamma .* P .* Mach .^ 2);
 
 % check for the redux flag
 if (Redux)
@@ -67,7 +67,7 @@ else
 end
 
 % calculate the basic induced drag
-CDi = CL^2 / (pi * AR * SpanEfficiency);
+CDi = CL .^ 2 ./ (pi * AR * SpanEfficiency);
 
 % if forward sweep, add Warner Robins Factor
 if real(SW25) < 0.0
@@ -83,7 +83,7 @@ if real(SW25) < 0.0
     CAYT = 0.5 * ((1.1 - 0.11/(1.1 - Mach * COSA))/(1.1 - 0.11/(1.1 - Mach * COSB)) - 1.0)^2;
     
     % scale the induced drag coefficient
-    CDi = CDi + CAYT * CL^2;
+    CDi = CDi + CAYT .* CL .^ 2;
     
 end
 

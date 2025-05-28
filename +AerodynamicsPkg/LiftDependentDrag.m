@@ -4,7 +4,7 @@ function [CDi] = LiftDependentDrag(Inputs)
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after Aviary's "compute" method in lift_dependent_drag.py,
 % translated by Cursor, an AI Code Editor
-% last updated: 27 may 2025
+% last updated: 28 may 2025
 %
 % compute the lift dependent drag for a configuration.
 %
@@ -14,7 +14,7 @@ function [CDi] = LiftDependentDrag(Inputs)
 %
 % OUTPUTS:
 %     CDi    - induced drag coefficient due to lift.
-%              size/type/units: 1-by-1 / double / []
+%              size/type/units: npnt-by-1 / double / []
 %
 
 
@@ -25,7 +25,7 @@ function [CDi] = LiftDependentDrag(Inputs)
 Mach = Inputs.Mach;
 L = Inputs.Lift;
 P = Inputs.Pressure;
-CL = Inputs.LiftCoeff;
+CL = Inputs.DesignLiftCoefficient;
 DesignMach = Inputs.DesignMach;
 Swing = Inputs.WingArea;
 AR = Inputs.AspectRatio;
@@ -88,7 +88,7 @@ for i = 1:nnodes
             arrA = [0.5, 1, 2, 4, 6];
             
             % interpolate along the interior
-            FCDP(i) = InnerInterp(arrA, FCDP1, FCDP2, FCDP3, FCDP4, FCDP5, A);
+            FCDP(i) = InnerInterp(arrA, [FCDP1, FCDP2, FCDP3, FCDP4, FCDP5], A);
             
         else
             
@@ -134,7 +134,7 @@ for i = 1:nnodes
             arrA = [0.7, 0.8, 1.0, 1.2, 1.4];
             
             % interpolate along the interior
-            FCDP(i) = InnerInterp(arrA, FCDP1, FCDP2, FCDP3, FCDP4, FCDP5, A);
+            FCDP(i) = InnerInterp(arrA, [FCDP1, FCDP2, FCDP3, FCDP4, FCDP5], A);
             
         elseif ((A > 1.4) && (A <= 2.0))
             
@@ -149,7 +149,7 @@ for i = 1:nnodes
             arrA = [1.2, 1.4, 1.6, 1.8, 2.0];
             
             % interpolate along the interior
-            FCDP(i) = InnerInterp(arrA, FCDP1, FCDP2, FCDP3, FCDP4, FCDP5, A);
+            FCDP(i) = InnerInterp(arrA, [FCDP1, FCDP2, FCDP3, FCDP4, FCDP5], A);
             
         else
             
@@ -257,7 +257,7 @@ function [AR05, AR1, AR2, AR4, AR6, ARS07, ARS08, ARS10, ARS12, ARS14, ARS16, AR
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after the code from Aviary's"lift_dependent_drag.py",
 % translated by Cursor, an AI Code Editor
-% last updated: 27 may 2025
+% last updated: 28 may 2025
 %
 % setup tables for interpolating a drag parameter as a function of mach
 % number and lift coefficient change.
@@ -281,6 +281,7 @@ dM  = [-0.80, -0.20, -0.16, -0.12, -0.08, -0.04, -0.02, 0.00, 0.02, 0.04, 0.05];
 
 % define the function values
 FCDP = [ ...
+    0.001500, 0.000400, 0.001500, 0.002400, 0.003500, 0.006000, 0.014000, 0.028000, 0.082500, 0.150000; ...
     0.001500, 0.000400, 0.001500, 0.002400, 0.003500, 0.006000, 0.014000, 0.028000, 0.082500, 0.150000; ...
     0.001500, 0.000400, 0.001500, 0.002400, 0.003500, 0.006000, 0.014000, 0.028000, 0.082500, 0.150000; ...
     0.001500, 0.000400, 0.001500, 0.002400, 0.003500, 0.006000, 0.014000, 0.028000, 0.082500, 0.150000; ...

@@ -4,7 +4,7 @@ function [CDcomp] = CompressibilityDrag(Inputs)
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after Aviary's "compute" method in compressibility_drag.py,
 % translated by Cursor, an AI Code Editor
-% last updated: 27 may 2025
+% last updated: 28 may 2025
 %
 % compute the compressibility drag coefficient.
 %
@@ -18,6 +18,13 @@ function [CDcomp] = CompressibilityDrag(Inputs)
 %
 
 
+%% PARSE INPUTS %%
+%%%%%%%%%%%%%%%%%%
+
+Mach = Inputs.Mach;
+DesignMach = Inputs.DesignMach;
+
+
 %% COMPUTE THE COMPRESSIBILITY DRAG COEFFICIENT %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -25,14 +32,14 @@ function [CDcomp] = CompressibilityDrag(Inputs)
 [PCWtable, BSUBtable, PCARtable, BSUPtable, WFItable] = InitializeTables();
 
 % calculate mach number difference relative to the design mach number
-DelMach = Inputs.Mach - Inputs.DesignMach;
+DelMach = Mach - DesignMach;
 
 % find indices for supersonic and subsonic regions
 IdxSuper = find(DelMach >  0.05);
 IdxSub   = find(DelMach <= 0.05);
 
 % initialize output array
-CDcomp = zeros(size(Inputs.Mach));
+CDcomp = zeros(size(Mach));
 
 % calculate drag for supersonic regions if any exist
 if (~isempty(IdxSuper))
@@ -57,7 +64,7 @@ function [CDcomp] = ComputeSupersonic(Inputs, Idx, PCAR, BSUP, WFI)
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after Aviary's "_compute_supersonic" method in
 % compressibility_drag.py, translated by Cursor, an AI Code Editor
-% last updated: 27 may 2025
+% last updated: 28 may 2025
 %
 % compute the compressibility drag coefficient in supersonic regions.
 %
@@ -91,10 +98,10 @@ Mach = Inputs.Mach(Idx);
 NumNodes = length(Mach);
 DelMach = Mach - Inputs.DesignMach;
 AR = Inputs.AspectRatio;
-TC = Inputs.ThicknessToChord;
-MaxCamber70 = Inputs.MaxCamberAt70Semispan;
-Sweep25 = Inputs.Sweep;
-WingTaperRatio = Inputs.TaperRatio;
+TC = Inputs.ThicknessChord;
+MaxCamber70 = Inputs.MaxCamber;
+Sweep25 = Inputs.SW25;
+WingTaperRatio = Inputs.TR;
 FuseArea = Inputs.FuselageCrossSection;
 BaseArea = Inputs.BaseArea;
 WingArea = Inputs.WingArea;
@@ -154,7 +161,7 @@ if (FuseArea > 0.0)
         X(:, 2) = DiamToWingSpanRatio;
         
         % interpolate CD5
-        CD5 = WFI(X(IdxMach));
+        CD5 = WFI(X(IdxMach, :));
         
         % if the taper ratio is 1, change it (special case)
         if WingTaperRatio == 1.0
@@ -183,7 +190,7 @@ function [CDcomp] = ComputeSubsonic(Inputs, Idx, PCW, BSUB)
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after Aviary's "_compute_subsonic" method in
 % compressibility_drag.py, translated by Cursor, an AI Code Editor
-% last updated: 27 may 2025
+% last updated: 28 may 2025
 %
 % compute the compressibility drag coefficient in subsonic regions.
 %
@@ -213,8 +220,8 @@ function [CDcomp] = ComputeSubsonic(Inputs, Idx, PCW, BSUB)
 Mach = Inputs.Mach(Idx);
 NumNodes = length(Mach);
 DelMach = Mach - Inputs.DesignMach;
-TC = Inputs.ThicknessToChord;
-MaxCamber70 = Inputs.MaxCamberAt70Semispan;
+TC = Inputs.ThicknessChord;
+MaxCamber70 = Inputs.MaxCamber;
 FuseArea = Inputs.FuselageCrossSection;
 BaseArea = Inputs.BaseArea;
 WingArea = Inputs.WingArea;
