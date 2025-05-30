@@ -1,11 +1,12 @@
 % Contents of AerodynamicsPkg package:
 %
-% README            - AerodynamicsPkg.README is a function.
+% README                  - AerodynamicsPkg.README is a function.
 %
 % Functions
 % -------------------------------------------------------------------------
-% SkinFrictionDrag  - AerodynamicsPkg.SkinFrictionDrag is a function.
-% InducedDragModel  - AerodynamicsPkg.InducedDragModel is a function.
-% CompressDragCoeff - AerodynamicsPkg.CompressDragCoeff is a function.
-% LiftDependentDrag - AerodynamicsPkg.LiftDependentDrag is a function.
+% CompressibilityDrag     - AerodynamicsPkg.CompressibilityDrag is a function.
+% ComputeDragCoefficients - AerodynamicsPkg.ComputeDragCoefficients is a function.
+% InducedDrag             - AerodynamicsPkg.InducedDrag is a function.
+% LiftDependentDrag       - AerodynamicsPkg.LiftDependentDrag is a function.
+% SkinFrictionDrag        - AerodynamicsPkg.SkinFrictionDrag is a function.
 % 
