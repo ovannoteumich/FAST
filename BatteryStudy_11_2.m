@@ -129,28 +129,28 @@ plot(1:length(loadedData),weight, "LineWidth", 2);
 
 
 
-%% Conceptual Battery degradation study (没啥用)
+%% Battery ground charging testing
+clc;clear;close all
+SizedERJ = Main(AircraftSpecsPkg.ERJ175LR, @MissionProfilesPkg.ERJ_ClimbThenAccel);
 
-SOHss = [];
-FECss = 0;
-FEC_info = [];
 
-for i = 1:1000
-    [a, b] = BatteryPkg.CyclAging(SizedERJ, 1, FECss, 30*60,-250000);
+ChargedERJ = BatteryPkg.GroundCharge(SizedERJ, 60*60, -500e3);
 
-    if a < 70
-        break
-    end
-    FECss = b;
-    FEC_info(i) = FECss;
-    SOHss(i) = a;
-end
 
-plot(SOHss, LineWidth= 2)
-xlabel('Battery Cycling Times');
+figure(1)
+plot(ChargeERJ.Mission.History.SI.Power.ChargedAC.C_rate, 'LineWidth', 2);
+hold on
+yline(70, 'r--', 'LineWidth', 2); % More efficient way to plot a horizontal line at y=70
+hold off
+xlabel('Flight Cycling Times');
 ylabel("Battery SOH [%]");
+% xlim([0 FECs(end)]);
 grid on
 title('Battery Degradation')
+
+
+
+
 
 
 %% OFF-design test
@@ -397,16 +397,37 @@ title('Battery Cycle Life vs Charging Power', 'FontSize', 14);
 set(gca, 'XDir', 'reverse'); % Reverse x-axis to show -100 kW to -250 kW
 
 
-%%
-SOCValues = [];
-SOCValues(end+1, 1)=SizedERJ.Mission.History.SI.Power.SOC(1,2);
-for i = 2:length(SizedERJ.Mission.History.SI.Power.SOC(:,2))
-    if SizedERJ.Mission.History.SI.Power.SOC(i,2) - SizedERJ.Mission.History.SI.Power.SOC(i-1,2) ~= 0
-        SOCValues(end+1, 1) = SizedERJ.Mission.History.SI.Power.SOC(i,2);
+%% Battery Charging Model testing (dynamic array power strategy input generation function)
+clc;clear
+function P = randomChargingSegments(TotalTime, minSegLen, maxSegLen)
+    if minSegLen < 1 || maxSegLen < minSegLen
+        error('Require 1 ≤ minSegLen ≤ maxSegLen.');
+    end
+    P = zeros(TotalTime, 1); 
+    idx = 1;                  
+    while idx <= TotalTime
+        segLen = randi([minSegLen, maxSegLen]);
+        if idx + segLen - 1 > TotalTime
+            segLen = TotalTime - idx + 1;
+        end
+        powerLevel = randi([250e3, 750e3]);
+        P(idx : idx + segLen - 1) = -powerLevel;
+        idx = idx + segLen;
     end
 end
-mSOC = mean(SOCValues)
 
-a = SizedERJ.Mission.History.SI.Power.SOC(:,2)
-active_mSOC = a([true; diff(a) ~= 0]);
-mSOC = mean(active_mSOC)
+TotalTime= 1500;
+minSegLen= 100;
+maxSegLen= 300;
+PowerStrategy = randomChargingSegments(TotalTime, minSegLen, maxSegLen);
+
+figure;
+stairs(PowerStrategy, 'LineWidth', 1.2);
+xlabel('Time');
+ylabel('Charging Power (kW)');
+title('Random Charging Strategy');
+
+
+SizedERJ = Main(AircraftSpecsPkg.ERJ175LR, @MissionProfilesPkg.ERJ_ClimbThenAccel);
+
+ChargedERJ = BatteryPkg.GroundCharge(SizedERJ, 60*60, -250e3);
