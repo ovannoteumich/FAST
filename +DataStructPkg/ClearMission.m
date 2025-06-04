@@ -2,7 +2,7 @@ function [Aircraft] = ClearMission(Aircraft, ielem)
 %
 % [Aircraft] = ClearMission(Aircraft, ielem)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 11 jun 2024
+% last updated: 04 jun 2025
 %
 % Reset all of the information from the Aircraft.Mission.History.SI.*
 % sub-structure to 0s. This is needed each time a mission is re-flown.
@@ -56,6 +56,11 @@ if (ielem == 0)
     Aircraft.Mission.History.SI.Performance.Mach(:, :) = 0;
     Aircraft.Mission.History.SI.Performance.Rho( :, :) = 0;
     Aircraft.Mission.History.SI.Performance.Ps(  :, :) = 0;
+    
+    % aerodynamic data
+    Aircraft.Mission.History.SI.Aero.CL( :, :) = 0;
+    Aircraft.Mission.History.SI.Aero.CD( :, :) = 0;
+    Aircraft.Mission.History.SI.Aero.L_D(:, :) = 0;
     
     % propulsion data
     Aircraft.Mission.History.SI.Propulsion.TSFC(    :, :) = 0;
@@ -122,6 +127,11 @@ else
     Aircraft.Mission.History.SI.Performance.Mach(ielem:end, :) = 0;
     Aircraft.Mission.History.SI.Performance.Rho( ielem:end, :) = 0;
     Aircraft.Mission.History.SI.Performance.Ps(  ielem:end, :) = 0;
+    
+    % aerodynamic data
+    Aircraft.Mission.History.SI.Aero.CL( ielem:end, :) = 0;
+    Aircraft.Mission.History.SI.Aero.CD( ielem:end, :) = 0;
+    Aircraft.Mission.History.SI.Aero.L_D(ielem:end, :) = 0;
     
     % propulsion data
     Aircraft.Mission.History.SI.Propulsion.TSFC(    ielem:end, :) = 0;
