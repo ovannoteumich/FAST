@@ -2,7 +2,7 @@ function [Aircraft] = PreSpecProcessing(Aircraft)
 %
 % [Aircraft] = PreSpecProcessing(Aircraft)
 % written by Max Arnson, marnson@umich.edu
-% last updated: 29 mar 2024
+% last updated: 04 jun 2025
 %
 % Instantiate any variables not specified in an aircraft data structure.
 % This function allows users to neglect to assign NaN values to parameters
@@ -30,6 +30,7 @@ if ~ isfield(Aircraft,"Specs")
     Aircraft.Specs.Performance.Alts.Crs = NaN;
     Aircraft.Specs.Performance.RCMax = NaN;
     Aircraft.Specs.Performance.Range = NaN;
+    Aircraft.Specs.Aero.L_D.Method = NaN;
     Aircraft.Specs.Aero.L_D.Clb = NaN;
     Aircraft.Specs.Aero.L_D.Crs = NaN;
     Aircraft.Specs.Aero.L_D.Des = NaN;
@@ -145,16 +146,21 @@ else
     % Aerodynamics
 
     if ~isfield(Aircraft.Specs,"Aero")
-        Aircraft.Specs.Aero.L_D.Clb = NaN;
-        Aircraft.Specs.Aero.L_D.Crs = NaN;
-        Aircraft.Specs.Aero.L_D.Des = NaN;
-        Aircraft.Specs.Aero.W_S.SLS = NaN;
+        Aircraft.Specs.Aero.L_D.Method = NaN;
+        Aircraft.Specs.Aero.L_D.Clb    = NaN;
+        Aircraft.Specs.Aero.L_D.Crs    = NaN;
+        Aircraft.Specs.Aero.L_D.Des    = NaN;
+        Aircraft.Specs.Aero.W_S.SLS    = NaN;
     else
         if ~isfield(Aircraft.Specs.Aero,"L_D")
-            Aircraft.Specs.Aero.L_D.Clb = NaN;
-            Aircraft.Specs.Aero.L_D.Crs = NaN;
-            Aircraft.Specs.Aero.L_D.Des = NaN;
+            Aircraft.Specs.Aero.L_D.Method = NaN;
+            Aircraft.Specs.Aero.L_D.Clb    = NaN;
+            Aircraft.Specs.Aero.L_D.Crs    = NaN;
+            Aircraft.Specs.Aero.L_D.Des    = NaN;
         else
+            if ~isfield(Aircraft.Specs.Aero.L_D, "Method")
+                Aircraft.Specs.Aero.L_D.Method = NaN;
+            end
             if ~isfield(Aircraft.Specs.Aero.L_D,"Clb")
                 Aircraft.Specs.Aero.L_D.Clb = NaN;
             end

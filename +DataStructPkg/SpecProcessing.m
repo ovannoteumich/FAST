@@ -2,7 +2,7 @@ function [Aircraft] = SpecProcessing(Aircraft)
 %
 % [Aircraft] = SpecProcessing(Aircraft)
 % written by Maxfield Arnson, marnson@umich.edu
-% lasat updated: 24 apr 2024
+% lasat updated: 04 jun 2025
 %
 % This function initializes mission outputs, runs regressions, and
 % overwrites values left as NaN in the user input. It prepares the aircraft
@@ -283,6 +283,7 @@ switch TLAR.Class
 end
 % DefaultAero.L_D.Clb = 15;                    % 0.6*cruise L_D
 %DefaultAero.L_D.Crs = 15;                     % regression
+DefaultAero.L_D.Method = @(Aircraft) AerodynamicsPkg.ConstantLD(Aircraft);
 %DefaultWeight.MTOW = 0;                     % regression
 DefaultWeight.MLW = 0;                      % good
 DefaultWeight.Batt = 0;                      % good
