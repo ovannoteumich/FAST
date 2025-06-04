@@ -3,7 +3,7 @@ function [Aircraft] = EvalClimb(Aircraft)
 % [Aircraft] = EvalClimb(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
 % patterned after code written by Gokcin Cinar in E-PASS
-% last updated: 19 dec 2024
+% last updated: 04 jun 2025
 %
 % Evaluate a climb segment by iterating over the power required. While
 % iterating over the power required, the drag and specific excess power
@@ -36,8 +36,11 @@ function [Aircraft] = EvalClimb(Aircraft)
 % maximum rate of climb
 dh_dtMax = Aircraft.Specs.Performance.RCMax;
 
-% lift-drag ratio
-L_D = Aircraft.Specs.Aero.L_D.Clb;
+% wing area
+S = Aircraft.Specs.Aero.S;
+
+% get the L_D computation method
+AeroMethod = Aircraft.Specs.Aero.L_D.Method;
 
 % ----------------------------------------------------------
 
@@ -110,6 +113,9 @@ MaxIter = 10;
 % segment initialization     %
 %                            %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% remember the current segment
+Aircraft.Mission.History.Segment(SegBeg:SegEnd) = "Climb";
 
 % vector of equally spaced altitudes
 Alt = linspace(AltBeg, AltEnd, npoint)'; % m
@@ -319,6 +325,15 @@ while (iter < MaxIter)
     % estimate the lift
     L = Mass .* g .* cosd(FPA);
     
+    % compute the lift coefficient
+    CL = L ./ (0.5 .* Rho .* TAS .^ 2 .* S);
+    
+    % store it in the mission history
+    Aircraft.Mission.History.SI.Aero.CL(SegBeg:SegEnd) = CL;
+    
+    % compute the lift-drag coefficient
+    L_D = AeroMethod(Aircraft);
+    
     % estimate the drag
     D = L ./ L_D;
 
@@ -494,9 +509,6 @@ Aircraft.Mission.History.SI.Performance.Ps(  SegBeg:SegEnd) = Ps   ;
 % energy quantities
 Aircraft.Mission.History.SI.Energy.PE(SegBeg:SegEnd) = PE;
 Aircraft.Mission.History.SI.Energy.KE(SegBeg:SegEnd) = KE;
-
-% current segment
-Aircraft.Mission.History.Segment(SegBeg:SegEnd) = "Climb";
 
 % ----------------------------------------------------------
 
