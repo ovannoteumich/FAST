@@ -1,42 +1,56 @@
-function [CD] = ComputeDragCoefficients(Inputs)
+function [L_D] = DragPolar(Aircraft)
 %
-% [CD] = ComputeDragCoefficients(Inputs)
+% [L_D] = DragPolar(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 28 may 2025
+% last updated: 04 jun 2025
 %
 % combine the drag coefficients into a single drag coefficient for further
 % analysis. the zero-lift and lift-dependent drag coefficients are scaled
 % prior to combining. sub/supersonic scale factors are are applied to the
-% drag coefficients after combining into one.
+% drag coefficients after combining into one. then, use the drag
+% coefficient to compute the lift-drag ratio.
 %
 % INPUTS:
-%     Inputs - data structure with all necessary information.
-%              size/type/units: 1-by-1 / struct / []
+%     Aircraft - data structure with mission history and specifications.
+%                size/type/units: 1-by-1 / struct / []
 %
 % OUTPUTS:
-%     CD     - drag coefficient at given flight conditions.
-%              size/type/units: npnt-by-1 / double / []
+%     L_D      - lift-drag ratio at given flight conditions.
+%                size/type/units: npnt-by-1 / double / []
 %
 
 
-%% PARSE INPUTS %%
-%%%%%%%%%%%%%%%%%%
+%% GET FLIGHT CONDITIONS %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% import the scale factors
-ScaleCD0 = Inputs.ZeroLiftDragCoeffFactor;
-ScaleCDI = Inputs.LiftDependentDragCoeffFactor;
-ScaleSub = Inputs.SubsonicDragCoeffFactor;
-ScaleSup = Inputs.SupersonicDragCoeffFactor;
+% get the segment id
+SegsID = Aircraft.Mission.Profile.SegsID;
+
+% get the beginning and ending control point indices
+SegBeg = Aircraft.Mission.Profile.SegBeg(SegsID);
+SegEnd = Aircraft.Mission.Profile.SegEnd(SegsID);
+
+% get the mach number
+Mach = Aircraft.Mission.History.SI.Performance.Mach(SegBeg:SegEnd);
+
+% get the lift coefficient
+CL = Aircraft.Mission.History.SI.Aero.CL(SegBeg:SegEnd);
 
 
 %% COMPUTE CD %%
 %%%%%%%%%%%%%%%%
 
+% import the scale factors
+ScaleCD0 = Aircraft.Specs.Aero.ScaleCD0;%ZeroLiftDragCoeffFactor;
+ScaleCDI = Aircraft.Specs.Aero.ScaleCDI;%LiftDependentDragCoeffFactor;
+ScaleSub = Aircraft.Specs.Aero.ScaleSub;%SubsonicDragCoeffFactor;
+ScaleSup = Aircraft.Specs.Aero.ScaleSup;%SupersonicDragCoeffFactor;
+
 % compute the drag components
-CD_SkinFric = AerodynamicsPkg.SkinFrictionDrag(Inputs);
-CD_Compress = AerodynamicsPkg.CompressibilityDrag(Inputs);
-CD_Pressure = AerodynamicsPkg.LiftDependentDrag(Inputs);
-CD_Induced  = AerodynamicsPkg.InducedDrag(Inputs);
+CD_SkinFric = AerodynamicsPkg.SkinFrictionDrag(Aircraft);
+CD_Compress = AerodynamicsPkg.CompressibilityDrag(Aircraft);
+CD_Pressure = AerodynamicsPkg.LiftDependentDrag(Aircraft);
+CD_Induced  = AerodynamicsPkg.InducedDrag(Aircraft);
 
 % compute CD0 (zero-lift drag coefficient)
 CD0 = CD_SkinFric + CD_Compress;
@@ -47,9 +61,6 @@ CDI = CD_Pressure + CD_Induced;
 % compute the pre-scaled drag coefficients
 PrescaleCD = CD0 .* ScaleCD0 + CDI .* ScaleCDI;
 
-% get the mach numbers
-Mach = Inputs.Mach;
-
 % index the supersonic ones
 IdxSup = Mach > 1;
 
@@ -58,6 +69,19 @@ CD = PrescaleCD .* ScaleSub;
 
 % scale supersonic ones by its respective factor
 CD(IdxSup) = CD(IdxSup) .* ScaleSup;
+
+% store it in the mission history
+Aircraft.Mission.History.SI.Aero.CD(SegBeg:SegEnd) = CD;
+
+
+%% COMPUTE THE LIFT-DRAG RATIO %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% compute the lift-drag ratio
+L_D = CL ./ CD;
+
+% store it in the mission history
+Aircraft.Mission.History.SI.Aero.L_D(SegBeg:SegEnd) = L_D;
 
 
 end
