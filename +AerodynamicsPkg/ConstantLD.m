@@ -49,7 +49,14 @@ L_D(HasClb) = Aircraft.Specs.Aero.L_D.Clb;
 L_D(HasCrs) = Aircraft.Specs.Aero.L_D.Crs;
 L_D(HasDes) = Aircraft.Specs.Aero.L_D.Des;
 
-% store it in the mission history
+% get the lift coefficient
+CL = Aircraft.Mission.History.SI.Aero.CL(SegBeg:SegEnd);
+
+% compute the drag coefficient
+CD = CL ./ L_D;
+
+% store results in the mission history
+Aircraft.Mission.History.SI.Aero.CD( SegBeg:SegEnd) = CD ;
 Aircraft.Mission.History.SI.Aero.L_D(SegBeg:SegEnd) = L_D;
 
 
