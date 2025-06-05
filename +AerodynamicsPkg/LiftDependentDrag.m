@@ -1,15 +1,15 @@
-function [CDi] = LiftDependentDrag(Inputs)
+function [CDi] = LiftDependentDrag(Aircraft)
 %
-% [CDi] = LiftDependentDrag(Inputs)
+% [CDi] = LiftDependentDrag(Aircraft)
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after Aviary's "compute" method in lift_dependent_drag.py,
 % translated by Cursor, an AI Code Editor
-% last updated: 28 may 2025
+% last updated: 05 jun 2025
 %
 % compute the lift dependent drag for a configuration.
 %
 % INPUTS:
-%     Inputs - data structure with all necessary inputs.
+%     Inputs - information about the mission history and aircaft geometry.
 %              size/type/units: 1-by-1 / struct / []
 %
 % OUTPUTS:
@@ -21,39 +21,48 @@ function [CDi] = LiftDependentDrag(Inputs)
 %% INITIALIZATION %%
 %%%%%%%%%%%%%%%%%%%%
 
-% get the inputs
-Mach = Inputs.Mach;
-L = Inputs.Lift;
-P = Inputs.Pressure;
-CL = Inputs.DesignLiftCoefficient;
-DesignMach = Inputs.DesignMach;
-Swing = Inputs.WingArea;
-AR = Inputs.AspectRatio;
-MaxCamber = Inputs.MaxCamber;
-T_C = Inputs.ThicknessChord;
-nnodes = Inputs.NumNodes;
-Gamma = Inputs.Gamma;
+% get the segment id
+SegsID = Aircraft.Mission.Profile.SegsID;
 
-% allocate memory for drag coefficient
-FCDP = zeros(nnodes, 1);
+% get the beginning and ending control point indices
+SegBeg = Aircraft.Mission.Profile.SegBeg(SegsID);
+SegEnd = Aircraft.Mission.Profile.SegEnd(SegsID);
+
+% get the flight conditions
+Mach = Aircraft.Mission.History.SI.Performance.Mach(SegBeg:SegEnd);
+CL   = Aircraft.Mission.History.SI.Aero.CL(         SegBeg:SegEnd);
+
+% get the design conditions
+DesCL   = Aircraft.Specs.Aero.DesignCL  ;
+DesMach = Aircraft.Specs.Aero.DesignMach;
+
+% get the wing geometry
+AR     = Aircraft.Specs.Aero.Wing.AR       ;
+MaxCam = Aircraft.Specs.Aero.Wing.MaxCamber;
+T_C    = Aircraft.Specs.Aero.Wing.t_c      ;
 
 
 %% COMPUTE THE LIFT DEPENDENT DRAG %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% calculate wing lift coefficient
-CLwing = 2.0 * L ./ (Swing * Gamma * P .* Mach.^2);
+% get the number of points
+npnt = length(Mach);
+
+% allocate memory for drag coefficient
+FCDP = zeros(npnt, 1);
 
 % calculate differences relative to the design conditions
-dCL = CLwing - CL;
-dM  = Mach - DesignMach;
-A   = AR * T_C ^ (1.0/3.0);
+dCL = CL   - DesCL  ;
+dM  = Mach - DesMach;
+
+% compute a constant for interpolation
+A = AR * T_C ^ (1 / 3);
 
 % get the tables for processing all nodes
 [AR05, AR1, AR2, AR4, AR6, ARS07, ARS08, ARS10, ARS12, ARS14, ARS16, ARS18, ARS20] = SetupTables();
 
 % process each node
-for i = 1:nnodes
+for i = 1:npnt
     
     % get the current delta
     x = [dM(i), dCL(i)];
@@ -169,10 +178,10 @@ for i = 1:nnodes
 end
 
 % compute the final drag coefficient
-DCDP = FCDP .* (1.0 + MaxCamber/10.0) .* A ./ AR;
+DCDP = FCDP .* (1 + MaxCam / 10) .* A ./ AR;
 
 % if any are less than zero, reset them to 0
-DCDP(DCDP < 0) = 0.0;
+DCDP(DCDP < 0) = 0;
 
 % set the final outputs
 CDi = DCDP;
@@ -209,7 +218,7 @@ function [FCDP] = EdgeInterp(A1, A2, FCDP1, FCDP2, A)
 den = 1.0 / ((A - A1) * FCDP1 - (A - A2) * FCDP2);
 
 % interpolate
-FCDP = 2.0 * FCDP1 * FCDP2 * den;
+FCDP = 2 * FCDP1 * FCDP2 * den;
 
 end
 
