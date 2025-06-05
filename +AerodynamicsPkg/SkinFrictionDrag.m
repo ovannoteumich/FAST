@@ -1,44 +1,49 @@
-function [CDF] = SkinFrictionDrag(Inputs)
+function [CDF] = SkinFrictionDrag(Aircraft)
 %
-% [SkinFrictionDragCoeff] = SkinFrictionDrag(Inputs)
+% [CDF] = SkinFrictionDrag(Inputs)
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after Aviary's "compute" method in skin_friction_drag.py,
 % translated by Cursor, an AI Code Editor
-% last updated: 28 may 2025
+% last updated: 05 jun 2025
 %
 % compute the skin friction drag coefficient for a given aircraft
 % configuration.
 %
 % INPUTS:
-%     Inputs  - data structure with all necessary inputs.
-%               size/type/units: 1-by-1 / struct / []
+%     Aircraft  - data structure with aircraft geometry and mission history
+%                 information.
+%                 size/type/units: 1-by-1 / struct / []
 %
 % OUTPUTS:
-%     CDF     - skin friction drag coefficient
-%               size/type/units: npnt-by-1 / double / []
+%     CDF       - skin friction drag coefficient
+%                 size/type/units: npnt-by-1 / double / []
 %
 
 
-%% PROCESS INPUTS AND OPTIONS %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PROCESS INPUTS %%
+%%%%%%%%%%%%%%%%%%%%
 
-% extract the inputs
-Cf       = Inputs.SkinFrictionCoeff; % (npnt-by-ncomp)
-Re       = Inputs.Re; % (npnt-by-ncomp)
-Fineness = Inputs.FinenessRatios; % (1-by-ncomp)
-Swet     = Inputs.WettedAreas; % (1-by-ncomp)
-LamUp    = Inputs.LaminarFractionsUpper; % (1-by-ncomp)
-LamLow   = Inputs.LaminarFractionsLower; % (1-by-ncomp)
-Swing    = Inputs.WingArea; % scalar
-AirfoilTech      = Inputs.AirfoilTechnology; % scalar
-ExcrescencesDrag = Inputs.ExcrescencesDrag; % scalar
+% get the component properties
+Cf       = Aircraft.Specs.Aero.Components.Cf;
+Re       = Aircraft.Specs.Aero.Components.Re;
+Fineness = Aircraft.Specs.Aero.Components.Fine;
+Swet     = Aircraft.Specs.Aero.Components.Swet;
+LamUp    = Aircraft.Specs.Aero.Components.LamFracUpper;
+LamLow   = Aircraft.Specs.Aero.Components.LamFracLower;
+
+% get the wing geometry and properties
+Swing       = Aircraft.Specs.Aero.Wing.S;
+AirfoilTech = Aircraft.Specs.Aero.Wing.AirfoilTech;
+
+% get the excrescences drag factor
+ExcDrag = Aircraft.Specs.Aero.ExcrescencesDrag;
 
 
 %% COMPUTE THE SKIN FRICTION DRAG COEFFICIENT %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % check for laminar flow fractions
-LaminarFlow = any(LamUp > 0.0) | any(LamLow > 0.0);
+LaminarFlow = any(LamUp > 0) | any(LamLow > 0);
 
 % check if laminar flow coefficients must be calculated
 if (LaminarFlow == 1)
@@ -70,7 +75,7 @@ FormFactor(IdxBody) = F(1) + Fine .* (F(2) + Fine .* (F(3) + Fine .* (F(4) + ...
     Fine .* (F(5) + Fine .* (F(6) .* Fine + F(7))))));
 
 % set a cutoff for the maximum form factor
-FormFactor(Fineness >= 20.0) = 1.0;
+FormFactor(Fineness >= 20) = 1;
 
 % get bodies with a fineness ratio less than or equal to 0.5
 IdxSurf = find(Fineness <= 0.5);
@@ -79,17 +84,17 @@ IdxSurf = find(Fineness <= 0.5);
 Fine = Fineness(IdxSurf);
 
 % calculate the form factor coefficients
-FF1 = 1.0 + Fine .* (F(8) + Fine .* (F(9) + Fine .* (F(10) + Fine .* (F(11) + Fine .* (F(12) + Fine .* F(13))))));
-FF2 = 1.0 + Fine .* F(14);
+FF1 = 1 + Fine .* (F(8) + Fine .* (F(9) + Fine .* (F(10) + Fine .* (F(11) + Fine .* (F(12) + Fine .* F(13))))));
+FF2 = 1 + Fine .* F(14);
 
 % remember the form factors for these surfaces
-FormFactor(IdxSurf) = FF1 .* (2.0 - AirfoilTech) + FF2 .* (AirfoilTech - 1.0);
+FormFactor(IdxSurf) = FF1 .* (2 - AirfoilTech) + FF2 .* (AirfoilTech - 1);
 
 % calculate the skin friction drag coefficient
 CDF = sum(Swet .* Cf .* FormFactor, 2) ./ Swing;
 
-% account for excresence drag (usually 6%)
-CDF = CDF .* (1.0 + ExcrescencesDrag);
+% account for excresence drag
+CDF = CDF .* (1 + ExcDrag);
 
 
 end
@@ -104,7 +109,7 @@ function [LamFlowCoeff] = CalcLaminarFlow(LamFrac)
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after Aviary's "compute" method in skin_friction_drag.py,
 % translated by Cursor, an AI Code Editor
-% last updated: 23 may 2025
+% last updated: 05 jun 2025
 %
 % compute the laminar flow coefficient.
 %
@@ -118,6 +123,6 @@ function [LamFlowCoeff] = CalcLaminarFlow(LamFrac)
 %
 
 % compute the laminar flow coefficient
-LamFlowCoeff = LamFrac .* (0.0064164 + LamFrac .* (0.48087e-4 - 0.12234e-6 .* LamFrac));
+LamFlowCoeff = LamFrac .* (0.0064164 + LamFrac .* (0.48087e-04 - 0.12234e-06 .* LamFrac));
 
 end
