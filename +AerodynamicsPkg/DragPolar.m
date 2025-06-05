@@ -1,6 +1,6 @@
-function [L_D] = DragPolar(Aircraft)
+function [Aircraft] = DragPolar(Aircraft)
 %
-% [L_D] = DragPolar(Aircraft)
+% [Aircraft] = DragPolar(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
 % last updated: 04 jun 2025
 %
@@ -15,7 +15,8 @@ function [L_D] = DragPolar(Aircraft)
 %                size/type/units: 1-by-1 / struct / []
 %
 % OUTPUTS:
-%     L_D      - lift-drag ratio at given flight conditions.
+%     Aircraft - data structure with lift-drag ratio at the given flight
+%                conditions.
 %                size/type/units: npnt-by-1 / double / []
 %
 
