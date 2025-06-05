@@ -1,28 +1,39 @@
-function [CDcomp] = CompressibilityDrag(Inputs)
+function [CDcomp] = CompressibilityDrag(Aircraft)
 %
-% [CompressDragCoeff] = CompressibilityDrag(Inputs)
+% [CDcomp] = CompressibilityDrag(Aircraft)
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after Aviary's "compute" method in compressibility_drag.py,
 % translated by Cursor, an AI Code Editor
-% last updated: 28 may 2025
+% last updated: 05 jun 2025
 %
 % compute the compressibility drag coefficient.
 %
 % INPUTS:
-%     Inputs - data structure of all necessary inputs.
-%              size/type/units: 1-by-1 / struct / []
+%     Aircraft - data structure with the aircraft geometry and mission
+%                history.
+%                size/type/units: 1-by-1 / struct / []
 %
 % OUTPUTS:
-%     CDcomp - compressibility drag coefficient.
-%              size/type/units: 1-by-1 / double / []
+%     CDcomp   - compressibility drag coefficient.
+%                size/type/units: 1-by-1 / double / []
 %
 
 
-%% PARSE INPUTS %%
-%%%%%%%%%%%%%%%%%%
+%% GET MACH NUMBERS %%
+%%%%%%%%%%%%%%%%%%%%%%
 
-Mach = Inputs.Mach;
-DesignMach = Inputs.DesignMach;
+% get the segment id
+SegsID = Aircraft.Mission.Profile.SegsID;
+
+% get the beginning and ending control point indices
+SegBeg = Aircraft.Mission.Profile.SegBeg(SegsID);
+SegEnd = Aircraft.Mission.Profile.SegEnd(SegsID);
+
+% get the mach number from the mission
+Mach = Aircraft.Mission.History.SI.Performance.Mach(SegBeg:SegEnd);
+
+% get the design mach number
+DesignMach = Aircraft.Specs.Aero.DesignMach;
 
 
 %% COMPUTE THE COMPRESSIBILITY DRAG COEFFICIENT %%
@@ -43,12 +54,12 @@ CDcomp = zeros(size(Mach));
 
 % calculate drag for supersonic regions if any exist
 if (~isempty(IdxSuper))
-    CDcomp(IdxSuper) = ComputeSupersonic(Inputs, IdxSuper, PCARtable, BSUPtable, WFItable);
+    CDcomp(IdxSuper) = ComputeSupersonic(Aircraft, Mach, IdxSuper, PCARtable, BSUPtable, WFItable);
 end
 
 % calculate drag for subsonic regions if any exist
 if (~isempty(IdxSub))
-    CDcomp(IdxSub) = ComputeSubsonic(Inputs, IdxSub, PCWtable, BSUBtable);
+    CDcomp(IdxSub) = ComputeSubsonic(Aircraft, Mach, IdxSub, PCWtable, BSUBtable);
 end
 
 
@@ -58,65 +69,78 @@ end
 % ----------------------------------------------------------
 % ----------------------------------------------------------
 
-function [CDcomp] = ComputeSupersonic(Inputs, Idx, PCAR, BSUP, WFI)
+function [CDcomp] = ComputeSupersonic(Aircraft, Mach, Idx, PCAR, BSUP, WFI)
 %
-% [CDcomp] = ComputeSupersonic(Inputs, Idx, PCAR, BSUP, WFI)
+% [CDcomp] = ComputeSupersonic(Aircraft, Mach, Idx, PCAR, BSUP, WFI)
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after Aviary's "_compute_supersonic" method in
 % compressibility_drag.py, translated by Cursor, an AI Code Editor
-% last updated: 28 may 2025
+% last updated: 05 jun 2025
 %
 % compute the compressibility drag coefficient in supersonic regions.
 %
 % INPUTS:
-%     Inputs - data structure for all necessary inputs.
-%              size/type/units: 1-by-1 / struct / []
+%     Aircraft - data structure with the aircraft geometry.
+%                size/type/units: 1-by-1 / struct / []
 %
-%     Idx    - indices of points in the supersonic regime.
-%              size/type/units: 1-by-n / struct / []
+%     Mach     - mach number as a function of time in the mission history.
+%                size/type/units: npnt-by-1 / double / []
 %
-%     PCAR   - griddedInterpolant for compressibility drag coefficient.
-%              size/type/units: 1-by-1 / griddedInterpolant / []
+%     Idx      - indices of points in the supersonic regime.
+%                size/type/units: mpnt-by-1 / struct / []
 %
-%     BSUP   - griddedInterpolant for fuselage supersonic effects.
-%              size/type/units: 1-by-1 / griddedInterpolant / []
+%     PCAR     - griddedInterpolant for compressibility drag coefficient.
+%                size/type/units: 1-by-1 / griddedInterpolant / []
 %
-%     WFI    - griddedInterpolant for wing-fuselage interactions.
-%              size/type/units: 1-by-1 / griddedInterpolant / []
+%     BSUP     - griddedInterpolant for fuselage supersonic effects.
+%                size/type/units: 1-by-1 / griddedInterpolant / []
+%
+%     WFI      - griddedInterpolant for wing-fuselage interactions.
+%                size/type/units: 1-by-1 / griddedInterpolant / []
 %
 % OUTPUTS:
-%     CDcomp - computed compressibility drag coefficient.
-%              size/type/units: 1-by-n / array / []
+%     CDcomp   - computed compressibility drag coefficient.
+%                size/type/units: mpnt-by-1 / array / []
 %
 
 
 %% PARSE INPUTS %%
 %%%%%%%%%%%%%%%%%%
 
-% get the inputs
-Mach = Inputs.Mach(Idx);
-NumNodes = length(Mach);
-DelMach = Mach - Inputs.DesignMach;
-AR = Inputs.AspectRatio;
-TC = Inputs.ThicknessChord;
-MaxCamber70 = Inputs.MaxCamber;
-Sweep25 = Inputs.SW25;
-WingTaperRatio = Inputs.TR;
-FuseArea = Inputs.FuselageCrossSection;
-BaseArea = Inputs.BaseArea;
-WingArea = Inputs.WingArea;
-FuselageLenToDiamRatio = Inputs.FuselageLengthToDiameter;
-DiamToWingSpanRatio = Inputs.FuselageDiameterToWingSpan;
+% get the supersonic mach numbers
+SupMach = Mach(Idx);
+
+% get the wing geometry
+AR       = Aircraft.Specs.Aero.Wing.AR;
+TC       = Aircraft.Specs.Aero.Wing.t_c;
+MaxCam   = Aircraft.Specs.Aero.Wing.MaxCamber;
+Sweep    = Aircraft.Specs.Aero.Wing.Sweep;
+TR       = Aircraft.Specs.Aero.Wing.TR;
+WingArea = Aircraft.Specs.Aero.Wing.S;
+
+% get the fuselage geometry
+FuseArea      = Aircraft.Specs.Aero.Fuse.Area;
+FuseLen_Diam  = Aircraft.Specs.Aero.Fuse.Len_Diam;
+FuseDiam_Span = Aircraft.Specs.Aero.Fuse.Diam_Span;
+
+% get the base area
+BaseArea = Aircraft.Specs.Aero.BaseArea;
 
 
 %% COMPUTE THE COEFFICIENT %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% compute the number of points
+mpnt = length(SupMach);
+
+% compute the mach number difference
+DelMach = SupMach - Aircraft.DesignMach;
+
 % modify the aspect ratio
-ART = AR * tan(Sweep25 / 57.2958) + (1.0 - WingTaperRatio) / (1.0 + WingTaperRatio);
+ART = AR * tan(Sweep / 57.2958) + (1 - TR) / (1 + TR);
 
 % prepare interpolation points
-X = zeros(NumNodes, 2);
+X = zeros(mpnt, 2);
 X(:, 1) = DelMach;
 X(:, 2) = ART;
 
@@ -124,57 +148,50 @@ X(:, 2) = ART;
 CD3 = PCAR(X);
 
 % change negative values to 0
-CD3(CD3 <= 0) = 0.0;
+CD3(CD3 <= 0) = 0;
 
 % calculate compressibility drag coefficient
-CDcomp = CD3 .* (TC^(5.0/3.0) * (1.0 + 0.1 * MaxCamber70));
+CDcomp = CD3 .* (TC ^ (5/3) * (1 + 0.1 * MaxCam));
 
 % contribution of fuselage
-if (FuseArea > 0.0)
+if (FuseArea > 0)
     
     % compute a scale factor
-    SOS = 1.0 + BaseArea / FuseArea;
+    SOS = 1 + BaseArea / FuseArea;
     
     % remember the interpolation points
-    X(:, 1) = Mach;
+    X(:, 1) = SupMach;
     X(:, 2) = SOS;
     
     % interpolate CD4
     CD4 = BSUP(X);
     
     % any negative values are reset to 0
-    CD4(CD4 <= 0) = 0.0;
+    CD4(CD4 <= 0) = 0;
     
     % calculate fuselage compressibility drag
-    FuselageCompressDragCoeff = CD4 .* (FuseArea / WingArea * (1.0 / FuselageLenToDiamRatio^2));
+    FuselageCompressDragCoeff = CD4 .* (FuseArea / WingArea * (1 / FuseLen_Diam ^ 2));
     
     % update the compressibility drag coefficient
     CDcomp = CDcomp + FuselageCompressDragCoeff;
     
-    % find when supersonic
-    IdxMach = find(Mach >= 1.0);
+    % get the span ratio
+    X(:, 2) = FuseDiam_Span;
     
-    % account for wing-fuselage interference, if necessary
-    if (~isempty(IdxMach))
-        
-        % get the span ratio
-        X(:, 2) = DiamToWingSpanRatio;
-        
-        % interpolate CD5
-        CD5 = WFI(X(IdxMach, :));
-        
-        % if the taper ratio is 1, change it (special case)
-        if WingTaperRatio == 1.0
-            WingTaperRatio = 0.5;
-        end
-        
-        % calculate interference drag
-        IntCompressDragCoeff = CD5 .* (1.0 / (1.0 - WingTaperRatio) / cos(Sweep25 / 57.2958));
-        
-        % add the interference drag to the compressibility drag
-        CDcomp(IdxMach) = CDcomp(IdxMach) + IntCompressDragCoeff;
-        
+    % interpolate CD5
+    CD5 = WFI(X(IdxMach, :));
+    
+    % if the taper ratio is 1, change it (special case)
+    if (TR == 1)
+        TR = 0.5;
     end
+    
+    % calculate interference drag
+    IntCompressDragCoeff = CD5 .* (1 / (1 - TR) / cos(Sweep / 57.2958));
+    
+    % add the interference drag to the compressibility drag
+    CDcomp = CDcomp + IntCompressDragCoeff;
+    
 end
 
 
@@ -184,58 +201,74 @@ end
 % ----------------------------------------------------------
 % ----------------------------------------------------------
 
-function [CDcomp] = ComputeSubsonic(Inputs, Idx, PCW, BSUB)
+function [CDcomp] = ComputeSubsonic(Aircraft, Mach, Idx, PCW, BSUB)
 %
-% [CDcomp] = ComputeSubsonic(Inputs, Idx, PCWtable, BSUBtable)
+% [CDcomp] = ComputeSubsonic(Aircraft, Mach, Idx, PCWtable, BSUBtable)
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after Aviary's "_compute_subsonic" method in
 % compressibility_drag.py, translated by Cursor, an AI Code Editor
-% last updated: 28 may 2025
+% last updated: 05 jun 2025
 %
 % compute the compressibility drag coefficient in subsonic regions.
 %
 % INPUTS:
-%     Inputs - data structure for all necessary inputs.
-%              size/type/units: 1-by-1 / struct / []
+%     Aircraft - data structure with the aircraft geometry.
+%                size/type/units: 1-by-1 / struct / []
 %
-%     Idx    - indices of points in the supersonic regime.
-%              size/type/units: 1-by-n / struct / []
+%     Mach     - mach numbers from the mission history.
+%                size/type/units: npnt-by-1 / double / []
 %
-%     PCW    - griddedInterpolant for compressibility drag coefficient.
-%              size/type/units: 1-by-1 / griddedInterpolant / []
+%     Idx      - indices of points in the subsonic regime.
+%                size/type/units: mpnt-by-1 / struct / []
 %
-%     BSUB   - griddedInterpolant for fuselage subsonic effects.
-%              size/type/units: 1-by-1 / griddedInterpolant / []
+%     PCW      - griddedInterpolant for compressibility drag coefficient.
+%                size/type/units: 1-by-1 / griddedInterpolant / []
+%
+%     BSUB     - griddedInterpolant for fuselage subsonic effects.
+%                size/type/units: 1-by-1 / griddedInterpolant / []
 %
 % OUTPUTS:
-%     CDcomp - computed compressibility drag coefficient.
-%              size/type/units: 1-by-n / array / []
+%     CDcomp   - computed compressibility drag coefficient.
+%                size/type/units: mpnt-by-1 / array / []
 %
 
 
 %% PARSE INPUTS %%
 %%%%%%%%%%%%%%%%%%
 
-% get the inputs
-Mach = Inputs.Mach(Idx);
-NumNodes = length(Mach);
-DelMach = Mach - Inputs.DesignMach;
-TC = Inputs.ThicknessChord;
-MaxCamber70 = Inputs.MaxCamber;
-FuseArea = Inputs.FuselageCrossSection;
-BaseArea = Inputs.BaseArea;
-WingArea = Inputs.WingArea;
-FuselageLenToDiamRatio = Inputs.FuselageLengthToDiameter;
+% get the subsonic mach numbers
+SubMach = Mach(Idx);
+
+% get the wing geometry
+TC       = Aircraft.Specs.Aero.Wing.t_c;
+MaxCam   = Aircraft.Specs.Aero.Wing.MaxCamber;
+WingArea = Aircraft.Specs.Aero.Wing.S;
+
+% get the fuselage geometry
+FuseArea     = Aircraft.Specs.Aero.Fuse.Area;
+FuseLen_Diam = Aircraft.Specs.Aero.Fuse.Len_Diam;
+
+% get the base area
+BaseArea = Aircraft.Specs.Aero.BaseArea;
+
+% get the design mach number
+DesignMach = Aircraft.Specs.Aero.DesignMach;
 
 
 %% COMPUTE THE SUBSONIC CONTRIBUTIONS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% get the number of points
+mpnt = length(SubMach);
+
+% compute the mach number difference
+DelMach = SubMach - DesignMach;
+
 % scale thickness to chord
-TOC = TC ^ (2.0/3.0);
+TOC = TC ^ (2 / 3);
 
 % prepare interpolation points
-X = zeros(NumNodes, 2);
+X = zeros(mpnt, 2);
 X(:, 1) = DelMach;
 X(:, 2) = TOC;
 
@@ -243,29 +276,29 @@ X(:, 2) = TOC;
 CD1 = PCW(X);
 
 % reset negative values to 0
-CD1(CD1 <= 0) = 0.0;
+CD1(CD1 <= 0) = 0;
 
 % calculate compressibility drag coefficient
-CDcomp = CD1 .* (TC^(5.0/3.0) * (1.0 + 0.1 * MaxCamber70));
+CDcomp = CD1 .* (TC ^ (5 / 3) * (1 + 0.1 * MaxCam));
 
 % check if the fuselage contributes
-if (FuseArea > 0.0)
+if (FuseArea > 0)
     
     % compute a scale factor
-    SOS = 1.0 + BaseArea / FuseArea;
+    SOS = 1 + BaseArea / FuseArea;
     
     % prepare for interpolation
-    X(:, 1) = Mach;
+    X(:, 1) = SubMach;
     X(:, 2) = SOS;
     
     % interpolate CD2
     CD2 = BSUB(X);
     
     % reset negative values to 0
-    CD2(CD2 <= 0) = 0.0;
+    CD2(CD2 <= 0) = 0;
     
     % calculate fuselage compressibility drag
-    FuselageCompressDragCoeff = CD2 .* (FuseArea / WingArea * (1.0 / FuselageLenToDiamRatio^2));
+    FuselageCompressDragCoeff = CD2 .* (FuseArea / WingArea * (1 / FuseLen_Diam ^ 2));
     
     % account for the fuselage contribution
     CDcomp = CDcomp + FuselageCompressDragCoeff;
