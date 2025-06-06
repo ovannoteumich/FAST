@@ -4,7 +4,7 @@ function [CDF] = SkinFrictionDrag(Aircraft)
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after Aviary's "compute" method in skin_friction_drag.py,
 % translated by Cursor, an AI Code Editor
-% last updated: 05 jun 2025
+% last updated: 06 jun 2025
 %
 % compute the skin friction drag coefficient for a given aircraft
 % configuration.
@@ -27,12 +27,12 @@ function [CDF] = SkinFrictionDrag(Aircraft)
 Cf       = Aircraft.Specs.Aero.Components.Cf;
 Re       = Aircraft.Specs.Aero.Components.Re;
 Fineness = Aircraft.Specs.Aero.Components.Fine;
-Swet     = Aircraft.Specs.Aero.Components.Swet;
+Swet     = Aircraft.Specs.Aero.Components.Swet * UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
 LamUp    = Aircraft.Specs.Aero.Components.LamFracUpper;
 LamLow   = Aircraft.Specs.Aero.Components.LamFracLower;
 
 % get the wing geometry and properties
-Swing       = Aircraft.Specs.Aero.Wing.S;
+Swing       = Aircraft.Specs.Aero.Wing.S * UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
 AirfoilTech = Aircraft.Specs.Aero.Wing.AirfoilTech;
 
 % get the excrescences drag factor

@@ -75,7 +75,7 @@ function [CDcomp] = ComputeSupersonic(Aircraft, Mach, Idx, PCAR, BSUP, WFI)
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after Aviary's "_compute_supersonic" method in
 % compressibility_drag.py, translated by Cursor, an AI Code Editor
-% last updated: 05 jun 2025
+% last updated: 06 jun 2025
 %
 % compute the compressibility drag coefficient in supersonic regions.
 %
@@ -110,21 +110,24 @@ function [CDcomp] = ComputeSupersonic(Aircraft, Mach, Idx, PCAR, BSUP, WFI)
 % get the supersonic mach numbers
 SupMach = Mach(Idx);
 
+% get the design mach number
+DesignMach = Aircraft.Specs.Aero.DesignMach;
+
 % get the wing geometry
 AR       = Aircraft.Specs.Aero.Wing.AR;
 TC       = Aircraft.Specs.Aero.Wing.t_c;
 MaxCam   = Aircraft.Specs.Aero.Wing.MaxCamber;
 Sweep    = Aircraft.Specs.Aero.Wing.Sweep;
 TR       = Aircraft.Specs.Aero.Wing.TR;
-WingArea = Aircraft.Specs.Aero.Wing.S;
+WingArea = Aircraft.Specs.Aero.Wing.S * UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
 
 % get the fuselage geometry
-FuseArea      = Aircraft.Specs.Aero.Fuse.Area;
+FuseArea      = Aircraft.Specs.Aero.Fuse.Area * UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
 FuseLen_Diam  = Aircraft.Specs.Aero.Fuse.Len_Diam;
 FuseDiam_Span = Aircraft.Specs.Aero.Fuse.Diam_Span;
 
 % get the base area
-BaseArea = Aircraft.Specs.Aero.BaseArea;
+BaseArea = Aircraft.Specs.Aero.BaseArea * UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
 
 
 %% COMPUTE THE COEFFICIENT %%
@@ -134,7 +137,7 @@ BaseArea = Aircraft.Specs.Aero.BaseArea;
 mpnt = length(SupMach);
 
 % compute the mach number difference
-DelMach = SupMach - Aircraft.DesignMach;
+DelMach = SupMach - DesignMach;
 
 % modify the aspect ratio
 ART = AR * tan(Sweep / 57.2958) + (1 - TR) / (1 + TR);
@@ -179,7 +182,7 @@ if (FuseArea > 0)
     X(:, 2) = FuseDiam_Span;
     
     % interpolate CD5
-    CD5 = WFI(X(IdxMach, :));
+    CD5 = WFI(X);
     
     % if the taper ratio is 1, change it (special case)
     if (TR == 1)
@@ -207,7 +210,7 @@ function [CDcomp] = ComputeSubsonic(Aircraft, Mach, Idx, PCW, BSUB)
 % modified by Paul Mokotoff, prmoko@umich.edu
 % patterned after Aviary's "_compute_subsonic" method in
 % compressibility_drag.py, translated by Cursor, an AI Code Editor
-% last updated: 05 jun 2025
+% last updated: 06 jun 2025
 %
 % compute the compressibility drag coefficient in subsonic regions.
 %
@@ -242,14 +245,14 @@ SubMach = Mach(Idx);
 % get the wing geometry
 TC       = Aircraft.Specs.Aero.Wing.t_c;
 MaxCam   = Aircraft.Specs.Aero.Wing.MaxCamber;
-WingArea = Aircraft.Specs.Aero.Wing.S;
+WingArea = Aircraft.Specs.Aero.Wing.S * UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
 
 % get the fuselage geometry
-FuseArea     = Aircraft.Specs.Aero.Fuse.Area;
+FuseArea     = Aircraft.Specs.Aero.Fuse.Area * UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
 FuseLen_Diam = Aircraft.Specs.Aero.Fuse.Len_Diam;
 
 % get the base area
-BaseArea = Aircraft.Specs.Aero.BaseArea;
+BaseArea = Aircraft.Specs.Aero.BaseArea * UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
 
 % get the design mach number
 DesignMach = Aircraft.Specs.Aero.DesignMach;
