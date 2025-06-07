@@ -12,7 +12,7 @@ function [Money] = BattRepCost(Aircraft, Year, BMS, Lifespan)
 %                     history and battery SOC after flying.
 %                     size/type/units: 1-by-1 / struct / []
 %
-%     Year          - the calender year of the current study is at.
+%     Year          - the calender year of the current cost is at.
 %                     size/type/units: 1-by-1 / integer / [years]
 %
 %     BMS           - providing the flexibility for the function input that
@@ -20,9 +20,10 @@ function [Money] = BattRepCost(Aircraft, Year, BMS, Lifespan)
 %                     just battery cells cost solely. 1 - Yes, 0 - No.
 %                     size/type/units: 1-by-1 / integer / []
 %
-%     Lifespan      - the lifespan of the specific battery system, from the
-%                     analysis results. The unit is in years, i.e. 2, or 5
-%                     years until the battery reaches to its EOL (70%).
+%     Lifespan      - the lifespan of the specific battery system, from
+%                     your battery EOL analysis results. The unit is in
+%                     years, i.e. 2, or 5 years until the battery reaches
+%                     to its EOL (70%) from its BOL (100%). 
 %                     size/type/units: 1-by-1 / integer / [years]
 %
 % OUTPUTS:
@@ -39,7 +40,7 @@ BattType = Aircraft.Specs.Battery.Chem; % NMC = 1, LFP = 2
 years_data = [2023, 2026, 2030, 2035]'; % [1]
 
 % Choose the corresponding BMS portion for desired battery chem (if BMS is
-% considered)
+% considered or not)
 if BMS == 1
 
     if BattType == 1
@@ -67,7 +68,35 @@ end
 %% Unit Capacity Cost of the Battery [$/kWh] %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+Price_nm  = ; % Unit capacity price for NMC
+Price_lfp = ; % Unit capacity price for LFP
 
+
+%% Battery Rated Capacity %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+SpecEnergy = Aircraft.Specs.Power.SpecEnergy.Batt / 3600 / 1000; % J -> Wh/kg -> kWh/kg
+BattWeight = Aircraft.Specs.Weight.Batt; % Battery Weight in kg
+E_rat = SpecEnergy * BattWeight; % Battery Rated Capacity in [kWh]
+
+
+%% Discount Rate Model %%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% General global lithium-ion battery discount rate ()
+% Data for calander years
+Years_data = (2010:2030)'; % [2]
+
+% General average price (actual & projected)
+GenPrice = [1183, 917, 721, 663, 588, 381, 293, 219, 180, 156, 137, 122, 109,...
+            100, 92, 84, 77, 71, 66, 63, 62]'; % [2]
+
+LocRate = 7.4809*x^5 + 7.3631*x^4 -99.3134*x^3 + 163.736*x^2 -131.5331*x + 131.314
+
+
+
+%% Final Battery Replacement Model %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
@@ -79,5 +108,9 @@ end
 % [1] Knehr, Kevin, Joseph Kubal, and Shabbir Ahmed. Cost analysis and
 % projections for us-manufactured automotive lithium-ion batteries. No.
 % ANL/CSE-24/1. Argonne National Laboratory (ANL), Argonne, IL (United
-% States), 2024.   ------ Page 44, Table 29
+% States), 2024.   ------ Table 29, Page 44
 
+% [2] Chen, Z., Li, Z., & Chen, G. (2023). Optimal configuration and
+% operation for user-side energy storage considering lithium-ion battery
+% degradation. International Journal of Electrical Power & Energy Systems,
+% 145, 108621.
