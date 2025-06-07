@@ -1,4 +1,4 @@
-function [Money] = BattRepCost(Aircraft, Year, BMS, Lifespan)
+function [C_rep] = BattRepCost(Aircraft, Year, BMS, Lifespan)
 %
 % written by Yipeng Liu, yipenglx@umich.edu
 % last updated: 05 Jun 2025
@@ -31,8 +31,8 @@ function [Money] = BattRepCost(Aircraft, Year, BMS, Lifespan)
 %                     lifecycle.
 %                     size/type/units: 1-by-1 / struct / [$]
 
-%% BMS Cost Portion of Battery System Cost %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% BMS Cost Portion to Battery System Cost Model %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Call the LIB battery type from specs
 BattType = Aircraft.Specs.Battery.Chem; % NMC = 1, LFP = 2
@@ -65,11 +65,29 @@ else
     error('Invalid BMS requirement. Please input "1" for YES or "2" for NO.');
 end
 
-%% Unit Capacity Cost of the Battery [$/kWh] %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Unit Capacity Cost of the Battery [$/kWh] Model %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Price_nm  = ; % Unit capacity price for NMC
-Price_lfp = ; % Unit capacity price for LFP
+% Choose the corresponding BMS portion for desired battery chem (if BMS is
+% considered or not)
+
+if BattType == 1
+
+    % NMC costs
+    cost_nm  = [127.61; 112.42; 96.52; 76.35];
+    coef_nm1  = polyfit(years_data, cost_nm,  2);
+    C_E_rep = polyval(coef_nm1, Year);%   For Ni/Mn (NMC), in %
+
+elseif BattType == 2
+
+    % LFP costs
+    cost_lfp = [120.91;  97.56;  82.73;  76.62];
+    coef_lfp1  = polyfit(years_data, cost_lfp, 3);
+    C_E_rep = polyval(coef_lfp1, Year);%   For LFP, in %
+
+else
+    error('Invalid ChemType input. Please input "1" for NMC or "2" for LFP.');
+end
 
 
 %% Battery Rated Capacity %%
@@ -80,33 +98,22 @@ BattWeight = Aircraft.Specs.Weight.Batt; % Battery Weight in kg
 E_rat = SpecEnergy * BattWeight; % Battery Rated Capacity in [kWh]
 
 
-%% Discount Rate Model %%
-%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Discount Rate %%
+%%%%%%%%%%%%%%%%%%%
 
-% General global lithium-ion battery discount rate ()
-% Data for calander years
-Years_data = (2010:2030)'; % [2]
-
-% General average price (actual & projected)
-GenPrice = [1183, 917, 721, 663, 588, 381, 293, 219, 180, 156, 137, 122, 109,...
-            100, 92, 84, 77, 71, 66, 63, 62]'; % [2]
-
-LocRate = 7.4809*x^5 + 7.3631*x^4 -99.3134*x^3 + 163.736*x^2 -131.5331*x + 131.314
-
-
+DiscRate = 0.07; % [3] 
 
 %% Final Battery Replacement Model %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+C_rep = (1 + BMS_lambda/100) * C_E_rep * E_rat / (1+DiscRate)^Lifespan;
 
 end
 
 
 
 %% Reference
-% [1] Knehr, Kevin, Joseph Kubal, and Shabbir Ahmed. Cost analysis and
-% projections for us-manufactured automotive lithium-ion batteries. No.
+% [1] Knehr, Kevin, Joseph Kubal, and Shabbir Ahmed. 0motive lithium-ion batteries. No.
 % ANL/CSE-24/1. Argonne National Laboratory (ANL), Argonne, IL (United
 % States), 2024.   ------ Table 29, Page 44
 
@@ -114,3 +121,7 @@ end
 % operation for user-side energy storage considering lithium-ion battery
 % degradation. International Journal of Electrical Power & Energy Systems,
 % 145, 108621.
+
+% [3] He, G., Ciez, R., Moutis, P., Kar, S., & Whitacre, J. F. (2020). The
+% economic end of life of electrochemical energy storage. Applied Energy,
+% 273, 115151.
