@@ -171,7 +171,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % recursively search the system architecture to extract all failure modes
-FailModes = CreateCutSets(ArchConns, Components, isnk);
+FailModes = CreateCutSets(ArchConns, Components, isnk, ntrigger, ninput);
 
 % eliminate duplicate events in single failure mode (idempotent law)
 FailModes = IdempotentLaw(FailModes);
@@ -215,11 +215,11 @@ end
 % ----------------------------------------------------------
 % ----------------------------------------------------------
 
-function [Failures] = CreateCutSets(ArchConns, Components, icomp)
+function [Failures] = CreateCutSets(ArchConns, Components, icomp, ntrigger, ninput)
 %
-% [Failures] = CreateCutSets(Arch, Components, icomp)
+% [Failures] = CreateCutSets(Arch, Components, icomp, ntrigger, ninput)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 29 apr 2025
+% last updated: 09 jun 2025
 %
 % List out all components in the cut set for a system architecture. For
 % each function call, check whether an internal failure mode exists and if
@@ -241,6 +241,13 @@ function [Failures] = CreateCutSets(ArchConns, Components, icomp)
 %     icomp      - the index of the component in the fault tree currently
 %                  being assessed.
 %                  size/type/units: 1-by-1 / integer / []
+%
+%     ntrigger   - number of components required to trigger the gate
+%                  size/type/units: n-by-1 / integer / []
+%
+%     ninput     - number of components that input to the current
+%                  component (or NaN if it is a source).
+%                  size/type/units: n-by-1 / integer or NaN / []
 %
 % OUTPUTS:
 %     Failures   - the matrix updated with all of the necessary failure
@@ -289,81 +296,134 @@ DwnFails = cell(1, ndwn);
 for i = 1:ndwn
         
     % search recursively and remember the downstream failures
-    DwnFails{i} = CreateCutSets(ArchConns, Components, idwn(i));
+    DwnFails{i} = CreateCutSets(ArchConns, Components, idwn(i), ntrigger, ninput);
 
 end
 
 % enumerate the downstream failures, if any exist
 if (ndwn > 0)
         
-    if (ndwn == 1)
+    if (ndwn == 1) % OR gate
         
-        % get the final set of downstream failures
-        FinalFails = EnumerateFailures(DwnFails);
+        % the only failure is the downstream failure, it is an OR gate
+        FinalFails = DwnFails{1};
         
-        % eliminate duplicate events in single failure mode (idempotent law)
-        FinalFails = IdempotentLaw(FinalFails);
+    else % AND or K/N gate
         
-        % eliminate duplicate events across failure modes (law of absorption)
-        FinalFails = LawOfAbsorption(FinalFails);
+        % check for an AND gate (# of trigger events matches # of inputs)
+        if (ntrigger(icomp) == ninput(icomp))
         
-    else
-        
-        % get the first sets of failures
-        TempFails = {DwnFails{1}, DwnFails{2}};
-        
-        % loop through each failure
-        for i = 2:ndwn
+            % enumerate all failures in the AND gate
+            FinalFails = AndGate(DwnFails, ndwn);
             
-            % make sure both entries are not empty
-            if (~isempty(TempFails{1})) && (~isempty(TempFails{2}))
+        else % K/N GATE
+            
+            % remember the number of events to trigger
+            mtrigger = ntrigger(icomp);
+            
+            % get the number of combinations
+            ncomb = factorial(ndwn) / (factorial(mtrigger) * factorial(ndwn - mtrigger));
+            
+            % get the number of indices
+            Idx = 1 : mtrigger;
+            
+            % cell array for downstream failures
+            NewDwn = cell(1, mtrigger);
+            
+            % loop through each set of combinations
+            for icomb = 1:ncomb
                 
-                % enumerate the failures
-                FinalFails = EnumerateFailures(TempFails);
+                % get current failures
+                for itrigger = 1:mtrigger
+                    NewDwn{itrigger} = DwnFails{Idx(itrigger)};
+                end
                 
-                % for the first time, evaluate all columns
-                if (i == 2)
-                    FinalFails = IdempotentLaw(FinalFails);
+                % enumerate the current failures
+                if (mtrigger == 1)
+                    
+                    % there is only one failure, do not use an AND gate
+                    CurFails = NewDwn{itrigger};
                     
                 else
-                    FinalFails = IdempotentLaw(FinalFails, ColIdx);
+                    
+                    % use an AND gate to get all possible failures
+                    CurFails = AndGate(NewDwn, mtrigger);
                     
                 end
                 
-                % simplify
-                FinalFails = LawOfAbsorption(FinalFails);
+                % add one to the final index
+                Idx(end) = Idx(end) + 1;
                 
-            elseif (isempty(TempFails{1}))
+                % add a dummy index
+                dummy = 0;
                 
-                % keep only the second set of failures
-                FinalFails = TempFails{2};
-                
-            else % (isempty(TempFails{2}))
-                
-                % keep only the first set of failures
-                FinalFails = TempFails{1};
-                
-            end
+                % loop through all indices
+                for itrigger = mtrigger : -1 : 2
+                    
+                    % check if a current index exceeds its limit
+                    if (Idx(itrigger) > (ndwn - dummy))
+                        
+                        % increment the prior index
+                        Idx(itrigger - 1) = Idx(itrigger - 1) + 1;
+                        
+                        % reset indices beyond this one
+                        if (dummy > 0)
+                            Idx(itrigger:end) = Idx(itrigger - 1) + (1 : (mtrigger - itrigger + 1));
+                        else
+                            Idx(end) = Idx(itrigger - 1) + 1;
+                        end
+                        
+                    end
+                    
+                    % incremement the dummy index
+                    dummy = dummy + 1;
+                    
+                end
             
-            % check if we're done
-            if (i < ndwn)
-                                
-                % add the next failure
-                TempFails = {FinalFails, DwnFails{i+1}};
-                
-                % get the number of columns in the array
-                [~, ColIdx] = size(FinalFails);
-                
-                % start reducing at the following column
-                ColIdx = ColIdx + 1;
-                
-            end            
-        end
+                % append the current failures to the final ones
+                if (icomb == 1)
+                    
+                    % remember the current failures
+                    FinalFails = CurFails;
+                    
+                else
+                    
+                    % get the size of each failure
+                    [nrow1, ncol1] = size(FinalFails);
+                    [nrow2, ncol2] = size(  CurFails);
+                    
+                    % check for the larger array
+                    if (ncol1 > ncol2)
+                        
+                        % add more empty columns to CurFails
+                        TempFails = [FinalFails; CurFails, strings(nrow2, ncol1 - ncol2)];
+                        
+                    elseif (ncol1 < ncol2)
+                        
+                        % add more empty columns to FinalFails
+                        TempFails = [FinalFails, strings(nrow1, ncol2 - ncol1); CurFails];
+                        
+                    else
+                        
+                        % they are the same size, just append arrays
+                        TempFails = [FinalFails; CurFails];
+                        
+                    end
+                    
+                    % simplify with the idempotent law
+                    FinalFails = IdempotentLaw(TempFails);
+                    
+                    % simplify with the law of absorption
+                    FinalFails = LawOfAbsorption(FinalFails);
+                    
+                end
+            end
+        end            
     end
     
     % get the size of the downstream failures
     [~, ncol] = size(FinalFails);
-        
+    
     % add columns and append downstream failures
     if (FailFlag == 1)
         Failures = [FinalFails; IntFails, strings(1, ncol - FailFlag)];
@@ -380,6 +440,89 @@ else
     
 end
 
+
+end
+
+% ----------------------------------------------------------
+% ----------------------------------------------------------
+% ----------------------------------------------------------
+
+function [FinalFails] = AndGate(DwnFails, ndwn)
+%
+% [FinalFails] = AndGate(DwnFails, ndwn)
+% written by Paul Mokotoff, prmoko@umich.edu
+% last updated: 09 jun 2025
+%
+% enumerate all failures from the downstream inputs, simplifying as pairs
+% of failures are enumerated to reduce the problem size.
+%
+% INPUTS:
+%     DwnFails   - the set of downstream failures for each input into the
+%                  current component.
+%                  size/type/units: 1-by-ndwn / cell / []
+%
+%     ndwn       - number of downstream components that connect to the
+%                  current one.
+%                  size/type/units: 1-by-1 / integer / []
+%
+% OUTPUTS:
+%     FinalFails - array of all possible failures after enumeration and
+%                  simplification.
+%                  size/type/units: m-by-p / string / []
+%
+
+% get the first sets of failures
+TempFails = {DwnFails{1}, DwnFails{2}};
+
+% loop through and enumerate each failure
+for i = 2:ndwn
+    
+    % make sure both entries are not empty
+    if (~isempty(TempFails{1})) && (~isempty(TempFails{2}))
+        
+        % enumerate the failures
+        FinalFails = EnumerateFailures(TempFails);
+        
+        % for the first time, evaluate all columns
+        if (i == 2)
+            FinalFails = IdempotentLaw(FinalFails);
+            
+        else
+            FinalFails = IdempotentLaw(FinalFails, ColIdx);
+            
+        end
+        
+        % simplify
+        FinalFails = LawOfAbsorption(FinalFails);
+        
+    elseif (isempty(TempFails{1}))
+        
+        % keep only the second set of failures
+        FinalFails = TempFails{2};
+        
+    else % (isempty(TempFails{2}))
+        
+        % keep only the first set of failures
+        FinalFails = TempFails{1};
+        
+    end
+    
+    % check if we're done
+    if (i < ndwn)
+        
+        % add the next failure
+        TempFails = {FinalFails, DwnFails{i+1}};
+        
+        % get the number of columns in the array
+        [~, ColIdx] = size(FinalFails);
+        
+        % start reducing at the following column
+        ColIdx = ColIdx + 1;
+        
+    end
+end
+
+% ----------------------------------------------------------
 
 end
 
