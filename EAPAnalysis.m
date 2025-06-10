@@ -2,7 +2,8 @@ function [Aircraft] = EAPAnalysis(Aircraft, Type, MaxIter)
 %
 % [Aircraft] = EAPAnalysis(Aircraft, Type, MaxIter)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 11 dec 2024
+% modified by Miranda Stockhausen, mstockha@umich.edu
+% last updated: 10 june 2025
 %
 % For a given aircraft, either:
 %
@@ -226,9 +227,19 @@ while (iter < MaxIter)
     % get fuel burn
     Fburn = Aircraft.Mission.History.SI.Weight.Fburn(end);
     
-    % compute the fuel burn weight changes
-    dWfuel = Fburn - Wfuel;
+    % check if fuel weight is being sized 
+    if (Type == -3)
+
+        % fixed fuel weight
+        dWfuel = 0;
+    
+    else
+
+        % compute the fuel burn weight changes
+        dWfuel = Fburn - Wfuel;
         
+    end
+
     % check if a retrofit is being performed (fixed battery weight)
     if (Type == -2)
         
@@ -275,7 +286,7 @@ while (iter < MaxIter)
     Aircraft.Specs.Weight.Batt = Wbatt;
 
     % compute the OEW when sizing
-    if (Type > -2)
+    if (Type ~= -2)
         Aircraft.Specs.Weight.OEW  = mtow_new - sum(Wfuel) - sum(Wbatt) - Wpax - Wcrew;
     end
     

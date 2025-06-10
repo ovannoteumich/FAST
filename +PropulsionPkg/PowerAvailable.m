@@ -91,16 +91,6 @@ nsnk = ncomp - nsrc - ntrn;
 % remember the SLS thrust/power available in each transmitter
 ThrustAv = repmat(Aircraft.Specs.Propulsion.SLSThrust, npnt, 1);
 PowerAv  = repmat(Aircraft.Specs.Propulsion.SLSPower , npnt, 1);
-
-% get indices for transmitters
-itrn = (1:ntrn) + nsrc;
-
-% find all upstream transmitters (i.e., input at least one transmitter and
-% maybe a source)
-UpTrn = find(sum(Arch(itrn, itrn), 1) > 0);
- 
-% assume no power available at the propellers yet (need to propagate)
-PowerAv(:, UpTrn) = 0; %#ok<FNDSB>
  
 % loop through all transmitters
 for itrn = 1:ntrn
@@ -160,14 +150,22 @@ Pav = zeros(npnt, ncomp);
 % get the transmitter and sink indices
 idx = (nsrc + 1) : ncomp;
 
+% get indices for transmitters
+itrn = (1:ntrn) + nsrc;
+
 % loop through points to get the power available
 for ipnt = 1:npnt
     
     % evaluate the function handles for the current splits
-    Lambda = PropulsionPkg.EvalSplit(OperUps, 0);
-
+    Lambda = PropulsionPkg.EvalSplit(OperUps);
+    % find all upstream transmitters (i.e., input at least one transmitter and
+    % maybe a source)
+    UpTrn = find(sum(Lambda(itrn, itrn), 1)' > 0 | sum(Lambda(itrn, itrn), 2) == 0);
+    tempPowerAv = PowerAv;
+    % assume no power available at the propellers yet (need to propagate)
+    tempPowerAv(:, UpTrn) = 0; %#ok<FNDSB>
     % get the initial power available
-    Pav(ipnt, :) = [zeros(1, nsrc), PowerAv(ipnt, :), zeros(1, nsnk)];
+    Pav(ipnt, :) = [zeros(1, nsrc), tempPowerAv(ipnt, :), zeros(1, nsnk)];
     
     % propagate the power upstream
     Pav(ipnt, idx) = PropulsionPkg.PowerFlow(Pav(ipnt, idx)', Arch(idx, idx), Lambda(idx, idx), EtaUps(idx, idx), +1)';
