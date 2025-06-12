@@ -152,8 +152,12 @@ Time = zeros(npoint, 1); % s
 Eleft_ES = zeros(npoint, 1);
 
 % get the energy source types
-Fuel = Aircraft.Specs.Propulsion.PropArch.ESType == 1;
-Batt = Aircraft.Specs.Propulsion.PropArch.ESType == 0;
+Fuel = Aircraft.Specs.Propulsion.PropArch.SrcType == 1;
+Batt = Aircraft.Specs.Propulsion.PropArch.SrcType == 0;
+
+% remember the power splits
+Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamDwn.Clb, SegEnd - SegBeg + 1, 1);
+Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamUps.Clb, SegEnd - SegBeg + 1, 1);
 
 % if not first segment, get accumulated quantities
 if (SegBeg > 1)
@@ -191,36 +195,9 @@ else
     
 end
 
-% assume thrust split comes from the aircraft specifications
-LamTS = repmat(Aircraft.Specs.Power.LamTS.Clb, npoint, 1);
-
-% assume energy/power/thrust splits come from the aircraft specifications
-LamTSPS = repmat(Aircraft.Specs.Power.LamTSPS.Clb, npoint, 1);
-LamPSPS = repmat(Aircraft.Specs.Power.LamPSPS.Clb, npoint, 1);
-LamPSES = repmat(Aircraft.Specs.Power.LamPSES.Clb, npoint, 1);
-
-% check if the power optimization structure is available
-if (isfield(Aircraft, "PowerOpt"))
-    
-    % check if the splits are available
-    if (isfield(Aircraft.PowerOpt, "Splits"))
-        
-        % get the thrust/power/energy splits
-        [LamTS, LamTSPS, LamPSPS, LamPSES] = OptimizationPkg.GetSplits( ...
-        Aircraft, SegBeg, SegEnd, LamTS, LamTSPS, LamPSPS, LamPSES);
-        
-    end
-end
-
 % update the mission history
 Aircraft.Mission.History.SI.Performance.TAS( SegBeg:SegEnd) = TAS ;
 Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd) = Mass;
-
-% remember the splits
-Aircraft.Mission.History.SI.Power.LamTS(  SegBeg:SegEnd, :) = LamTS  ;
-Aircraft.Mission.History.SI.Power.LamTSPS(SegBeg:SegEnd, :) = LamTSPS;
-Aircraft.Mission.History.SI.Power.LamPSPS(SegBeg:SegEnd, :) = LamPSPS;
-Aircraft.Mission.History.SI.Power.LamPSES(SegBeg:SegEnd, :) = LamPSES;
 
 % remember the fuel and battery energy remaining
 Aircraft.Mission.History.SI.Energy.Eleft_ES(SegBeg:SegEnd, :) = Eleft_ES;
@@ -344,7 +321,7 @@ while (iter < MaxIter)
     Ps = (Pav - DV) ./ (Mass .* g);
 
     % check for invalid specific excess power values
-    if (any(Ps < 0))
+    if (any(Ps(1:end-1) < 0))
         warning('Target climb altitude cannot be reached (Ps < 0). Results may be faulty.')
     end
             
@@ -358,7 +335,7 @@ while (iter < MaxIter)
         dh_dt = [diff(Alt) ./ dTime; 0];
         
         % find points that exceed the maximum rate of climb
-        irow = find(dh_dt - dh_dtMax > 1.0e-06);
+        irow = find(dh_dt - dh_dtMax > EPS06);
         
         % adjust points that exceed the maximum rate of climb
         if (any(irow))
@@ -386,7 +363,7 @@ while (iter < MaxIter)
         dV_dtMax = (Ps - dh_dt) .* g ./ TAS;
 
         % adjust points when the required acceleration can't be realized
-        if (any(dV_dt - dV_dtMax > 1.0e-06))
+        if (any(dV_dt - dV_dtMax > EPS06))
             
             % assume maximum acceleration at all points
             dV_dt = dV_dtMax;
@@ -444,7 +421,7 @@ while (iter < MaxIter)
     Aircraft.Mission.History.SI.Performance.Time(SegBeg:SegEnd) = Time;
     
     % perform the propulsion analysis
-    Aircraft = PropulsionPkg.PropAnalysisNew(Aircraft);
+    Aircraft = PropulsionPkg.PropAnalysis(Aircraft);
     
     % extract updated mass from aircraft structure
     Mass = Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd);
