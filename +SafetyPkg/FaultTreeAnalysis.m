@@ -219,7 +219,7 @@ function [Failures] = CreateCutSets(ArchConns, Components, icomp, ntrigger, ninp
 %
 % [Failures] = CreateCutSets(Arch, Components, icomp, ntrigger, ninput)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 09 jun 2025
+% last updated: 16 jun 2025
 %
 % List out all components in the cut set for a system architecture. For
 % each function call, check whether an internal failure mode exists and if
@@ -332,7 +332,7 @@ if (ndwn > 0)
             
             % loop through each set of combinations
             for icomb = 1:ncomb
-                
+
                 % get current failures
                 for itrigger = 1:mtrigger
                     NewDwn{itrigger} = DwnFails{Idx(itrigger)};
@@ -471,6 +471,40 @@ function [FinalFails] = AndGate(DwnFails, ndwn)
 %                  size/type/units: m-by-p / string / []
 %
 
+% keep track of the index
+jdwn = 1;
+
+% remove any downstream failures that are empty
+for idwn = 1:ndwn
+    
+    % check for an empty set of failures
+    if (isempty(DwnFails{jdwn}))
+        
+        % remove it
+        DwnFails(jdwn) = [];
+        
+        % decrease the number of downstream failures
+        ndwn = ndwn - 1;
+        
+    else
+        
+        % increment the counter because a non-empty set of failures exists
+        jdwn = jdwn + 1;
+        
+    end
+end
+
+% if there's only one downstream failure, the AND gate won't work
+if (length(DwnFails) == 1)
+    
+    % return an empty set (only downstream failures)
+    FinalFails = [];
+    
+    % exit the code
+    return
+    
+end
+
 % get the first sets of failures
 TempFails = {DwnFails{1}, DwnFails{2}};
 
@@ -500,7 +534,7 @@ for i = 2:ndwn
         % keep only the second set of failures
         FinalFails = TempFails{2};
         
-    else % (isempty(TempFails{2}))
+    elseif (isempty(TempFails{2}))
         
         % keep only the first set of failures
         FinalFails = TempFails{1};
