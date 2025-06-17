@@ -3,7 +3,7 @@ function [Aircraft] = EvalClimb(Aircraft)
 % [Aircraft] = EvalClimb(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
 % patterned after code written by Gokcin Cinar in E-PASS
-% last updated: 13 jun 2025
+% last updated: 16 jun 2025
 %
 % Evaluate a climb segment by iterating over the power required. While
 % iterating over the power required, the drag and specific excess power
@@ -158,7 +158,12 @@ Batt = Aircraft.Specs.Propulsion.PropArch.SrcType == 0;
 % remember the power splits
 Aircraft.Mission.History.SI.Power.LamDwn(  SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamDwn.Clb  , SegEnd - SegBeg + 1, 1);
 Aircraft.Mission.History.SI.Power.LamUps(  SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamUps.Clb  , SegEnd - SegBeg + 1, 1);
-Aircraft.Mission.History.SI.Power.Windmill(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.Windmill.Clb, SegEnd - SegBeg + 1, 1);
+
+% get the number of windmilling splits
+nwind = length(Aircraft.Specs.Power.Windmill.Clb);
+
+% remember the windmilling engines
+Aircraft.Mission.History.SI.Power.Windmill(SegBeg:SegEnd, 1:nwind) = repmat(Aircraft.Specs.Power.Windmill.Clb, SegEnd - SegBeg + 1, 1);
 
 % if not first segment, get accumulated quantities
 if (SegBeg > 1)

@@ -3,7 +3,7 @@ function [Aircraft] = EvalDescent(Aircraft)
 % [Aircraft] = EvalDescent(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
 % patterned after code written by Gokcin Cinar in E-PASS
-% last updated: 13 jun 2025
+% last updated: 16 jun 2025
 %
 % Evaluate a descent segment by iterating over the rate of climb and
 % instantaneous acceleration at each control point in the mission.
@@ -194,7 +194,12 @@ Aircraft.Mission.History.SI.Energy.Eleft_ES(SegBeg:SegEnd, :) = Eleft_ES;
 % remember the power splits
 Aircraft.Mission.History.SI.Power.LamDwn(  SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamDwn.Des  , SegEnd - SegBeg + 1, 1);
 Aircraft.Mission.History.SI.Power.LamUps(  SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamUps.Des  , SegEnd - SegBeg + 1, 1);
-Aircraft.Mission.History.SI.Power.Windmill(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.Windmill.Des, SegEnd - SegBeg + 1, 1);
+
+% get the number of windmilling splits
+nwind = length(Aircraft.Specs.Power.Windmill.Des);
+
+% remember the windmilling engines
+Aircraft.Mission.History.SI.Power.Windmill(SegBeg:SegEnd, 1:nwind) = repmat(Aircraft.Specs.Power.Windmill.Des, SegEnd - SegBeg + 1, 1);
 
 % ----------------------------------------------------------
 

@@ -2,7 +2,7 @@ function [Aircraft] = EvalLanding(Aircraft)
 %
 % [Aircraft] = EvalLanding(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 13 jun 2025
+% last updated: 16 jun 2025
 %
 % Evaluate the landing segment. The landing segment only uses two control
 % points (treats it as a single segment) and cannot be changed by the user.
@@ -129,7 +129,12 @@ end
 % remember the power splits
 Aircraft.Mission.History.SI.Power.LamDwn(  SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamDwn.Lnd  , SegEnd - SegBeg + 1, 1);
 Aircraft.Mission.History.SI.Power.LamUps(  SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamUps.Lnd  , SegEnd - SegBeg + 1, 1);
-Aircraft.Mission.History.SI.Power.Windmill(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.Windmill.Lnd, SegEnd - SegBeg + 1, 1);
+
+% get the number of windmilling splits
+nwind = length(Aircraft.Specs.Power.Windmill.Lnd);
+
+% remember the windmilling engines
+Aircraft.Mission.History.SI.Power.Windmill(SegBeg:SegEnd, 1:nwind) = repmat(Aircraft.Specs.Power.Windmill.Lnd, SegEnd - SegBeg + 1, 1);
 
 
 %% FLY THE LANDING SEGMENT %%
