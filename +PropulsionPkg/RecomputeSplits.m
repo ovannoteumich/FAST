@@ -46,10 +46,6 @@ if (~any(ParIndx))
     
 end
 
-
-%% RE-COMPUTE THE POWER SPLITS %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % get the number of parallel connections
 npar = length(ParIndx);
 
@@ -113,6 +109,7 @@ for ipar = 1:npar
     % compute the downstream power split
     LamDwn(idx, UseSplit) = Pav(idx, isupp) ./ Pout;
             
+
 end
 
 % if any are NaN, return 0 (assume it's from 0 power available)

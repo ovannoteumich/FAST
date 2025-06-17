@@ -180,6 +180,7 @@ end
 
 % update the mission history
 Aircraft.Mission.History.SI.Performance.TAS( SegBeg:SegEnd) = TAS ;
+Aircraft.Mission.History.SI.Performance.Alt( SegBeg:SegEnd) = Alt ;
 Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd) = Mass;
 
 % remember the fuel and battery energy remaining
@@ -232,7 +233,6 @@ while (iter < MaxIter)
     Aircraft.Mission.History.SI.Performance.TAS( SegBeg:SegEnd) = TAS ;
     Aircraft.Mission.History.SI.Performance.Rho( SegBeg:SegEnd) = Rho ;
     Aircraft.Mission.History.SI.Performance.Mach(SegBeg:SegEnd) = Mach;
-    Aircraft.Mission.History.SI.Performance.Alt( SegBeg:SegEnd) = Alt ;
     
     % ------------------------------------------------------
     

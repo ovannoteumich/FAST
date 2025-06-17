@@ -118,7 +118,7 @@ MaxIter = 10;
                              AltEnd, dISA, TypeEnd, VelEnd);
 
 % vector of equally spaced altitudes and velocities
-Alt = linspace(AltBeg, AltEnd, npoint)'; % m
+Alt = linspace(AltBeg, AltEnd, npoint)'; % m; % m
 TAS = linspace(TASBeg, TASEnd, npoint)'; % m/s
 
 % initialize arrays that accumulate (and start at 0)
@@ -171,6 +171,7 @@ end
 % remember the power splits
 Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamDwn.Crs, SegEnd - SegBeg + 1, 1);
 Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamUps.Crs, SegEnd - SegBeg + 1, 1);
+
 
 % remember initial quantities in the mission history
 Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd) = Mass;
@@ -237,7 +238,7 @@ FPA = asind(dh_dt ./ TAS);
 Aircraft.Mission.History.SI.Performance.TAS( SegBeg:SegEnd) = TAS ;
 Aircraft.Mission.History.SI.Performance.Rho( SegBeg:SegEnd) = Rho ;
 Aircraft.Mission.History.SI.Performance.Mach(SegBeg:SegEnd) = Mach;
-Aircraft.Mission.History.SI.Performance.Alt( SegBeg:SegEnd) = Alt ;
+Aircraft.Mission.History.SI.Performance.Alt(SegBeg:SegEnd) = Alt;
 
 % ----------------------------------------------------------
 

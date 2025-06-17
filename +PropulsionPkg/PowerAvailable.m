@@ -28,6 +28,9 @@ SegsID = Aircraft.Mission.Profile.SegsID;
 SegBeg = Aircraft.Mission.Profile.SegBeg(SegsID);
 SegEnd = Aircraft.Mission.Profile.SegEnd(SegsID);
 
+% get segment type
+Seg    = Aircraft.Mission.Profile.Segs(SegsID);
+
 % aircraft performance history
 TAS = Aircraft.Mission.History.SI.Performance.TAS(SegBeg:SegEnd);
 Rho = Aircraft.Mission.History.SI.Performance.Rho(SegBeg:SegEnd);
@@ -112,6 +115,7 @@ for itrn = 1:ntrn
             ThrustAv(:, itrn) = PropulsionPkg.EngineLapse(ThrustAv(:, itrn), aclass, Rho);
             
             % get the available power from the gas-turbine engines
+
             PowerAv(:, itrn) = ThrustAv(:, itrn) .* TAS;
             
         elseif ((strcmpi(aclass, "Turboprop") == 1) || ...
@@ -129,7 +133,6 @@ for itrn = 1:ntrn
         
     elseif (TrnType(itrn) == 0) % electric motor
         
-        % once available, input an electric motor model here
         
     elseif (TrnType(itrn) == 2) % fuel cell
         
@@ -181,6 +184,7 @@ Tav = Pav ./ TAS;
 % consolidate power from all sinks for now (later on, a flag will be
 % introduced to neglect power off-takes)
 TV = sum(Pav(:, nsrc+ntrn+1:end), 2);
+
 
 
 %% STORE OUTPUTS IN THE AIRCRAFT STRUCTURE %%

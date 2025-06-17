@@ -1,4 +1,4 @@
-function [Aircraft] = FlyMission(Aircraft)
+  function [Aircraft] = FlyMission(Aircraft)
 %
 % [Aircraft] = FlyMission(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
@@ -157,6 +157,9 @@ for imiss = 1:nmiss
             
             % get the last point in the segment
             SegEnd = Mission.SegEnd(isegs);
+
+            % power split versus altitude for mission
+            %Aircraft = DataStructPkg.PowerCode(Aircraft);
             
             % define the function call
             FunName = strcat("MissionSegsPkg.Eval", SegName);

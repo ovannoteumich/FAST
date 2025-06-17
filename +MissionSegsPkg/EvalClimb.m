@@ -153,6 +153,9 @@ Batt = Aircraft.Specs.Propulsion.PropArch.SrcType == 0;
 Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamDwn.Clb, SegEnd - SegBeg + 1, 1);
 Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamUps.Clb, SegEnd - SegBeg + 1, 1);
 
+%LamSLS = Aircraft.Specs.Power.LamTSPS.SLS;
+Aircraft.Mission.History.SI.Power.LamTSPS(SegBeg:SegEnd) = zeros(npoint, 1);
+
 % if not first segment, get accumulated quantities
 if (SegBeg > 1)
     
@@ -262,7 +265,7 @@ while (iter < MaxIter)
     Aircraft.Mission.History.SI.Performance.TAS( SegBeg:SegEnd) = TAS ;
     Aircraft.Mission.History.SI.Performance.Rho( SegBeg:SegEnd) = Rho ;
     Aircraft.Mission.History.SI.Performance.Mach(SegBeg:SegEnd) = Mach;
-    Aircraft.Mission.History.SI.Performance.Alt( SegBeg:SegEnd) = Alt ;
+    Aircraft.Mission.History.SI.Performance.Alt(SegBeg:SegEnd)  = Alt;
     
     % ------------------------------------------------------
     
@@ -278,9 +281,6 @@ while (iter < MaxIter)
     
     % get the power available
     Pav = Aircraft.Mission.History.SI.Power.TV(SegBeg:SegEnd);
-    
-    % for full throttle, recompute the operational power splits
-    Aircraft = PropulsionPkg.RecomputeSplits(Aircraft, SegBeg, SegEnd);
 
     % ------------------------------------------------------
 
@@ -305,10 +305,15 @@ while (iter < MaxIter)
     % compute the specific excess power
     Ps = (Pav - DV) ./ (Mass .* g);
 
+    
     % check for invalid specific excess power values
     if (any(Ps(1:end-1) < 0))
         warning('Target climb altitude cannot be reached (Ps < 0). Results may be faulty.')
+        if Aircraft.Settings.Analysis.Type < 0
+            error('Target climb altitude cannot be reached (Ps < 0). Results may be faulty.')
+        end
     end
+    
             
     % compute time to fly, depending if rate of climb is given
     if (isnan(dh_dtReq))
@@ -319,11 +324,12 @@ while (iter < MaxIter)
         % update the rate of climb (0 gets overwritten by next segment)
         dh_dt = [diff(Alt) ./ dTime; 0];
         
+        
         % find points that exceed the maximum rate of climb
         irow = find(dh_dt - dh_dtMax > EPS06);
         
         % adjust points that exceed the maximum rate of climb
-        if (any(irow))
+        if (any(irow) && Aircraft.Settings.Analysis.Type > 0)
             
             % limit the rate of climb
             dh_dt(irow) = dh_dtMax;
@@ -332,6 +338,7 @@ while (iter < MaxIter)
             dTime = diff(Alt) ./ dh_dt(1:end-1);
             
         end
+        
         
         % compute the acceleration
         dV_dt = [diff(TAS) ./ dTime; 0];
@@ -388,6 +395,7 @@ while (iter < MaxIter)
     
     % power required (ncases)
     Preq = dPE_dt + dKE_dt + DV;
+    %Preq = Inf(npoint, 1);
     
     % thrust required
     Treq = Preq ./ TAS;

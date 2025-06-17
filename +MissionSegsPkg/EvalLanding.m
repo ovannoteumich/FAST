@@ -151,7 +151,7 @@ Time(2:end) = Time(1) + cumsum(dTime);
                                 AltLand, dISA, VType, VLand);
 
 % initialize the trajectory
-Alt = repmat(  AltLand,    npoint, 1) ;
+Alt = Aircraft.Mission.History.SI.Performance.Alt(SegBeg:SegEnd); % m
 TAS = linspace(TASLand, 0, npoint   )';
 
 % update the mission history
@@ -217,7 +217,6 @@ Aircraft.Mission.History.SI.Power.Req(       SegBeg:SegEnd) = Preq;
 Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd) = Mass;
 Aircraft.Mission.History.SI.Performance.Time(SegBeg:SegEnd) = Time;
 Aircraft.Mission.History.SI.Performance.Mach(SegBeg:SegEnd) = Mach;
-Aircraft.Mission.History.SI.Performance.Alt( SegBeg:SegEnd) = Alt ;
 
 % perform the propulsion analysis
 Aircraft = PropulsionPkg.PropAnalysis(Aircraft);

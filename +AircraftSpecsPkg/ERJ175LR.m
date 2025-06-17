@@ -69,7 +69,8 @@ Aircraft.Specs.Performance.Alts.Crs = UnitConversionPkg.ConvLength(35000, "ft", 
 % design range (m)
 Aircraft.Specs.Performance.Range = UnitConversionPkg.ConvLength(2150, "naut mi", "m");
 
-% maximum rate of climb (m/s), assumed 2,250 ft/min (and converted)
+% maximum rate of climb (m/s), assumed 2,250 ft/min (and converted), Im
+% seeing in literature 1944.4 ft/min
 Aircraft.Specs.Performance.RCMax = UnitConversionPkg.ConvVel(2250, "ft/min", "m/s");
 
 
@@ -120,7 +121,7 @@ Aircraft.Specs.Weight.Batt = 0;
 %     (5) "PHE" = parallel hybrid electric
 %     (6) "SHE" = series hybrid electric
 %     (7) "O"   = other architecture (specified by the user)
-Aircraft.Specs.Propulsion.PropArch.Type = "C";
+Aircraft.Specs.Propulsion.PropArch.Type = "PHE";
 
 % get the engine
 Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.CF34_8E5;
@@ -148,17 +149,17 @@ Aircraft.Specs.Power.SpecEnergy.Fuel = 12;
 Aircraft.Specs.Power.SpecEnergy.Batt = 0.25;
 
 % downstream power splits
-Aircraft.Specs.Power.LamDwn.SLS = 0;
-Aircraft.Specs.Power.LamDwn.Tko = 0;
-Aircraft.Specs.Power.LamDwn.Clb = 0;
+Aircraft.Specs.Power.LamDwn.SLS = 0.1;
+Aircraft.Specs.Power.LamDwn.Tko = 0.1;
+Aircraft.Specs.Power.LamDwn.Clb = .1;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;
 
 % upstream power splits
-Aircraft.Specs.Power.LamUps.SLS = 0;
-Aircraft.Specs.Power.LamUps.Tko = 0;
-Aircraft.Specs.Power.LamUps.Clb = 0;
+Aircraft.Specs.Power.LamUps.SLS = 1;
+Aircraft.Specs.Power.LamUps.Tko = 1;
+Aircraft.Specs.Power.LamUps.Clb = .3;
 Aircraft.Specs.Power.LamUps.Crs = 0;
 Aircraft.Specs.Power.LamUps.Des = 0;
 Aircraft.Specs.Power.LamUps.Lnd = 0;
@@ -175,14 +176,77 @@ Aircraft.Specs.Power.P_W.SLS = NaN;
 Aircraft.Specs.Power.P_W.EM = 10;
 Aircraft.Specs.Power.P_W.EG = NaN;
 
+% EM Power code (only works for PHE right now)
+% desginate component(s) #
+% assign power code
+%assign alt range
+
+%Aircraft.Specs.Power.PC.Split = .3;
+%Aircraft.Specs.Power.PC.Alt = [0, 36000];
+
+%Aircraft.Specs.Power.PC.Index = [5,6];
+
 % battery cells in series and parallel
 % (commented values used for electrified aircraft)
-Aircraft.Specs.Power.Battery.ParCells = NaN;%100;
-Aircraft.Specs.Power.Battery.SerCells = NaN;% 62;
+Aircraft.Specs.Power.Battery.ParCells = 100;%100;
+Aircraft.Specs.Power.Battery.SerCells = 62;% 62;
 
 % initial battery SOC (commented value used for electrified aircraft)
-Aircraft.Specs.Power.Battery.BegSOC = NaN;%100;
+Aircraft.Specs.Power.Battery.BegSOC = 100;%100;
 
+% coefficient for HEA engine analysis
+Aircraft.Specs.Propulsion.Engine.HEcoeff = 1 +  Aircraft.Specs.Power.LamDwn.SLS;
+
+%% BATTERY SETTINGS %%
+%%%%%%%%%%%%%%%%%%%%%%
+
+% nominal cell voltage [V]
+Aircraft.Specs.Battery.NomVolCell = 3.6;
+
+% maxinum extracted voltage [V]
+Aircraft.Specs.Battery.MaxExtVolCell = 4.0880;
+
+% maxinum cell capacity [Ah]
+Aircraft.Specs.Battery.CapCell = 3;
+
+% internal resistance [Ohm]
+Aircraft.Specs.Battery.IntResist = 0.0199;
+
+% exponential voltage [V]
+Aircraft.Specs.Battery.expVol = 0.0986;
+
+% exponential capacity [(Ah)^-1]
+Aircraft.Specs.Battery.expCap = 30;
+
+% acceptable SOC threshold
+Aircraft.Specs.Battery.MinSOC = 20;
+
+% acceptable max c-rate during discharging
+Aircraft.Specs.Battery.MaxAllowCRate = 5;
+
+%%%% battery degradation effect analysis %%%
+Aircraft.Settings.Degradation = 1; % 1 = analysis with degradation effect; 0 = without degradation effect
+
+if Aircraft.Settings.Degradation == 1
+    
+    % battery chemistry material (ONLY "NMC" or "LFP" FOR NOW)
+    Aircraft.Specs.Battery.Chem = 1; % NMC: 1    LFP:2
+    
+    % Charging time 
+    Aircraft.Specs.Battery.ChrgTime = 60*60; % in sec
+    
+    % charging rate (can be an array or scalar, or a function with output of a scalar or array)
+    Aircraft.Specs.Battery.Cpower = -250*1000; % charging means negative rate in W
+    
+    % battery Full Equivalent Cycles (FECs)
+    Aircraft.Specs.Battery.FEC = 0; % start with 0
+    
+    % battery State of Health (SoH)
+    Aircraft.Specs.Battery.SOH = 100; 
+
+    % battery operation temperature (for analysis only, will remove)
+    Aircraft.Specs.Battery.OpTemp = 35; % [°C]
+end
 
 %% SETTINGS (LEAVE AS NaN FOR DEFAULTS) %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -200,12 +264,15 @@ Aircraft.Settings.OEW.MaxIter = 50;
 Aircraft.Settings.OEW.Tol = 0.001;
 
 % maximum number of iterations during aircraft sizing
-Aircraft.Settings.Analysis.MaxIter = 50;
+Aircraft.Settings.Analysis.MaxIter = 20;
 
 % analysis type, either:
 %     +1 for on -design mode (aircraft performance and sizing)
 %     -1 for off-design mode (aircraft performance           )
 Aircraft.Settings.Analysis.Type = +1;
+
+% constrain SOC from 20% to 100% for off design 
+Aircraft.Settings.ConSOC = 1; 
 
 % plotting, either:
 %     1 for plotting on
@@ -215,8 +282,12 @@ Aircraft.Settings.Plotting = 0;
 % make a tble of mission history
 %     1 for make table
 %     0 for no table
-Aircraft.Settings.Table = 0;
+Aircraft.Settings.Table = 1;
 
+% sizing comamand window output
+%   1 output weights
+%   0 no weight output
+Aircraft.Settings.PrintOut = 1;
 % ----------------------------------------------------------
 
 end
