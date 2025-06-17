@@ -2,7 +2,7 @@ function [Aircraft] = PowerAvailable(Aircraft)
 %
 % [Aircraft] = PowerAvailable(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 24 mar 2025
+% last updated: 16 jun 2025
 %
 % For a given propulsion architecture, compute the power available.
 %
@@ -70,6 +70,9 @@ OperUps = Aircraft.Specs.Propulsion.PropArch.OperUps;
 
 % get the upstream power splits
 LamUps = Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :);
+
+% check for windmilling
+Windmill = Aircraft.Mission.History.SI.Power.Windmill(SegBeg:SegEnd, :);
 
 % get the number of components
 ncomp = length(Arch);
@@ -163,12 +166,23 @@ idx = (nsrc + 1) : ncomp;
 
 % loop through points to get the power available
 for ipnt = 1:npnt
-    
-    % evaluate the function handles for the current splits
-    Lambda = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
 
     % get the initial power available
     Pav(ipnt, :) = [zeros(1, nsrc), PowerAv(ipnt, :), zeros(1, nsnk)];
+    
+    % evaluate the function handles for the current splits
+    Lambda = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
+    
+    % check if any engines are windmilling
+    if (any(Windmill(ipnt, :)))
+        
+        % get the indices
+        OffTrn = Windmill(ipnt, :) + nsrc;
+        
+        % "turn off" the respective components (set power available to 0)
+        Pav(ipnt, OffTrn) = 0;
+        
+    end
     
     % propagate the power upstream
     Pav(ipnt, idx) = PropulsionPkg.PowerFlow(Pav(ipnt, idx)', Arch(idx, idx), Lambda(idx, idx), EtaUps(idx, idx), +1)';
