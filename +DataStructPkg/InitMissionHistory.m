@@ -2,7 +2,7 @@ function [Aircraft] = InitMissionHistory(Aircraft)
 %
 % [Aircraft] = InitMissionHistory(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 04 jun 2025
+% last updated: 16 jun 2025
 %
 % Initialize all arrays to zeros in the mission history for both SI and
 % English units (although only SI units are currently used).
@@ -30,6 +30,16 @@ ncomp = length(Aircraft.Specs.Propulsion.PropArch.Arch);
 nsrc = length(Aircraft.Specs.Propulsion.PropArch.SrcType);
 ntrn = length(Aircraft.Specs.Propulsion.PropArch.TrnType);
 
+% get the number of engines failed during windmilling
+ntko = length(Aircraft.Specs.Power.Windmill.Tko);
+nclb = length(Aircraft.Specs.Power.Windmill.Clb);
+ncrs = length(Aircraft.Specs.Power.Windmill.Crs);
+ndes = length(Aircraft.Specs.Power.Windmill.Des);
+nlnd = length(Aircraft.Specs.Power.Windmill.Lnd);
+
+% get the maximum number of engines for windmilling
+nwind = max([ntko; nclb; ncrs; ndes; nlnd]);
+
 % create array of zeros to initialize the history
 ZeroScalar = zeros(     npnt, 1);
 ZeroChars  = repmat("", npnt, 1);
@@ -44,6 +54,9 @@ ZeroComps = zeros(npnt, ncomp);
 % array of zeros for energy/power/thrust splits
 ZeroOperUps = zeros(npnt, max(1, Aircraft.Settings.nargOperUps));
 ZeroOperDwn = zeros(npnt, max(1, Aircraft.Settings.nargOperDwn));
+
+% array of zeros for windmilling
+ZeroWind = zeros(npnt, nwind);
 
 % performance sub-structure
 Performance = struct("Time", ZeroScalar, ...
@@ -88,7 +101,8 @@ Power = struct("TV"      , ZeroScalar , ...
                "Tout"    , ZeroComps  , ...
                "Voltage" , ZeroSrc    , ...
                "Current" , ZeroSrc    , ...
-               "Capacity", ZeroSrc    ) ;
+               "Capacity", ZeroSrc    , ...
+               "Windmill", ZeroWind   ) ;
     
 % energy sub-structure
 Energy = struct("KE"      , ZeroScalar, ...

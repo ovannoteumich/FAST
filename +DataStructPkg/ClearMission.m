@@ -2,7 +2,7 @@ function [Aircraft] = ClearMission(Aircraft, ielem)
 %
 % [Aircraft] = ClearMission(Aircraft, ielem)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 04 jun 2025
+% last updated: 16 jun 2025
 %
 % Reset all of the information from the Aircraft.Mission.History.SI.*
 % sub-structure to 0s. This is needed each time a mission is re-flown.
@@ -88,6 +88,7 @@ if (ielem == 0)
     Aircraft.Mission.History.SI.Power.Voltage( :, :) = 0;
     Aircraft.Mission.History.SI.Power.Current( :, :) = 0;
     Aircraft.Mission.History.SI.Power.Capacity(:, :) = 0;
+    Aircraft.Mission.History.SI.Power.Windmill(:, :) = 0;
     
     % aircraft energy as a function of time
     Aircraft.Mission.History.SI.Energy.KE(      :, :) = 0;
@@ -150,6 +151,7 @@ else
     Aircraft.Mission.History.SI.Power.Voltage( ielem:end, :) = 0;
     Aircraft.Mission.History.SI.Power.Current( ielem:end, :) = 0;
     Aircraft.Mission.History.SI.Power.Capacity(ielem:end, :) = 0;
+    Aircraft.Mission.History.SI.Power.Windmill(ielem:end, :) = 0;
     
     % aircraft energy as a function of time
     Aircraft.Mission.History.SI.Energy.KE(      ielem:end, :) = 0;
