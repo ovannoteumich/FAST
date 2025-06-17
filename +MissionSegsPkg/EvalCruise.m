@@ -299,7 +299,10 @@ while (iter < MaxIter)
     Aircraft.Mission.History.SI.Aero.CL(SegBeg:SegEnd) = CL;
 
     % compute the lift-drag coefficient
-    L_D = AeroMethod(Aircraft);
+    Aircraft = AeroMethod(Aircraft);
+    
+    % get the lift-to-drag ratio
+    L_D = Aircraft.Mission.History.SI.Aero.L_D(SegBeg:SegEnd);
     
     % estimate the drag (ncases)
     D = L ./ L_D;
