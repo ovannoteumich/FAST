@@ -396,27 +396,27 @@ if (ndwn > 0)
                     if (ncol1 > ncol2)
                         
                         % add more empty columns to CurFails
-                        TempFails = [FinalFails; CurFails, strings(nrow2, ncol1 - ncol2)];
+                        FinalFails = [FinalFails; CurFails, strings(nrow2, ncol1 - ncol2)];
                         
                     elseif (ncol1 < ncol2)
                         
                         % add more empty columns to FinalFails
-                        TempFails = [FinalFails, strings(nrow1, ncol2 - ncol1); CurFails];
+                        FinalFails = [FinalFails, strings(nrow1, ncol2 - ncol1); CurFails];
                         
                     else
                         
                         % they are the same size, just append arrays
-                        TempFails = [FinalFails; CurFails];
+                        FinalFails = [FinalFails; CurFails];
                         
-                    end
-                    
-                    % simplify with the idempotent law
-                    FinalFails = IdempotentLaw(TempFails);
-                    
-                    % simplify with the law of absorption
-                    FinalFails = LawOfAbsorption(FinalFails);
-                    
+                    end                    
                 end
+                
+                % simplify with the idempotent law
+                FinalFails = IdempotentLaw(FinalFails);
+                
+                % simplify with the law of absorption
+                FinalFails = LawOfAbsorption(FinalFails);
+                
             end
         end            
     end
@@ -451,7 +451,7 @@ function [FinalFails] = AndGate(DwnFails, ndwn)
 %
 % [FinalFails] = AndGate(DwnFails, ndwn)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 09 jun 2025
+% last updated: 17 jun 2025
 %
 % enumerate all failures from the downstream inputs, simplifying as pairs
 % of failures are enumerated to reduce the problem size.
@@ -471,38 +471,19 @@ function [FinalFails] = AndGate(DwnFails, ndwn)
 %                  size/type/units: m-by-p / string / []
 %
 
-% keep track of the index
-jdwn = 1;
-
 % remove any downstream failures that are empty
 for idwn = 1:ndwn
     
     % check for an empty set of failures
-    if (isempty(DwnFails{jdwn}))
+    if (isempty(DwnFails{idwn}))
         
-        % remove it
-        DwnFails(jdwn) = [];
+        % cannot enumerate, failures are missing
+        FinalFails = [];
         
-        % decrease the number of downstream failures
-        ndwn = ndwn - 1;
-        
-    else
-        
-        % increment the counter because a non-empty set of failures exists
-        jdwn = jdwn + 1;
+        % exit the code
+        return
         
     end
-end
-
-% if there's only one downstream failure, the AND gate won't work
-if (length(DwnFails) == 1)
-    
-    % return an empty set (only downstream failures)
-    FinalFails = [];
-    
-    % exit the code
-    return
-    
 end
 
 % get the first sets of failures
