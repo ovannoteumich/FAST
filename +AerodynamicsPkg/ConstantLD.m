@@ -1,8 +1,8 @@
-function [L_D] = ConstantLD(Aircraft)
+function [Aircraft] = ConstantLD(Aircraft)
 %
-% [L_D] = ConstantLD(Aircraft)
+% [Aircraft] = ConstantLD(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 04 jun 2025
+% last updated: 17 jun 2025
 %
 % estimate the lift-drag ratio with a constant L/D.
 %
@@ -11,8 +11,9 @@ function [L_D] = ConstantLD(Aircraft)
 %                size/type/units: 1-by-1 / struct / []
 %
 % OUTPUTS:
-%     L_D      - lift-drag ratio at given flight conditions.
-%                size/type/units: npnt-by-1 / double / []
+%     Aircraft - data structure with lift-drag ratio at the given flight
+%                conditions.
+%                size/type/units: 1-by-1 / struct / []
 %
 
 
