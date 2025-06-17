@@ -3,7 +3,7 @@ function [Aircraft] = EvalDescent(Aircraft)
 % [Aircraft] = EvalDescent(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
 % patterned after code written by Gokcin Cinar in E-PASS
-% last updated: 16 jun 2025
+% last updated: 17 jun 2025
 %
 % Evaluate a descent segment by iterating over the rate of climb and
 % instantaneous acceleration at each control point in the mission.
@@ -466,6 +466,9 @@ Aircraft.Mission.History.SI.Performance.RC(  SegBeg:SegEnd) = dh_dt;
 Aircraft.Mission.History.SI.Performance.Acc( SegBeg:SegEnd) = dV_dt;
 Aircraft.Mission.History.SI.Performance.FPA( SegBeg:SegEnd) = FPA  ;
 Aircraft.Mission.History.SI.Performance.Ps(  SegBeg:SegEnd) = Ps   ;
+
+% power metrics
+Aircraft.Mission.History.SI.Power.DV(SegBeg:SegEnd) = DV;
 
 % energy quantities
 Aircraft.Mission.History.SI.Energy.PE(  SegBeg:SegEnd) = PE   ;

@@ -3,7 +3,7 @@ function [Aircraft] = EvalClimb(Aircraft)
 % [Aircraft] = EvalClimb(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
 % patterned after code written by Gokcin Cinar in E-PASS
-% last updated: 16 jun 2025
+% last updated: 17 jun 2025
 %
 % Evaluate a climb segment by iterating over the power required. While
 % iterating over the power required, the drag and specific excess power
@@ -488,6 +488,9 @@ Aircraft.Mission.History.SI.Performance.RC(  SegBeg:SegEnd) = dh_dt;
 Aircraft.Mission.History.SI.Performance.Acc( SegBeg:SegEnd) = dV_dt;
 Aircraft.Mission.History.SI.Performance.FPA( SegBeg:SegEnd) = FPA  ;
 Aircraft.Mission.History.SI.Performance.Ps(  SegBeg:SegEnd) = Ps   ;
+
+% power metrics
+Aircraft.Mission.History.SI.Power.DV(SegBeg:SegEnd) = DV;
 
 % energy quantities
 Aircraft.Mission.History.SI.Energy.PE(SegBeg:SegEnd) = PE;

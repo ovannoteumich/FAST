@@ -2,7 +2,7 @@ function [Aircraft] = EvalLanding(Aircraft)
 %
 % [Aircraft] = EvalLanding(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 16 jun 2025
+% last updated: 17 jun 2025
 %
 % Evaluate the landing segment. The landing segment only uses two control
 % points (treats it as a single segment) and cannot be changed by the user.
@@ -219,6 +219,7 @@ Preq(end) = 0;
 Ps = zeros(2, 1);
 
 % store variables in the mission history
+Aircraft.Mission.History.SI.Power.DV(        SegBeg:SegEnd) =    0;
 Aircraft.Mission.History.SI.Power.Req(       SegBeg:SegEnd) = Preq;
 Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd) = Mass;
 Aircraft.Mission.History.SI.Performance.Time(SegBeg:SegEnd) = Time;

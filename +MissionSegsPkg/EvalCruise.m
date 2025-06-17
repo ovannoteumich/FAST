@@ -2,7 +2,7 @@ function [Aircraft] = EvalCruise(Aircraft)
 %
 % [Aircraft] = EvalCruise(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 16 jun 2025
+% last updated: 17 jun 2025
 %
 % Evaluate a cruise segment by iterating over the aircraft's mass. Climb/
 % descent and accelerations are allowed in the segment.
@@ -410,6 +410,9 @@ Aircraft.Mission.History.SI.Performance.RC(  SegBeg:SegEnd) = dh_dt;
 Aircraft.Mission.History.SI.Performance.Acc( SegBeg:SegEnd) = dV_dt;
 Aircraft.Mission.History.SI.Performance.FPA( SegBeg:SegEnd) = FPA  ;
 Aircraft.Mission.History.SI.Performance.Ps(  SegBeg:SegEnd) = Ps   ;
+
+% power metrics
+Aircraft.Mission.History.SI.Power.DV(SegBeg:SegEnd) = DV;
 
 % energy quantities
 Aircraft.Mission.History.SI.Energy.PE(  SegBeg:SegEnd) = PE   ;
