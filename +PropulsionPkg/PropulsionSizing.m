@@ -2,7 +2,7 @@ function [Aircraft] = PropulsionSizing(Aircraft)
 %
 % [Aircraft] = PropulsionSizing(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 30 apr 2025
+% last updated: 19 jun 2025
 %
 % Split the total thrust/power throughout the powertrain and determine the
 % total power needed to size each component.
@@ -35,14 +35,15 @@ aclass = Aircraft.Specs.TLAR.Class;
 % get the takeoff speed
 TkoVel = Aircraft.Specs.Performance.Vels.Tko;
 
-% get the power source type
+% get the transmitter type
 TrnType = Aircraft.Specs.Propulsion.PropArch.TrnType;
 
 % find the appropriate transmitters
-Eng = TrnType == 1;
-EM  = TrnType == 0;
-EG  = TrnType == 3;
-Cab = TrnType == 4;
+EM   = TrnType == 0;
+Eng  = TrnType == 1;
+Prop = TrnType == 2;
+EG   = TrnType == 3;
+Cab  = TrnType == 4;
 
 % get the electric motor power-weight ratio
 P_Wem = Aircraft.Specs.Power.P_W.EM;
@@ -134,6 +135,14 @@ Aircraft.Specs.Propulsion.PowerSupp  = Psupp         ;
 Aircraft.Specs.Propulsion.SLSThrust  = Tdwn(1:end-1)';
 Aircraft.Specs.Propulsion.ThrustSupp = Tsupp         ;
 
+% check that the inlet area matches the number of propulsors in the config.
+if (length(Aircraft.Specs.Propulsion.InletArea) ~= ntrn)
+    
+    % create a properly sized array
+    Aircraft.Specs.Propulsion.InletArea = NaN(1, ntrn);
+    
+end
+
 % check for a fully-electric architecture (so engines don't get sized)
 if (any(TrnType > 0 & TrnType ~= 2))
 
@@ -151,22 +160,22 @@ if (any(TrnType > 0 & TrnType ~= 2))
         Weng = RegressionPkg.NLGPR(TurbofanEngines,IO,target);
         
         % get the first engine index (assume all engines are the same)
-        ieng = find(Eng, 1);
+        ieng = find(Eng);
         
         % add flight conditions
         Aircraft.Specs.Propulsion.Engine.Alt = 0;
         Aircraft.Specs.Propulsion.Engine.Mach = 0.05;
         
         % check if the thrust supplement is positive
-        if (Tsupp(ieng) > 0)
+        if (Tsupp(ieng(1)) > 0)
             
             % increase the engine size to generate all the thrust
-            Aircraft.Specs.Propulsion.Engine.DesignThrust = Tdwn(ieng) + Tsupp(ieng);
+            Aircraft.Specs.Propulsion.Engine.DesignThrust = Tdwn(ieng(1)) + Tsupp(ieng(1));
             
         else
             
             % leave the engine size as is, power is siphoned off
-            Aircraft.Specs.Propulsion.Engine.DesignThrust = Tdwn(ieng);
+            Aircraft.Specs.Propulsion.Engine.DesignThrust = Tdwn(ieng(1));
             
         end
 
@@ -174,11 +183,25 @@ if (any(TrnType > 0 & TrnType ~= 2))
         Aircraft.Specs.Propulsion.Engine.Sizing = 1;
         
         % size the engine
-        Aircraft.Specs.Propulsion.SizedEngine = EngineModelPkg.TurbofanNonlinearSizing(Aircraft.Specs.Propulsion.Engine, Psupp(ieng));
+        Aircraft.Specs.Propulsion.SizedEngine = EngineModelPkg.TurbofanNonlinearSizing(Aircraft.Specs.Propulsion.Engine, Psupp(ieng(1)));
         
         % turn off the sizing flags
         Aircraft.Specs.Propulsion.Engine.Sizing = 0; % unnnecessary
         Aircraft.Specs.Propulsion.SizedEngine.Specs.Sizing = 0;
+                
+        % get the new inlet area
+        InletArea = pi * Aircraft.Specs.Propulsion.SizedEngine.FanDiam ^ 2 / 4;
+        
+        % loop through the engines
+        for jeng = ieng
+            
+            % find the fan
+            ifan = find((Arch(jeng+nsrc, idx) == 1) & Prop);
+            
+            % remember the inlet area
+            Aircraft.Specs.Propulsion.InletArea(ifan) = InletArea;
+            
+        end
         
     elseif ((strcmpi(aclass, "Turboprop") == 1) || ...
             (strcmpi(aclass, "Piston"   ) == 1) )
