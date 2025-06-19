@@ -2,7 +2,7 @@ function [Aircraft] = PreSpecProcessing(Aircraft)
 %
 % [Aircraft] = PreSpecProcessing(Aircraft)
 % written by Max Arnson, marnson@umich.edu
-% last updated: 04 jun 2025
+% last updated: 19 jun 2025
 %
 % Instantiate any variables not specified in an aircraft data structure.
 % This function allows users to neglect to assign NaN values to parameters
@@ -49,6 +49,7 @@ if ~ isfield(Aircraft,"Specs")
     Aircraft.Specs.Propulsion.Eta.Prop = NaN;
     Aircraft.Specs.Propulsion.MDotCF = NaN;
     Aircraft.Specs.Propulsion.PropArch.Type = NaN;
+    Aircraft.Specs.Propulsion.InletArea = NaN;
     Aircraft.Specs.Power.SpecEnergy.Fuel = NaN;
     Aircraft.Specs.Power.SpecEnergy.Batt = NaN;
     Aircraft.Specs.Power.Eta.EM = NaN;
@@ -62,6 +63,11 @@ if ~ isfield(Aircraft,"Specs")
     Aircraft.Specs.Power.Battery.ParCells = NaN;
     Aircraft.Specs.Power.Battery.SerCells =  NaN;
     Aircraft.Specs.Power.Battery.BegSOC = NaN;
+    Aircraft.Specs.Power.Windmill.Tko = NaN;
+    Aircraft.Specs.Power.Windmill.Clb = NaN;
+    Aircraft.Specs.Power.Windmill.Crs = NaN;
+    Aircraft.Specs.Power.Windmill.Des = NaN;
+    Aircraft.Specs.Power.Windmill.Lnd = NaN;
 
 
 else
@@ -201,6 +207,7 @@ else
         Aircraft.Specs.Propulsion.Eta.Prop = NaN;
         Aircraft.Specs.Propulsion.MDotCF = NaN;
         Aircraft.Specs.Propulsion.PropArch.Type = NaN;
+        Aircraft.Specs.Propulsion.InletArea = NaN;
     else
         if ~isfield(Aircraft.Specs.Propulsion,"Engine")
             Aircraft.Specs.Propulsion.Engine = NaN;
@@ -223,6 +230,9 @@ else
         if ~isfield(Aircraft.Specs.Propulsion,"PropArch")
             Aircraft.Specs.Propulsion.PropArch.Type = NaN;
         end
+        if ~isfield(Aircraft.Specs.Propulsion,"InletArea")
+            Aircraft.Specs.Propulsion.InletArea = NaN;
+        end
     end
 
 
@@ -244,6 +254,11 @@ else
         Aircraft.Specs.Power.Battery.ParCells = NaN;
         Aircraft.Specs.Power.Battery.SerCells =  NaN;
         Aircraft.Specs.Power.Battery.BegSOC = NaN;
+        Aircraft.Specs.Power.Windmill.Tko = NaN;
+        Aircraft.Specs.Power.Windmill.Clb = NaN;
+        Aircraft.Specs.Power.Windmill.Crs = NaN;
+        Aircraft.Specs.Power.Windmill.Des = NaN;
+        Aircraft.Specs.Power.Windmill.Lnd = NaN;
     else
         if ~isfield(Aircraft.Specs.Power,"SLS")
             Aircraft.Specs.Power.SLS = NaN;
@@ -361,6 +376,30 @@ else
             end
             if ~isfield(Aircraft.Specs.Power.Battery,"BegSOC")
                 Aircraft.Specs.Power.Battery.BegSOC = NaN;
+            end
+        end
+        
+        if ~isfield(Aircraft.Specs.Power,"Windmill")
+            Aircraft.Specs.Power.Windmill.Tko = NaN;
+            Aircraft.Specs.Power.Windmill.Clb = NaN;
+            Aircraft.Specs.Power.Windmill.Crs = NaN;
+            Aircraft.Specs.Power.Windmill.Des = NaN;
+            Aircraft.Specs.Power.Windmill.Lnd = NaN;
+        else
+            if ~isfield(Aircraft.Specs.Power.Windmill,"Tko")
+                Aircraft.Specs.Power.Windmill.Tko = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Power.Windmill,"Clb")
+                Aircraft.Specs.Power.Windmill.Clb = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Power.Windmill,"Crs")
+                Aircraft.Specs.Power.Windmill.Crs = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Power.Windmill,"Des")
+                Aircraft.Specs.Power.Windmill.Des = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Power.Windmill,"Lnd")
+                Aircraft.Specs.Power.Windmill.Lnd = NaN;
             end
         end
     end

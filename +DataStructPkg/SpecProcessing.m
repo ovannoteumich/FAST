@@ -2,7 +2,7 @@ function [Aircraft] = SpecProcessing(Aircraft)
 %
 % [Aircraft] = SpecProcessing(Aircraft)
 % written by Maxfield Arnson, marnson@umich.edu
-% last updated: 04 jun 2025
+% last updated: 19 jun 2025
 %
 % This function initializes mission outputs, runs regressions, and
 % overwrites values left as NaN in the user input. It prepares the aircraft
@@ -294,6 +294,7 @@ DefaultWeight.WairfCF = 1;
 % DefaultPropulsion.Arch = 'C';             *required*
 DefaultPropulsion.NumEngines = 2;           % good
 DefaultPropulsion.MDotCF = 1;
+DefaultPropulsion.InletArea = NaN;
 %DefaultPropulsion.T_W.SLS = 0;                  % regression
 %DefaultPropulsion.Thrust.SLS = 0;           % regression
 %DefaultPropulsion.Thrust.Tko = DefaultPropulsion.Thrust.SLS;
@@ -316,6 +317,11 @@ DefaultPower.LamUps.Clb = 0;
 DefaultPower.LamUps.Crs = 0;
 DefaultPower.LamUps.Des = 0;
 DefaultPower.LamUps.Lnd = 0;
+DefaultPower.Windmill.Tko = 0;
+DefaultPower.Windmill.Clb = 0;
+DefaultPower.Windmill.Crs = 0;
+DefaultPower.Windmill.Des = 0;
+DefaultPower.Windmill.Lnd = 0;
 DefaultPower.P_W.EG = 5;                      % good
 %DefaultPower.P_W.EM = 5;                     % EDC Projection
 % DefaultPower.SpecEnergy.Fuel = 4.32e7;               % if statement
@@ -463,8 +469,10 @@ for i = 1:length(Aerofields)
     if isstruct(Aero.(Aerofields{i}))
         subfields = fieldnames(Aero.(Aerofields{i}));
         for j = 1:length(subfields)
-            if isnan(Aero.(Aerofields{i}).(subfields{j}))
-                Aero.(Aerofields{i}).(subfields{j}) = DefaultAero.(Aerofields{i}).(subfields{j});
+            if (isnumeric(Aero.(Aerofields{i}).(subfields{j})))
+                if isnan(Aero.(Aerofields{i}).(subfields{j}))
+                    Aero.(Aerofields{i}).(subfields{j}) = DefaultAero.(Aerofields{i}).(subfields{j});
+                end
             end
         end
     elseif isnan(Aero.(Aerofields{i}))
