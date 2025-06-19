@@ -2,7 +2,7 @@ function [Aircraft] = DragPolar(Aircraft)
 %
 % [Aircraft] = DragPolar(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 10 jun 2025
+% last updated: 19 jun 2025
 %
 % combine the drag coefficients into a single drag coefficient for further
 % analysis. the zero-lift and lift-dependent drag coefficients are scaled
@@ -17,7 +17,7 @@ function [Aircraft] = DragPolar(Aircraft)
 % OUTPUTS:
 %     Aircraft - data structure with lift-drag ratio at the given flight
 %                conditions.
-%                size/type/units: npnt-by-1 / double / []
+%                size/type/units: 1-by-1 / struct / []
 %
 
 
