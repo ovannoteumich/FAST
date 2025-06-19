@@ -2,7 +2,7 @@ function [CD] = WindmillDrag(Aircraft)
 %
 % [CD] = WindmillDrag(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 10 jun 2025
+% last updated: 19 jun 2025
 %
 % estimate the windmilling drag from any failed engines.
 %
@@ -16,7 +16,82 @@ function [CD] = WindmillDrag(Aircraft)
 %                size/type/units: n-by-1 / double / []
 %
 
-% return 0 for now
-CD = 0;
+
+%% PRE-PROCESSING %%
+%%%%%%%%%%%%%%%%%%%%
+
+% get the segment id
+SegsID = Aircraft.Mission.Profile.SegsID;
+
+% get the beginning and ending control point indices
+SegBeg = Aircraft.Mission.Profile.SegBeg(SegsID);
+SegEnd = Aircraft.Mission.Profile.SegEnd(SegsID);
+
+% get the number of control points
+npnt = SegEnd - SegBeg + 1;
+
+% check for windmilling engines
+CurWindmill = Aircraft.Mission.History.SI.Power.Windmill(SegBeg, :);
+
+if (~any(CurWindmill))
+    
+    % return an array of zeros
+    CD = zeros(npnt, 1);
+    
+    % stop running this function
+    return
+
+end
+
+% get the number of windmilling engines
+[~, neng] = size(CurWindmill);
+
+% load the interpolants
+Interpolants = load(fullfile("+AerodynamicsPkg", "WindmillingDrag.mat"));
+
+% get each interpolant
+TheoryCD = Interpolants.InterpTheoryCD;
+DeltaCD  = Interpolants.InterpDeltaCD;
+
+% get the mach number
+Mach = Aircraft.Mission.History.SI.Performance.Mach(SegBeg:SegEnd);
+
+
+%% COMPUTE THE SLS SPECIFIC THRUST %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% get the number of sources
+nsrc = length(Aircraft.Specs.Propulsion.PropArch.SrcType);
+
+% compute the mass flow rate at the inlet (SLS conditions)
+mdot = 1.225 .* Aircraft.Specs.Propulsion.InletArea(CurWindmill(1) - nsrc) .* Aircraft.Specs.Performance.Vels.Tko;
+
+% compute the specific thrust
+SpecThrust = Aircraft.Specs.Propulsion.SLSThrust(CurWindmill(1) - nsrc) ./ mdot;
+
+
+%% COMPUTE THE DRAG COEFFICIENT INCREMENT %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% assume a specific thrust for now
+Tspec = repmat(SpecThrust, npnt, 1);
+
+% compute the theoretical drag coefficient
+ThrCD = TheoryCD(Tspec);
+
+% compute the drag coefficient change due to mach number
+DelCD = DeltaCD(Tspec, Mach);
+
+% if there are any NaNs, convert them to zeros
+ThrCD(isnan(ThrCD)) = 0;
+DelCD(isnan(DelCD)) = 0;
+
+% compute the adjusted drag coefficient
+TotCD = ThrCD - DelCD;
+
+% add all contributions from failed engines
+CD = sum(TotCD, 2) .* neng;
+
+% ----------------------------------------------------------
 
 end
