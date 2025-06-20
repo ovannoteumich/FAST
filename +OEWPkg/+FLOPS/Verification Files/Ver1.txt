@@ -1,0 +1,43 @@
+Test1
+$OPTION
+ IOPT   = 1,                     ! analysis only
+ IANAL  = 1,                     ! full aircraft synthesis
+ INENG  = 0,
+/
+$WTIN
+ XL     = 200.,                  ! fuselage length, ft
+ WF = 20.,
+ DF = 20.,
+ NEW    = 2,                     ! # engines
+ THRSO  = 25000.,                ! design thrust per eng, lb
+ DIH = 3.0,
+ SPAN = 200.,
+ DNAC = 8.,
+ XNAC = 12.,
+ FULWMX = 50000.,
+ FLAPR = 0.333,
+ VARSWP = 0.,
+ FCOMP = 0.,
+ FAERT = 0.,
+ FSTRT = 0.,
+ NPF = 0.,
+ NPB = 150.,
+ NPT = 0.,
+ WPAINT = 0.03,
+ NTANK = 3.,
+ WTHR = 1.,
+ XLP = 160.,
+/
+$CONFIN
+ DESRNG = 2500.,
+ GW     = 2.50E5,                ! ramp weight, lb
+ SW     = 3500.,                 ! wing area, ft²
+ TR     = 0.2,                   ! taper ratio
+ SWEEP  = 30.,                   ! ¼-chord sweep, deg
+ TCA    = 0.15,                  ! thickness/Chord
+ VCMN   = 0.80,                  ! cruise Mach
+ HTVC = 3.44,
+ VTVC = 0.136,
+/
+$AERIN
+/

@@ -1,4 +1,4 @@
-function [OEW] = FLOPS_OEW(Params)
+function [OEW] = FLOPS_OEW(Params,in2)
 % Params Order:
 %{
 1....Range
@@ -33,6 +33,19 @@ Ops = FLOPS_Operational(Params);
 
 
 OEW = Empty_Weight +Ops;
+
+if nargin == 2
+
+    format long
+    calcs = [
+    Structs
+    Propulsion
+    Systems
+    Ops
+    OEW]
+    format short
+
+end
 
 end
 
@@ -72,6 +85,7 @@ Neng = Params(3);
 WingArea = Params(5) * UnitConversionPkg.ConvLength(1,'m','ft')^2;
 Fus_Length = UnitConversionPkg.ConvLength(Params(9),'m','ft');
 Span = UnitConversionPkg.ConvLength(Params(10),'m','ft');
+MTOW = UnitConversionPkg.ConvMass(Params(12),'kg','lbm');
 
 Fus_Width = Height/3; % ASSUMPTION: Fus height is 1/3 of actual height
 
@@ -90,7 +104,7 @@ Hfac = WingArea^2 / Span / Fus_Length;
 
 HtailArea = VolCoeff * Hfac;
 
-Htail_Weight = 5.4 * HtailArea;
+Htail_Weight = 0.53 * HtailArea * MTOW^0.20 * (0.2 + 0.5);
 
 
 end
@@ -102,6 +116,7 @@ Neng = Params(3);
 WingArea = Params(5) * UnitConversionPkg.ConvLength(1,'m','ft')^2;
 Fus_Length = UnitConversionPkg.ConvLength(Params(9),'m','ft');
 Span = UnitConversionPkg.ConvLength(Params(10),'m','ft');
+MTOW = UnitConversionPkg.ConvMass(Params(12),'kg','lbm');
 
 Fus_Depth = Height/3; % ASSUMPTION: Fus height is 1/3 of actual height
 
@@ -118,7 +133,7 @@ Vfac = WingArea * Span / Fus_Length;
 
 VtailArea = VolCoeff * Vfac;
 
-Vtail_Weight = 6.0 * VtailArea;
+Vtail_Weight = 0.32 * MTOW^0.3 * (0.2 + 0.5)  * VtailArea^0.85;
 
 end
 
@@ -136,18 +151,18 @@ TLAM = tand(Sweep) - (2 - 2 * Taper)/(AR * (1 + Taper));
 SLAM = TLAM / sqrt(1 + TLAM^2);
 CAYA = AR - 5;
 C4 = 1; % ASSUMPTION: No aeroelastic tailoring
-C6 = 0.5; % ASSUMPTION; NO STRUTS OR AERO TAILORING
+C6 = 0; % ASSUMPTION; NO STRUTS OR AERO TAILORING
 CAYL = (1 - SLAM^2) * (1 + C6 * SLAM^2 + 0.03 * CAYA * C4 * SLAM);
 TCA = 0.15; % ASSUMPTION, WEIGHTED AVERAGE THICKNESS TO CHORD = 15%
 EMS = 1; % ASSUMPTION: NO STRUT, EMS = 1
-BT = 0.215 * (0.37 + 0.7*Taper) * (AR)^(EMS/CAYL/TCA); 
+BT = 0.215 * (0.37 + 0.7*Taper) * (AR)^(EMS) /(CAYL*TCA); 
 ULF = 3.75; % ASSUMPTION, default ultimate load factor
 FCOMP = 0; % ASSUMPTION: No composites
-VFACT = 0; % ASSUMPTION: No variable sweep wing
-PCTL = 0.85; % ASSUMPTION, 85% of the lift is produced by the main wing
+VFACT = 1; % ASSUMPTION: No variable sweep wing
+PCTL = 1; % ASSUMPTION, 85% of the lift is produced by the main wing
 A = [8.8, 6.25, 0.68, 0.34, 0.6, 0.035, 1.5];
 W1NIR = A(1) * BT * (1 + sqrt(A(2)/Span)) * ULF * Span * (1 - 0.4 * FCOMP)...
-    * (1 - 0.1*0) * 1 * VFACT * PCTL / 1e-6;
+    * (1 - 0.1*0) * 1 * VFACT * PCTL * 1e-6;
 
 NEW = abs(Neng - 3) * Neng;
 CAYE = 1 -0.03 * NEW;
@@ -189,8 +204,7 @@ Fus_Length = UnitConversionPkg.ConvLength(Params(9),'m','ft');
 Fus_Diam = Height/3; % ASSUMPTION: Fus diam is 1/3 of actual height
 
 DIH = 3; % Assumption, 3 degree dihedral
-YEE = Span/4 * 12; % ASSUMPTION: Engine mounted at quarter span, in inched
-
+YEE = Span/2 * 0.3 * 12; 
 
 WLDG = MTOW * (1 - 0.00004 * R); % Subsonic cruise
 DFTE = 0; % 0 for transport AC
@@ -225,6 +239,7 @@ Fus_Length = UnitConversionPkg.ConvLength(Params(9),'m','ft');
 DiamFan = UnitConversionPkg.ConvLength(Params(13),'m','ft');
 LengthEng = UnitConversionPkg.ConvLength(Params(14),'m','ft');
 WingArea = Params(5) * UnitConversionPkg.ConvLength(1,'m','ft')^2;
+Neng = Params(3);
 
 Fus_Diam = Height/3; % ASSUMPTION: Fus diam is 1/3 of actual height
 
@@ -232,14 +247,14 @@ Fus_Diam = Height/3; % ASSUMPTION: Fus diam is 1/3 of actual height
 
 
 % Area Density
-RhoPaint = 0.85; % ASSUMPTION, 85% aircraft painted
+RhoPaint = 0.03; % ASSUMPTION, 
 
 % Wetted Areas
 Wing = 2 * WingArea;
 Htail = 2 * HtailArea;
 Vtail = 2 * Vtail_Area;
 Fuselage = pi * (Fus_Length / Fus_Diam - 1.7) * Fus_Diam^2;
-Nacelle = DiamFan * pi * LengthEng;
+Nacelle = Neng * DiamFan * pi * LengthEng;
 Canard = 0; 
 
 Paint = RhoPaint * (Wing + Htail + Vtail + Fuselage + Nacelle + Canard);
@@ -257,7 +272,7 @@ Fuel_Weight = UnitConversionPkg.ConvMass(Params(6),'kg','lbm');
 
 Vmax = 0.85; % ASSUMPTION: max cruise speed Mach 0.85
 
-ThrustReverser = 0.034 * Thrust_ea * TNAC;
+ThrustReverser =  0.034 * Thrust_ea * TNAC; 
 
 Controls = 0.26 * Neng * Thrust_ea ^ 0.5;
 Starters = 11 * Neng * Vmax^0.32 * Neng ^ 1.8;
@@ -310,8 +325,12 @@ Electrical = 92 * Fus_Length^0.4 * Fus_Diam^0.14 * NFUSE^0.27 * Neng^0.69 *...
 
 Avionics = 15.8 * R^0.1 * NCrew^0.7 * FPA^0.43;
 
-SeatWeight = 78; % ASSUMPTION all business class weight
-Furnishings = 127 * NCrew + Pax*SeatWeight + 2.6 * Fus_Length * 0.85 * 2 * Fus_Diam * NFUSE;
+SeatWeight = 78; % ASSUMPTION all first class weight
+
+NCEN = Neng - 2 * floor(Neng/2);
+Cabin_Length = Fus_Length - 40 - 25 * NCEN;
+
+Furnishings = 127 * NCrew + Pax*SeatWeight + 2.6 * Cabin_Length * 2 * Fus_Diam * NFUSE;
 % ASSUMPTION 85% length is for passengers, fus height and width = 1/3 total
 % binding box height
 
@@ -350,8 +369,8 @@ Stewards = 155 * (1 + ceil(Pax/40)*any(Pax(Pax>=51)));
 
 % Unusable Fuel
 Unusable_Fuel = 11.5* Neng * Thrust_ea ^ 0.2 +...
-    0.7 * WingArea +...
-    1.6 * 3 * Fuel_Weight ^ 0.28;
+    0.07 * WingArea +...
+    1.6 * 3 * Fuel_Weight ^ 0.28; % Assumption, 3 fuel tanks
 
 % Oil
 Oil = 0.082 * Neng * Thrust_ea ^ 0.65;
@@ -362,8 +381,7 @@ Passenger_Service = 3.5 * Pax * (R / 0.85)^0.225;
 % Cargo Containers
 
 % Piecewise Function for per pax cargo weight
-Cargo_Weight = 35* any(R(R<=950)) + 40* any(R(R > 950 && R<=2900)) +...
-    44 * any(R(R>2900));
+Cargo_Weight = 35* any(R(R<=950)) + 40* any(R(R > 950 && R<=2900)) + 44 * any(R(R>2900));
 Cargo_Containters = 175 * ceil(Pax * Cargo_Weight/950);
 
 
