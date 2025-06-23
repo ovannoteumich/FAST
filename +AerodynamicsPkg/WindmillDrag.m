@@ -1,8 +1,8 @@
-function [CD] = WindmillDrag(Aircraft)
+function [D] = WindmillDrag(Aircraft)
 %
-% [CD] = WindmillDrag(Aircraft)
+% [D] = WindmillDrag(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 19 jun 2025
+% last updated: 23 jun 2025
 %
 % estimate the windmilling drag from any failed engines.
 %
@@ -12,7 +12,7 @@ function [CD] = WindmillDrag(Aircraft)
 %                size/type/units: 1-by-1 / struct / []
 %
 % OUTPUTS:
-%     CD       - drag coefficient due to windmilling engines.
+%     D        - drag due to windmilling engines.
 %                size/type/units: n-by-1 / double / []
 %
 
@@ -36,7 +36,7 @@ CurWindmill = Aircraft.Mission.History.SI.Power.Windmill(SegBeg, :);
 if (~any(CurWindmill))
     
     % return an array of zeros
-    CD = zeros(npnt, 1);
+    D = zeros(npnt, 1);
     
     % stop running this function
     return
@@ -46,6 +46,9 @@ end
 % get the number of windmilling engines
 [~, neng] = size(CurWindmill);
 
+% get the scale factor for the windmilling drag
+ScaleWnd = Aircraft.Specs.Aero.ScaleWnd;
+
 % load the interpolants
 Interpolants = load(fullfile("+AerodynamicsPkg", "WindmillingDrag.mat"));
 
@@ -53,21 +56,27 @@ Interpolants = load(fullfile("+AerodynamicsPkg", "WindmillingDrag.mat"));
 TheoryCD = Interpolants.InterpTheoryCD;
 DeltaCD  = Interpolants.InterpDeltaCD;
 
-% get the mach number
+% get the flight condtions
+Rho  = Aircraft.Mission.History.SI.Performance.Rho( SegBeg:SegEnd);
+TAS  = Aircraft.Mission.History.SI.Performance.TAS( SegBeg:SegEnd);
 Mach = Aircraft.Mission.History.SI.Performance.Mach(SegBeg:SegEnd);
+
+% get the number of sources
+nsrc = length(Aircraft.Specs.Propulsion.PropArch.SrcType);
+
+% get the engine specifications
+Ainlet    = Aircraft.Specs.Propulsion.InletArea(CurWindmill(1) - nsrc);
+SLSThrust = Aircraft.Specs.Propulsion.SLSThrust(CurWindmill(1) - nsrc);
 
 
 %% COMPUTE THE SLS SPECIFIC THRUST %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% get the number of sources
-nsrc = length(Aircraft.Specs.Propulsion.PropArch.SrcType);
-
 % compute the mass flow rate at the inlet (SLS conditions)
-mdot = 1.225 .* Aircraft.Specs.Propulsion.InletArea(CurWindmill(1) - nsrc) .* Aircraft.Specs.Performance.Vels.Tko;
+mdot = 1.225 .* Ainlet .* Aircraft.Specs.Performance.Vels.Tko;
 
 % compute the specific thrust
-SpecThrust = Aircraft.Specs.Propulsion.SLSThrust(CurWindmill(1) - nsrc) ./ mdot;
+SpecThrust = SLSThrust ./ mdot;
 
 
 %% COMPUTE THE DRAG COEFFICIENT INCREMENT %%
@@ -89,8 +98,8 @@ DelCD(isnan(DelCD)) = 0;
 % compute the adjusted drag coefficient
 TotCD = ThrCD - DelCD;
 
-% add all contributions from failed engines
-CD = sum(TotCD, 2) .* neng;
+% compute drag from all windmilling engines
+D = sum(TotCD, 2) .* 0.5 .* Rho .* TAS .^ 2 .* Ainlet .* neng .* ScaleWnd;
 
 % ----------------------------------------------------------
 

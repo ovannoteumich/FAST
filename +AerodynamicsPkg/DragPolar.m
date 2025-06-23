@@ -31,7 +31,9 @@ SegsID = Aircraft.Mission.Profile.SegsID;
 SegBeg = Aircraft.Mission.Profile.SegBeg(SegsID);
 SegEnd = Aircraft.Mission.Profile.SegEnd(SegsID);
 
-% get the mach number
+% get the flight conditions
+Rho  = Aircraft.Mission.History.SI.Performance.Rho( SegBeg:SegEnd);
+TAS  = Aircraft.Mission.History.SI.Performance.TAS( SegBeg:SegEnd);
 Mach = Aircraft.Mission.History.SI.Performance.Mach(SegBeg:SegEnd);
 
 % get the lift coefficient
@@ -54,10 +56,26 @@ CD_Pressure = AerodynamicsPkg.LiftDependentDrag(Aircraft);
 CD_Induced  = AerodynamicsPkg.InducedDrag(Aircraft);
 
 % check for windmilling drag
-CD_Windmill = AerodynamicsPkg.WindmillDrag(Aircraft);
+D = AerodynamicsPkg.WindmillDrag(Aircraft);
+
+% compute the drag coefficient contribution from the windmilling drag
+if (any(D))
+    
+    % get the wing area
+    S = Aircraft.Specs.Aero.S;
+    
+    % compute the drag coefficient contribution
+    CD_Windmilling = D ./ (0.5 .* Rho .* TAS .^ 2 .* S);
+    
+else
+    
+    % return 0
+    CD_Windmilling = 0;
+    
+end
 
 % compute CD0 (zero-lift drag coefficient)
-CD0 = CD_SkinFric + CD_Compress + CD_Windmill;
+CD0 = CD_SkinFric + CD_Compress + CD_Windmilling;
 
 % compute CDI (lift-dependent drag coefficient)
 CDI = CD_Pressure + CD_Induced;
