@@ -2,7 +2,7 @@ function [Aircraft] = EvalCruise(Aircraft)
 %
 % [Aircraft] = EvalCruise(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 17 jun 2025
+% last updated: 23 jun 2025
 %
 % Evaluate a cruise segment by iterating over the aircraft's mass. Climb/
 % descent and accelerations are allowed in the segment.
@@ -182,7 +182,7 @@ Aircraft.Mission.History.SI.Power.LamUps(  SegBeg:SegEnd, :) = repmat(Aircraft.S
 nwind = length(Aircraft.Specs.Power.Windmill.Crs);
 
 % remember the windmilling engines
-Aircraft.Mission.History.SI.Power.Windmill(SegBeg:SegEnd, 1:nwind) = repmat(Aircraft.Specs.Power.Windmill.Crs, SegEnd - SegBeg + 1, 1);
+Aircraft.Mission.History.SI.Power.Windmill(SegBeg:SegEnd-1, 1:nwind) = repmat(Aircraft.Specs.Power.Windmill.Crs, SegEnd - SegBeg, 1);
 
 % remember initial quantities in the mission history
 Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd) = Mass;
