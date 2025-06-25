@@ -91,13 +91,6 @@ isnk = (nsrc + ntrn + 1) : ncomp;
 % remember the SLS thrust/power available in each transmitter
 ThrustAv = repmat(Aircraft.Specs.Propulsion.SLSThrust, npnt, 1);
  PowerAv = repmat(Aircraft.Specs.Propulsion.SLSPower , npnt, 1);
-
-% get the series connections
-ips = find(sum(PSPS - eye(nps), 2) > 0);
-
-% set the power/thrust available to 0 (depends on downstream connection)
-ThrustAv(:, ips) = 0;
- PowerAv(:, ips) = 0;
  
 % remember the SLS power separately
 SLSPower = Aircraft.Specs.Propulsion.SLSPower;
