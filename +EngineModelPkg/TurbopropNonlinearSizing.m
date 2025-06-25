@@ -44,7 +44,7 @@ Power1 = Engine1.Power;
 tol = 1e-5;
 w = 0.5;
 i = 1;
-while abs(Power1-DesPower)/DesPower > tol
+while abs(Power1-DesPower)/DesPower > tol && i < 10
 
     %MDot2 = MDot1 - w*(Power1-DesPower)*(MDot1 - MDot0)/(Power1-Power0);
     MDot2 = MDot1*(1 - (Power1-DesPower)/DesPower);
@@ -85,7 +85,7 @@ Power1 = Engine1.Power;
 tol = 1e-5;
 w = 0.5;
 i = 1;
-while abs(Power1-DesPower)/DesPower > tol
+while abs(Power1-DesPower)/DesPower > tol && i < 10
 
     %MDot2 = MDot1 - w*(Power1-DesPower)*(MDot1 - MDot0)/(Power1-Power0);
     MDot2 = MDot1*(1 - (Power1-DesPower)/DesPower);
