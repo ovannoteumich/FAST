@@ -50,7 +50,8 @@ Wem   = Aircraft.Specs.Weight.EM     ;
 Wpax  = Aircraft.Specs.Weight.Payload;
 Wcrew = Aircraft.Specs.Weight.Crew   ;
 Weng  = Aircraft.Specs.Weight.Engines;
-Weap = Aircraft.Specs.Weight.EAP     ;
+Weap  = Aircraft.Specs.Weight.EAP    ;
+Wbb   = Aircraft.Specs.Weight.BattBox;
 
 % check for a calibration factor on OEW/airframe weight
 if (isfield(Aircraft.Specs.Weight, "WairfCF"))
@@ -110,7 +111,7 @@ switch Class
             WframeOld = WframeNew;
             
             % compute MTOW
-            MTOW = WframeOld + Wfuel + Wbatt + Wpax + Wcrew + Wem + Weg + Weng + Weap;
+            MTOW = WframeOld + Wfuel + Wbatt + Wpax + Wcrew + Wem + Weg + Weng + Weap + Wbb;
             
             % get the necessary thrust and wing area
             T = MTOW * T_W * g;
@@ -196,7 +197,7 @@ switch Class
             WframeOld = WframeNew;
             
             % compute MTOW
-            MTOW = WframeOld + Wfuel + Wbatt + Wpax + Wcrew + Wem + Weg + Weng + Weap;
+            MTOW = WframeOld + Wfuel + Wbatt + Wpax + Wcrew + Wem + Weg + Weng + Weap + Wbb;
             
             % get the necessary power and wing area
             P = MTOW * P_W;

@@ -147,7 +147,8 @@ for itime = 1:ntime
     end
         
     % compute the cold cell voltage
-    VoltageCellCold = VoTemp + (A .* exp(-B .* DischargedCapacityStart) - PolarizedVoTemp .* DischargedCapacityStart ./ (SOC(itime) / 100) - DischargeCurveSlope .* DischargedCapacityStart);
+    temp = (A .* exp(-B .* DischargedCapacityStart) - PolarizedVoTemp .* DischargedCapacityStart ./ (SOC(itime) / 100) - DischargeCurveSlope .* DischargedCapacityStart);
+    VoltageCellCold = VoTemp + temp;
     
     % solve the polynomial to find the minimum current
     CurrBattPoly = [VoltageCellHot, VoltageCellCold, -TVreq_es_cell];

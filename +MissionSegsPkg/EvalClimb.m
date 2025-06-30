@@ -251,7 +251,7 @@ while (iter < MaxIter)
     % calculate energy height
     EnHt = Alt + TAS .^ 2 ./ (2 * g);
     
-    % difference in energy heigt
+    % difference in energy height
     dEnHt = diff(EnHt);
     
     % get the flight conditions (ncases)

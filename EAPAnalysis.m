@@ -68,6 +68,7 @@ Batt = Aircraft.Specs.Propulsion.PropArch.SrcType == 0;
 MTOW  = Aircraft.Specs.Weight.MTOW;
 Wfuel = Aircraft.Specs.Weight.Fuel;
 Wbatt = Aircraft.Specs.Weight.Batt;
+Wbb = Aircraft.Specs.Weight.BattBox;
 
 % get the wing loading
 W_S = Aircraft.Specs.Aero.W_S.SLS;
@@ -174,7 +175,8 @@ if Type < 0
         Aircraft.Specs.Weight.Crew   +...
         Aircraft.Specs.Weight.Payload   +...
         Aircraft.Specs.Weight.Fuel   +...
-        Aircraft.Specs.Weight.Batt;
+        Aircraft.Specs.Weight.Batt
+        Aircraft.Specs.Weight.BattBox;
 end
 
 % initialize the mission history
@@ -287,7 +289,7 @@ while (iter < MaxIter)
 
     % compute the OEW when sizing
     if (Type ~= -2)
-        Aircraft.Specs.Weight.OEW  = mtow_new - sum(Wfuel) - sum(Wbatt) - Wpax - Wcrew;
+        Aircraft.Specs.Weight.OEW  = mtow_new - sum(Wfuel) - sum(Wbatt) - Wpax - Wcrew - Wbb;
     end
     
     % remember the OEW and wing area
