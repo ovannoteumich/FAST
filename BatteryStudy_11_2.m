@@ -78,7 +78,6 @@ end
 
 %% Save the battery structure of each iterations
 
-
 % Define the folder containing the .mat files
 loadFolder = 'AircraftIterations';
 
@@ -147,11 +146,6 @@ ylabel("Battery SOH [%]");
 % xlim([0 FECs(end)]);
 grid on
 title('Battery Degradation')
-
-
-
-
-
 
 %% OFF-design test
 clc;clear;close all
@@ -430,4 +424,150 @@ title('Random Charging Strategy');
 
 SizedERJ = Main(AircraftSpecsPkg.ERJ175LR, @MissionProfilesPkg.ERJ_ClimbThenAccel);
 
-ChargedERJ = BatteryPkg.GroundCharge(SizedERJ, 60*60, -250e3);
+ChargedERJ = BatteryPkg.GroundCharge(SizedERJ, 60*60, -500e3);
+plot(ChargedERJ.Mission.History.SI.Power.ChargedAC.SOC)
+
+
+%%
+%% Prepare data
+soc   = ChargedERJ.Mission.History.SI.Power.ChargedAC.SOC;
+t     = (0:length(soc)-1) * ChargedERJ.Mission.History.SI.Power.ChargedAC.CtrlPtsTimeStep;
+tmin  = t/60;
+
+% Find the 80% index
+idx80 = find(soc>=80,1,'first');
+
+% Find CV start index
+crate    = abs(ChargedERJ.Mission.History.SI.Power.ChargedAC.C_rate);
+C_cutoff = crate(idx80);
+sub      = crate(idx80:end) < C_cutoff;
+firstInSub = find(sub,1,'first');
+if ~isempty(firstInSub)
+    idxCV = idx80 - 1 + firstInSub;
+else
+    idxCV = length(crate);
+end
+
+figure('Color','w'), hold on
+
+% Phase shading
+hBulk = patch([tmin(1) tmin(idx80) tmin(idx80) tmin(1)], [20 20 100 100], ...
+    [0.9 0.9 1], 'EdgeColor','none', 'FaceAlpha',0.3, 'DisplayName','Bulk CC');
+hCC1  = patch([tmin(idx80) tmin(idxCV) tmin(idxCV) tmin(idx80)], [20 20 100 100], ...
+    [0.9 1 0.9], 'EdgeColor','none', 'FaceAlpha',0.3, 'DisplayName','CC @ 1 C');
+hCV   = patch([tmin(idxCV) tmin(end) tmin(end) tmin(idxCV)], [20 20 100 100], ...
+    [1 0.9 0.9], 'EdgeColor','none', 'FaceAlpha',0.3, 'DisplayName','CV taper');
+
+% SOC curve
+hSOC = plot(tmin, soc, 'b-', 'LineWidth',2, 'DisplayName','SOC');
+
+% Threshold lines
+h80h = yline(80, ':r', '80%', ...
+    'LabelHorizontalAlignment','right', ...
+    'LabelVerticalAlignment','top', ...
+    'FontAngle','italic', ...
+    'DisplayName','80% threshold');
+hX80 = xline(tmin(idx80), '--k', 'I_{CC}=1C', ...
+    'LabelVerticalAlignment','bottom', ...
+    'DisplayName','80% entry');
+hXcv = xline(tmin(idxCV), '--k', 'CV start', ...
+    'LabelVerticalAlignment','bottom', ...
+    'DisplayName','CV start');
+
+% Annotations
+text(mean(tmin(1:idx80)),    70, 'Full Power', 'HorizontalAlignment','center');
+text(mean(tmin(idx80:idxCV)),70, 'CC Phase',   'HorizontalAlignment','center');
+text(mean(tmin(idxCV:end)),  70, 'CV Phase',   'HorizontalAlignment','center');
+
+% Labels & styling
+xlabel('Time (min)')
+ylabel('SOC (%)')
+title('SOC Profile with CC–CV Phases')
+ylim([20 100])
+grid on
+
+% Build the legend
+legend([hSOC, h80h], ...
+       'Location','southeast')
+
+hold off
+
+
+%% validating battery analysis results
+
+data = readtable('esoh/aging_param_cell_01.csv');
+
+time = data.t_hrs_;
+capacityloss = data.x_Loss;
+day = data.t_days_;
+
+figure(1)
+plot(SOHs, 'LineWidth', 2);
+hold on
+yline(70, 'r--', 'LineWidth', 2); % More efficient way to plot a horizontal line at y=70
+hold off
+xlabel('Flight Cycling Times');
+ylabel("Battery SOH [%]");
+% xlim([0 FECs(end)]);
+grid on
+title('Battery Degradation')
+
+
+figure(2)
+plot(day.*3, 100-capacityloss, 'LineWidth', 2);
+
+xlabel('Flight Cycling Times');
+ylabel("Battery SOH [%]");
+% xlim([0 FECs(end)]);
+grid on
+title('Battery Degradation')
+
+
+
+%% validate_CyclAging.m
+clear; clc; close all;
+
+% —– 1) Load the experimental data —–
+T = readtable('C:\Users\49401\Desktop\IDEAS\FAST\esoh\aging_param_cell_09.csv');
+cycles = T.N;              % cycle numbers
+Cap   = T.Cap;            % measured capacity [Ah]
+SOH_exp = Cap./Cap(1)*100; % experimental SOH [%]
+
+% —– 2) Define your model parameters (NMC) —–
+beta    = 0.001673;
+kT      = 21.6745;
+kDoD    = 0.022;
+kCch    = 0.2553;
+kCdis   = 0.1571;
+kmSOC   = -0.0212;
+alpha   = 0.915;
+Tref    = 293.15;    % [K]
+mSOCref = 42;      % 42% reference
+% test conditions from Case #1
+temp_act = 45 + 273.15;  % [K]
+DOD      = 100;          % full 0–100% DoD
+Cch      = 2;          % C/5
+Cdis     = 2;          % C/5
+mSOC     = 50;         % assume midpoint ~50%
+
+% —– 3) Compute model prediction at each experimental cycle —–
+SOH_pred = zeros(size(cycles));
+for ii = 1:numel(cycles)
+    FEC = cycles(ii);
+    ageing = exp( kT*((temp_act-Tref)/temp_act) ...
+                 + kDoD*DOD + kCch*Cch + kCdis*Cdis );
+    mterm  = 1 + kmSOC*mSOC*(1 - (mSOC/(2*mSOCref)));
+    SOH_pred(ii) = 100 - beta * ageing * mterm * FEC^alpha;
+end
+
+% —– 4) Plot & compute error —–
+figure; hold on;
+plot(cycles, SOH_exp, 'o-', 'LineWidth',1.2, 'DisplayName','Experiment');
+plot(cycles, SOH_pred,'s--','LineWidth',1.2,'DisplayName','Model');
+xlabel('Full Equivalent Cycles'); ylabel('SOH (%)');
+legend('Location','best'); grid on;
+title('Validation of CyclAging vs. Case #1 Data');
+
+% RMSE
+rmse = sqrt(mean((SOH_pred - SOH_exp).^2));
+fprintf('RMSE = %.2f %% SOH\n', rmse);
