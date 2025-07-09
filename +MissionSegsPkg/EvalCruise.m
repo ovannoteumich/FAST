@@ -290,7 +290,7 @@ while (iter < MaxIter)
     Ps = (Pav - DV) ./ (Mass .* g);
     
     % check if any specific power values are < 0
-    irow = find(Ps < 0);
+    irow = find(Ps(1:end-1) < 0);
     
     % check for specific excess power values
     if (any(irow))
