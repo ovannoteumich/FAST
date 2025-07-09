@@ -119,6 +119,7 @@ DefaultWeight.OEW = NaN;
 DefaultWeight.OEW_MTOW = NaN;
 DefaultWeight.Fuel = NaN;
 DefaultWeight.FuelFrac = NaN;
+DefaultWeight.Airframe = NaN;
 
 DefaultPropulsion.Fuel.Type = NaN;
 DefaultPropulsion.Fuel.Density = NaN;
