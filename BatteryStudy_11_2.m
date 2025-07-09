@@ -493,42 +493,169 @@ legend([hSOC, h80h], ...
 hold off
 
 
-%% validating battery analysis results
+%% Battery degradation model testing
+close all;
+% ---------------------------
+% 1) CHOOSE CHEMISTRY & PARAMETERS
+% ---------------------------
+% For NMC:
+% beta    = 0.001673;   
+% kT      = -21.6745;    % !!
+% kDoD    = 0.022;     
+% kCch    = 0.2553;   
+% kCdis   = 0.1571;     
+% kmSOC   = -0.0212;   
+% alpha   = 0.915;     
+% Tref    = 293;    
+% mSOCref = 42;       
 
-data = readtable('esoh/aging_param_cell_01.csv');
+% %-- Uncomment to test LFP by replacing the above values:
+beta    = 0.003414;
+kT      = 5.8755;
+kDoD    = -0.0045;
+kCch    = 0.1038;
+kCdis   = 0.296;
+kmSOC   = 0.0513;
+alpha   = 0.869;
+Tref    = 293;
+mSOCref = 42;
 
-time = data.t_hrs_;
-capacityloss = data.x_Loss;
-day = data.t_days_;
+% ---------------------------
+% 2) SET TEST CONDITIONS
+% ---------------------------
+temp_C   = 33;            
+temp_act = temp_C + 273; 
+DOD      = 80;          
+Cch      = 4;           
+Cdis     = 4;           
+mSOC     = 50;         
 
-figure(1)
-plot(SOHs, 'LineWidth', 2);
-hold on
-yline(70, 'r--', 'LineWidth', 2); % More efficient way to plot a horizontal line at y=70
-hold off
-xlabel('Flight Cycling Times');
-ylabel("Battery SOH [%]");
-% xlim([0 FECs(end)]);
-grid on
-title('Battery Degradation')
+% ---------------------------
+% 3) DEFINE CYCLE RANGE
+% ---------------------------
+maxCycles = 5000;            % number of cycles to simulate
+FEC       = (0:maxCycles)'; % full-equivalent cycle vector
+
+% ---------------------------
+% 4) COMPUTE SOH
+% ---------------------------
+ageing_term = exp( kT*((temp_act - Tref)./temp_act) ...
+                 + kDoD*DOD + kCch*Cch + kCdis*Cdis );
+msoc_term   = 1 + kmSOC*mSOC.*(1 - (mSOC/(2*mSOCref)));
+SOH         = 100 - beta * ageing_term .* msoc_term .* (FEC.^alpha);
+
+% ---------------------------
+% 5) PLOT RESULTS
+% ---------------------------
+figure;
+plot(FEC, SOH, 'LineWidth',1.5);
+xlabel('Full Equivalent Cycles');
+ylabel('State of Health (%)');
+title('Empirical SOH vs. Cycles');
+grid on;
+
+% ---------------------------
+% 6) OPTIONAL: STOP AT THRESHOLD
+% ---------------------------
+thresh = 70;  % SOH threshold [%]
+id = find(SOH <= thresh, 1, 'first');
+if ~isempty(id)
+    fprintf('SOH drops to %.1f%% at cycle %d.\n', SOH(id), id);
+end
 
 
-figure(2)
-plot(day.*3, 100-capacityloss, 'LineWidth', 2);
 
-xlabel('Flight Cycling Times');
-ylabel("Battery SOH [%]");
-% xlim([0 FECs(end)]);
-grid on
-title('Battery Degradation')
+%% BatteryDegradationValidation_CaseSeparated.m
+% Compare empirical aging model to experimental Case A & Case B data
+% Produces separate plots for each case with matching model conditions
+% Calculates RMSE and MAE for each experimental file
+
+clear; clc; close all;
+
+% ---------------------------
+% 1) MODEL PARAMETERS (NMC example)
+% ---------------------------
+beta    = 0.003414;
+kT      = 5.8755;
+kDoD    = -0.0045;
+kCch    = 0.1038;
+kCdis   = 0.296;
+kmSOC   = 0.0513;
+alpha   = 0.869;
+Tref    = 293;
+mSOCref = 42;
+
+% ---------------------------
+% 2) Define case-specific conditions
+% ---------------------------
+cases = { ...
+    struct('name','CaseA', 'folder','Battery_validation/CaseA', ...
+           'temp_C',35, 'DOD',100, 'Cch',4.8, 'Cdis',4, 'mSOC',50), ...
+    struct('name','CaseB', 'folder','Battery_validation/CaseB', ...
+           'temp_C',35, 'DOD',100, 'Cch',5.3,  'Cdis',4, 'mSOC',50)  ...
+};
+
+% ---------------------------
+% 3) Loop over cases
+% ---------------------------
+for ci = 1:numel(cases)
+    c = cases{ci};
+    % determine maximum cycle across experimental files
+    files = dir(fullfile(c.folder,'*.csv'));
+    maxCycle = 0;
+    for f = 1:numel(files)
+        Texp = readtable(fullfile(c.folder, files(f).name));
+        maxCycle = max(maxCycle, max(Texp.Cycle));
+    end
+    % compute model SOH up to maxCycle
+    FEC = (0:maxCycle)';
+    temp_act = c.temp_C + 273.15;
+    ageing_term = exp(kT*((temp_act - Tref)./temp_act) + kDoD*c.DOD + kCch*c.Cch + kCdis*c.Cdis);
+    msoc_term   = 1 + kmSOC*(c.mSOC/100)*(1 - (c.mSOC/100)/(2*(mSOCref/100)));
+    SOH_model   = 100 - beta * ageing_term .* msoc_term .* (FEC.^alpha);
+
+    % create figure for this case
+    figure('Name',c.name,'NumberTitle','off'); hold on;
+    legendEntries = {};
+
+    % plot experimental data and compute errors
+    for f = 1:numel(files)
+        fname = files(f).name;
+        Texp = readtable(fullfile(c.folder, fname));
+        cycles_exp = Texp.Cycle;
+        SOH_exp    = Texp.SOH * 100;
+        plot(cycles_exp, SOH_exp, 'o', 'DisplayName', fname);
+        legendEntries{end+1} = fname;
+
+        % model prediction at experimental cycles
+        idx = cycles_exp + 1; % account for zero-cycle at index 1
+        SOH_pred = SOH_model(idx);
+
+        % compute errors
+        err = SOH_pred - SOH_exp;
+        rmse = sqrt(mean(err.^2));
+        mae  = mean(abs(err));
+        fprintf('%s: %s -> RMSE = %.2f%%, MAE = %.2f%%\n', c.name, fname, rmse, mae);
+    end
+
+    % plot model curve
+    plot(FEC, SOH_model, 'k-', 'LineWidth',1.5, 'DisplayName','Model');
+    legendEntries{end+1} = 'Model';
+
+    % finalize plot
+    xlabel('Full Equivalent Cycles');
+    ylabel('SOH (%)');
+    title(sprintf('Empirical Model vs. %s Data', c.name));
+    grid on;
+    legend(legendEntries,'Location','best');
+end
 
 
-
-%% validate_CyclAging.m
+%% NMC validation (weird)
 clear; clc; close all;
 
 % —– 1) Load the experimental data —–
-T = readtable('C:\Users\49401\Desktop\IDEAS\FAST\esoh\aging_param_cell_09.csv');
+T = readtable('C:\Users\49401\Desktop\IDEAS\FAST\Battery_validation\esoh\aging_param_cell_09.csv');
 cycles = T.N;              % cycle numbers
 Cap   = T.Cap;            % measured capacity [Ah]
 SOH_exp = Cap./Cap(1)*100; % experimental SOH [%]
@@ -558,6 +685,10 @@ for ii = 1:numel(cycles)
                  + kDoD*DOD + kCch*Cch + kCdis*Cdis );
     mterm  = 1 + kmSOC*mSOC*(1 - (mSOC/(2*mSOCref)));
     SOH_pred(ii) = 100 - beta * ageing * mterm * FEC^alpha;
+    % finalize plot
+    xlabel('Full Equivalent Cycles');
+    ylabel('SOH (%)');
+    grid on;
 end
 
 % —– 4) Plot & compute error —–
@@ -567,7 +698,7 @@ plot(cycles, SOH_pred,'s--','LineWidth',1.2,'DisplayName','Model');
 xlabel('Full Equivalent Cycles'); ylabel('SOH (%)');
 legend('Location','best'); grid on;
 title('Validation of CyclAging vs. Case #1 Data');
-
+hold off
 % RMSE
 rmse = sqrt(mean((SOH_pred - SOH_exp).^2));
 fprintf('RMSE = %.2f %% SOH\n', rmse);
