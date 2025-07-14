@@ -17,7 +17,7 @@ function [SOCEnd] = GroundCharge(Aircraft, GroundTime, ChrgRate, npnt)
 %                  size/type/units: 1-by-1 / double / [s]
 %
 %     ChrgRate   - airport charging rate.
-%                  size/type/units: 1-by-1 / double / [kW]
+%                  size/type/units: 1-by-1 / double / [W]
 %
 % OUTPUTS:
 %     SOCEnd     - state of charge after the ground turn.
@@ -29,8 +29,8 @@ function [SOCEnd] = GroundCharge(Aircraft, GroundTime, ChrgRate, npnt)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % SOC upon arrival
-SOCBeg = Aircraft.Mission.History.SI.Power.SOC(npnt, 2);
-
+%SOCBeg = Aircraft.Mission.History.SI.Power.SOC(npnt, 2);
+SOCBeg = Aircraft.Specs.Power.Battery.BegSOC;
 % number of cells in series and parallel
 SerCells = Aircraft.Specs.Power.Battery.SerCells;
 ParCells = Aircraft.Specs.Power.Battery.ParCells;
