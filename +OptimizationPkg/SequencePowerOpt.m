@@ -19,24 +19,29 @@ function [OptimizedAircraft, PCbest, t, OptSeqTable] = SequencePowerOpt(Aircraft
 %% PRE-PROCESSING AND SETUP %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% objective function selection
+%if cost load cost table
+priceTable = readtable('\+ExperimentPkg\Energy_CostbyAirport.xlsx');
+
 % number of missions to fly
 nflight = height(Sequence);
 
 % setup a table large enough for all flights
 % note that 24 = number of data metrics returned (setup in varTypes/Names)
-sz = [nflight, 13];
+sz = [nflight, 14];
 
 % list the variable types to be returned in the table (24 total)
 varTypes = ["double", "double", "double", "double",...
             "double", "double", "double", "double", ...
             "double", "double", "double", "double", ...
-             "double"                                  ] ;
+             "double", "double"                               ] ;
 
 % list the variable names to be returned in the table (24 total)
 varNames = ["Segment"               , ...
             "Distance (nmi)"        , ...
             "Ground Time (min)"     , ...
             "TOGW (kg)"             , ...
+            "DOC ($)"               , ...
             "Fuel Burn (kg)"        , ...
             "Batt Energy (MJ)"      , ...
             "Intial SOC (%)"        , ...
@@ -143,8 +148,14 @@ save("opttable.mat", "OptSeqTable");
 %% Nested Functions %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [fburn, SOC, dh_dt] = FlySequence(PC, Aircraft, Sequence)
+function [DOC, SOC, dh_dt] = FlySequence(PC, Aircraft, Sequence)
+
+    % both onjective function values
     fburn = 0;
+    DOC = 0;
+
+    %objfunc = 'DOC'; 
+
     % iterate through missions
     for iflight = 1:nflight
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -236,10 +247,17 @@ function [fburn, SOC, dh_dt] = FlySequence(PC, Aircraft, Sequence)
         try
             Aircraft = Main(Aircraft, @MissionProfilesPkg.ERJ_ClimbThenAccel);
             %Aircraft = OptimizationPkg.MissionPowerOpt(Aircraft);
-             %save fuel burn
+            
+            % determine cost of flight
+            Aircraft = ExperimentPkg.EnergyCost_perAirport(Aircraft, Sequence.ORIGIN(iflight), priceTable);
+
+            %objective function: fuel burn
             fburn = fburn + Aircraft.Mission.History.SI.Weight.Fburn(npt);
+            %objective function: DOC
+            DOC = DOC + Aircraft.Mission.History.SI.Performance.Cost;
         catch
             fburn = 10^9;
+            DOC = 10^15;
         end
 
         % SOC for mission
@@ -342,6 +360,9 @@ TOGW = Aircraft.Specs.Weight.MTOW;
 % main mission fuelburn
 Fburn = Aircraft.Mission.History.SI.Weight.Fburn(npnt);
 
+% direct operting cost
+DOC = Aircraft.Mission.History.SI;
+
 % main mission battery energy use
 EBatt = Aircraft.Mission.History.SI.Energy.E_ES(npnt, 2);
 
@@ -357,7 +378,7 @@ TSFC_clb = sum(Aircraft.Mission.History.SI.Propulsion.TSFC(EndTko:EndClb))/(EndC
 TSFC_crs = sum(Aircraft.Mission.History.SI.Propulsion.TSFC(EndClb:EndCrs))/(EndCrs-EndClb +1);
 
 % save results in a vector
-Results = [TOGW, Fburn, EBatt, SOCbeg, SOCtko, SOCclb, SOCf, TSFC_tko, TSFC_clb, TSFC_crs];
+Results = [TOGW, DOC, Fburn, EBatt, SOCbeg, SOCtko, SOCclb, SOCf, TSFC_tko, TSFC_clb, TSFC_crs];
 
 end
 
