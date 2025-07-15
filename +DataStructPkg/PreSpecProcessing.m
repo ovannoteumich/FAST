@@ -48,6 +48,8 @@ if ~ isfield(Aircraft,"Specs")
     Aircraft.Specs.Propulsion.Eta.Prop = NaN;
     Aircraft.Specs.Propulsion.MDotCF = NaN;
     Aircraft.Specs.Propulsion.PropArch.Type = NaN;
+    Aircraft.Specs.Propulsion.DesignStrategy = NaN;
+    Aircraft.Specs.Propulsion.NumStrats = NaN;
     Aircraft.Specs.Power.SpecEnergy.Fuel = NaN;
     Aircraft.Specs.Power.SpecEnergy.Batt = NaN;
     Aircraft.Specs.Power.Eta.EM = NaN;
@@ -61,7 +63,6 @@ if ~ isfield(Aircraft,"Specs")
     Aircraft.Specs.Power.Battery.ParCells = NaN;
     Aircraft.Specs.Power.Battery.SerCells =  NaN;
     Aircraft.Specs.Power.Battery.BegSOC = NaN;
-
 
 else
 
@@ -195,6 +196,8 @@ else
         Aircraft.Specs.Propulsion.Eta.Prop = NaN;
         Aircraft.Specs.Propulsion.MDotCF = NaN;
         Aircraft.Specs.Propulsion.PropArch.Type = NaN;
+        Aircraft.Specs.Propulsion.DesignStrategy = NaN;
+        Aircraft.Specs.Propulsion.NumStrats = NaN;
     else
         if ~isfield(Aircraft.Specs.Propulsion,"Engine")
             Aircraft.Specs.Propulsion.Engine = NaN;
@@ -216,6 +219,12 @@ else
         end
         if ~isfield(Aircraft.Specs.Propulsion,"PropArch")
             Aircraft.Specs.Propulsion.PropArch.Type = NaN;
+        end
+        if ~isfield(Aircraft.Specs.Propulsion.DesignStrategy)
+            Aircraft.Specs.Propulsion.DesignStrategy = NaN;
+        end
+        if ~isfield(Aircraft.Specs.Propulsion.NumStrats)
+            Aircraft.Specs.Propulsion.NumStrats = NaN;
         end
     end
 

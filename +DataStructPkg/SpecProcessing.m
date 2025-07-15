@@ -364,6 +364,10 @@ DefaultPropulsion.Eta.Prop = 0.85;
 DefaultPower.Eta.EM = 0.96;
 DefaultPower.Eta.EG = 0.96;
 
+%% Default Power Management Strategy Inputs
+DefaultPropulsion.DesignStrategy = 0;
+DefaultPropulsion.NumStrats = 0;
+
 %% EDC Projections
 DefaultPower.P_W.EM = ProjectionPkg.KPPProjection(TLAR.Class, TLAR.EIS, 'Electric Motor Specific Power');
 DefaultPower.SpecEnergy.Batt = ProjectionPkg.KPPProjection(TLAR.Class,TLAR.EIS,'Battery Specific Energy');
@@ -493,7 +497,7 @@ for i = 1:length(Propulsionfields)
     if isstruct(Propulsion.(Propulsionfields{i}))
         subfields = fieldnames(Propulsion.(Propulsionfields{i}));
         for j = 1:length(subfields)
-            if i == 5
+            if i == 12
                 aaaaaaaa = 1;
             end
             tempvar = Propulsion.(Propulsionfields{i}).(subfields{j});

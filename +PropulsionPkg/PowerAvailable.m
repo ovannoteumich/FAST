@@ -69,10 +69,14 @@ Arch = Aircraft.Specs.Propulsion.PropArch.Arch;
 EtaUps = Aircraft.Specs.Propulsion.PropArch.EtaUps;
 
 % get the operational matrices
-OperUps = Aircraft.Specs.Propulsion.PowerManagement(PowerStrategyIndex).Ups;
+if Aircraft.Specs.Propulsion.NumStrats > 0
+    OperUps = Aircraft.Specs.Propulsion.PowerManagement(PowerStrategyIndex).Ups;
+else
+    OperUps = Aircraft.Specs.Propulsion.PropArch.OperUps;
+end
 
-% % get the upstream power splits
-% LamUps = Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :);
+% get the upstream power splits
+LamUps = Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :);
 
 % get the number of components
 ncomp = length(Arch);
@@ -155,22 +159,25 @@ itrn = (1:ntrn) + nsrc;
 
 % loop through points to get the power available
 for ipnt = 1:npnt
-    
-    % evaluate the function handles for the current splits
-    Lambda = PropulsionPkg.EvalSplit(OperUps);
-    % find all upstream transmitters (i.e., input at least one transmitter and
-    % maybe a source)
+    % if Aircraft.Specs.Propulsion.NumStrats > 0
+    %     % evaluate the function handles for the current splits 
+    %     Lambda = PropulsionPkg.EvalSplit(OperUps);
+    % else
+    Lambda = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
+
+    % find all upstream transmitters (i.e., input at least one transmitter
+    % and maybe a source)
     UpTrn = find(sum(Lambda(itrn, itrn), 1)' > 0 | sum(Lambda(itrn, itrn), 2) == 0);
-    tempPowerAv = PowerAv;
+
     % assume no power available at the propellers yet (need to propagate)
-    tempPowerAv(:, UpTrn) = 0; %#ok<FNDSB>
+    tempPowerAv = PowerAv; tempPowerAv(:, UpTrn) = 0; %#ok<FNDSB>
+
     % get the initial power available
     Pav(ipnt, :) = [zeros(1, nsrc), tempPowerAv(ipnt, :), zeros(1, nsnk)];
-    
+
     % propagate the power upstream
-    Pav(ipnt, idx) = PropulsionPkg.PowerFlow(Pav(ipnt, idx)', Arch(idx, idx), Lambda(idx, idx), EtaUps(idx, idx), +1)';
-    %Pav(ipnt, idx) = PropulsionPkg.PowerFlow(Pav(ipnt, idx)', Arch(idx, idx), OperUps(idx, idx), EtaUps(idx, idx), +1)';
-               
+    Pav(ipnt, idx) = PropulsionPkg.PowerFlow(Pav(ipnt, idx)', Arch(idx, idx), Lambda(idx, idx), EtaUps(idx, idx), +1)';             
+
 end
 
 % convert the power available to thrust available

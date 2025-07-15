@@ -1,4 +1,4 @@
-function [Aircraft] = CreatePropArch(Aircraft)
+function [Aircraft] = CreatePropArch_PMS(Aircraft)
 %
 % [Aircraft] = CreatePropArch(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
@@ -450,6 +450,7 @@ elseif (strcmpi(ArchName, "O"  ) == 1)
                            
     % check for the operational matrices
     for i = 1:NumStrats
+
         HaveOper = isfield(Specs.Propulsion.PowerManagement(i), ["Ups"; "Dwn"]);
     
         % confirm that they're all present
@@ -477,10 +478,12 @@ elseif (strcmpi(ArchName, "O"  ) == 1)
     
     % get number of arguments for each (potential) split
 for i = 1:NumStrats
+
     OperUps = Aircraft.Specs.Propulsion.PowerManagement(i).Ups;
     OperDwn = Aircraft.Specs.Propulsion.PowerManagement(i).Dwn;
     Aircraft.Settings.nargOperUps(i) = nargin(OperUps);
     Aircraft.Settings.nargOperDwn(i) = nargin(OperDwn);
+    
 end
     
     % ------------------------------------------------------
@@ -515,112 +518,112 @@ end
     %                            %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
-    % % get the size of the architecture matrix
-    % [nrow, ncol] = size(Arch);
-    % 
-    % % check for the same number of rows/columns in the architecture matrix
-    % if (nrow ~= ncol)
-    % 
-    %     % throw an error
-    %     error("ERROR - CreatePropArch: the architecture matrix must be square.");
-    % 
-    % end
-    % 
-    % % get the size of the downstream matrix
-    % for i = 1:NumStrats
-    %     tempVar = OperDwn(i);
-    %     [nrow, ncol] = size(tempVar);
-    % 
-    %     % check for the same number of rows/columns in the downstream matrix
-    %     if (nrow ~= ncol)
-    % 
-    %         % throw an error
-    %         error("ERROR - CreatePropArch: the downstream operational matrix must be square.");
-    % 
-    %     end
-    % end
-    % 
-    % % get the size of the upstream matrix
-    % for i = 1:NumStrats
-    %     [nrow, ncol] = size(OperUps(i));
-    % 
-    %     % check for the same number of rows/columns in the upstream matrix
-    %     if (nrow ~= ncol)
-    % 
-    %         % throw an error
-    %         error("ERROR - CreatePropArch: the upstream operational matrix must be square.");
-    % 
-    %     end
-    % end
-    % 
-    % % get the size of the upstream efficiency matrix
-    % [nrow, ncol] = size(EtaUps);
-    % 
-    % % check for the same number of rows/columns
-    % if (nrow ~= ncol)
-    % 
-    %     % throw an error
-    %     error("ERROR - CreatePropArch: the upstream efficiency matrix must be square.");
-    % 
-    % end
-    % 
-    % % get the size of the downstream efficiency matrix
-    % [nrow, ncol] = size(EtaDwn);
-    % 
-    % % check for the same number of rows/columns
-    % if (nrow ~= ncol)
-    % 
-    %     % throw an error
-    %     error("ERROR - CreatePropArch: the downstream efficiency matrix must be square.");
-    % 
-    % end
-    % 
-%     % ------------------------------------------------------
-% 
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%     %                            %
-%     % check for the correct      %
-%     % number of sources,         %
-%     % transmitters, and sinks    %
-%     %                            %
-%     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-%     % number of energy sources
-%     nsrc = sum(sum(Arch, 1) == 0);
-% 
-%     % number of power sinks
-%     nsnk = sum(sum(Arch, 2) == 0);
-% 
-%     % number of power transmitters
-%     ntrn = nrow - nsrc - nsnk;
-% 
-%     % check that the number of energy sources match
-%     if (nsrc ~= length(SrcType))
-% 
-%         % throw an error
-%         error("ERROR - CreatePropArch: incorrect number of sources prescribed.");
-% 
-%     end
-% 
-%     % check that the number of power transmitters match
-%     if (ntrn ~= length(TrnType))
-% 
-%         % throw an error
-%         error("ERROR - CreatePropArch: incorrect number of transmitters prescribed.");
-% 
-%     end
-% 
-%     % ------------------------------------------------------
-% 
-%     % if we've succeeded, exit the function (architecture already stored)
-%     return
-% 
-% else
-% 
-%     % throw error
-%     error("ERROR - CreatePropArch: invalid propulsion architecture provided.");
-% 
-% end
+    % get the size of the architecture matrix
+    [nrow, ncol] = size(Arch);
+
+    % check for the same number of rows/columns in the architecture matrix
+    if (nrow ~= ncol)
+
+        % throw an error
+        error("ERROR - CreatePropArch: the architecture matrix must be square.");
+
+    end
+
+    % get the size of the downstream matrix
+    for i = 1:NumStrats
+        tempVar = OperDwn(i);
+        [nrow, ncol] = size(tempVar);
+
+        % check for the same number of rows/columns in the downstream matrix
+        if (nrow ~= ncol)
+
+            % throw an error
+            error("ERROR - CreatePropArch: the downstream operational matrix must be square.");
+
+        end
+    end
+
+    % get the size of the upstream matrix
+    for i = 1:NumStrats
+        [nrow, ncol] = size(OperUps(i));
+
+        % check for the same number of rows/columns in the upstream matrix
+        if (nrow ~= ncol)
+
+            % throw an error
+            error("ERROR - CreatePropArch: the upstream operational matrix must be square.");
+
+        end
+    end
+
+    % get the size of the upstream efficiency matrix
+    [nrow, ncol] = size(EtaUps);
+
+    % check for the same number of rows/columns
+    if (nrow ~= ncol)
+
+        % throw an error
+        error("ERROR - CreatePropArch: the upstream efficiency matrix must be square.");
+
+    end
+
+    % get the size of the downstream efficiency matrix
+    [nrow, ncol] = size(EtaDwn);
+
+    % check for the same number of rows/columns
+    if (nrow ~= ncol)
+
+        % throw an error
+        error("ERROR - CreatePropArch: the downstream efficiency matrix must be square.");
+
+    end
+
+    % ------------------------------------------------------
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %                            %
+    % check for the correct      %
+    % number of sources,         %
+    % transmitters, and sinks    %
+    %                            %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    % number of energy sources
+    nsrc = sum(sum(Arch, 1) == 0);
+
+    % number of power sinks
+    nsnk = sum(sum(Arch, 2) == 0);
+
+    % number of power transmitters
+    ntrn = nrow - nsrc - nsnk;
+
+    % check that the number of energy sources match
+    if (nsrc ~= length(SrcType))
+
+        % throw an error
+        error("ERROR - CreatePropArch: incorrect number of sources prescribed.");
+
+    end
+
+    % check that the number of power transmitters match
+    if (ntrn ~= length(TrnType))
+
+        % throw an error
+        error("ERROR - CreatePropArch: incorrect number of transmitters prescribed.");
+
+    end
+
+    % ------------------------------------------------------
+
+    % if we've succeeded, exit the function (architecture already stored)
+    return
+
+else
+
+    % throw error
+    error("ERROR - CreatePropArch: invalid propulsion architecture provided.");
+
+end
 
 
 %% FILL THE STRCTURE %%
@@ -628,10 +631,6 @@ end
 
 % remember the architectures
 Aircraft.Specs.Propulsion.PropArch.Arch = Arch;
-
-% remember the operation
-% Aircraft.Specs.Propulsion.PowerManagement.Ups = OperUps;
-% Aircraft.Specs.Propulsion.PowerManagement.Dwn = OperDwn;
 
 % remember the efficiencies
 Aircraft.Specs.Propulsion.PropArch.EtaUps = EtaUps;
@@ -641,15 +640,17 @@ Aircraft.Specs.Propulsion.PropArch.EtaDwn = EtaDwn;
 Aircraft.Specs.Propulsion.PropArch.SrcType = SrcType;
 Aircraft.Specs.Propulsion.PropArch.TrnType = TrnType;
 
-% get number of arguments for each (potential) split
-for i = 1:NumStrats
+% get operational matrices & argument number for each (potential) split
+
+for i = 1:NumStrats % using power management strategy
+
     OperUps = Aircraft.Specs.Propulsion.PowerManagement(i).Ups;
     OperDwn = Aircraft.Specs.Propulsion.PowerManagement(i).Dwn;
     Aircraft.Settings.nargOperUps(i) = nargin(OperUps);
     Aircraft.Settings.nargOperDwn(i) = nargin(OperDwn);
-    nargin(OperUps)
-    nargin(OperDwn)
+
 end
+
 % ----------------------------------------------------------
 
 end

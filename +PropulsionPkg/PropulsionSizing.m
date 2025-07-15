@@ -51,9 +51,7 @@ P_Weg = Aircraft.Specs.Power.P_W.EG;
 Arch = Aircraft.Specs.Propulsion.PropArch.Arch;
 
 % get the design splits
-%LamDwn = Aircraft.Specs.Power.LamDwn.SLS;
-n = Aircraft.Specs.Propulsion.DesignStrategy;
-OperDwn = Aircraft.Specs.Propulsion.PowerManagement(n).Dwn;
+LamDwn = Aircraft.Specs.Power.LamDwn.SLS;
 
 % get propulsion system efficiencies
 EtaDwn = Aircraft.Specs.Propulsion.PropArch.EtaDwn;
@@ -98,11 +96,21 @@ elseif ((strcmpi(aclass, "Turboprop") == 1) || ...
     
 end
 
-% % get the power/thrust split function handles
-% OperDwn = Aircraft.Specs.Propulsion.PowerManagement.Dwn;
+% get the power/thrust split function handles
+if Aircraft.Specs.Propulsion.NumStrats > 0
+
+    % mission power strategy index
+    n = Aircraft.Specs.Propulsion.DesignStrategy;
+    % get the downstream operational matrix
+    OperDwn = Aircraft.Specs.Propulsion.PowerManagement(n).Dwn;
+
+else
+
+    OperDwn = Aircraft.Specs.Propulsion.PropArch.OperDwn;
+
+end
 
 % get the power splits
-LamDwn = 0;
 Splits = PropulsionPkg.EvalSplit(OperDwn, LamDwn);
 
 % get the number of sources and transmitters
@@ -117,14 +125,12 @@ idx = (nsrc + 1) : ncomp;
 
 % split the power amongst the power sources
 Pdwn = PropulsionPkg.PowerFlow([zeros(1, ntrn), P0]', Arch(idx, idx)', Splits(idx, idx), EtaDwn(idx, idx), -1);
-%Pdwn = PropulsionPkg.PowerFlow([zeros(1, ntrn), P0]', Arch(idx, idx)', OperDwn(idx, idx), EtaDwn(idx, idx), -1);
 
 % get only the transmitter indicies
 idx = nsrc + (1 : ntrn);
 
 % get the supplemental power
 Psupp = PropulsionPkg.PowerSupplementCheck(Pdwn(1:end-1)', Arch(idx, idx), Splits(), EtaDwn(idx, idx), TrnType, EtaFan);
-%Psupp = PropulsionPkg.PowerSupplementCheck(Pdwn(1:end-1)', Arch(idx, idx), OperDwn(idx, idx), EtaDwn(idx, idx), TrnType, EtaFan);
 
 % convert power to thrust
 Tdwn  = Pdwn  ./ TkoVel;

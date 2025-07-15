@@ -96,11 +96,20 @@ SegEnd = Aircraft.Mission.Profile.SegEnd(SegsID);
 % mission ID
 MissID = Aircraft.Mission.Profile.MissID;
 
-% mission power strategy index
-StratIndex = Aircraft.Mission.Profile.PowerStrategyIndex(SegsID);
+% get the operational matrix and power management strategy (if applicable)
+if Aircraft.Specs.Propulsion.NumStrats > 0
 
-% get the downstream operational matrix
-OperDwn = Aircraft.Specs.Propulsion.PowerManagement(StratIndex).Dwn;
+    % mission power strategy index
+    StratIndex = Aircraft.Mission.Profile.PowerStrategyIndex(SegsID);
+    % get the downstream operational matrix
+    OperDwn = Aircraft.Specs.Propulsion.PowerManagement(StratIndex).Dwn;
+
+else
+
+    OperDwn = Aircraft.Specs.Propulsion.PropArch.OperDwn;
+
+end
+
 
 % ----------------------------------------------------------
 
@@ -245,7 +254,7 @@ for ipnt = 1:npnt
     end
     
     % % evaluate the function handles for the current splits
-    SplitDwn = PropulsionPkg.EvalSplit(OperDwn, 0);
+    SplitDwn = PropulsionPkg.EvalSplit(OperDwn, LamDwn(ipnt, :));
     
     % propagate the power downstream to the transmitters
     Preq(ipnt, TrnSnkIdx) = PropulsionPkg.PowerFlow(Preq(ipnt, TrnSnkIdx)', Arch(TrnSnkIdx, TrnSnkIdx)', SplitDwn(TrnSnkIdx, TrnSnkIdx), EtaDwn(TrnSnkIdx, TrnSnkIdx), -1)';
@@ -280,7 +289,7 @@ Pout(:, TrnSnkIdx) = PoutTest;
 for ipnt = 1:npnt
         
     % evaluate the function handles for the current splits
-    SplitDwn = PropulsionPkg.EvalSplit(OperDwn, 0);
+    SplitDwn = PropulsionPkg.EvalSplit(OperDwn, LamDwn(ipnt, :));
     
     % propagate the power downstream
     Pout(ipnt, SrcTrnIdx) = PropulsionPkg.PowerFlow(Pout(ipnt, SrcTrnIdx)', Arch(SrcTrnIdx, SrcTrnIdx)', SplitDwn(SrcTrnIdx, SrcTrnIdx), EtaDwn(SrcTrnIdx, SrcTrnIdx), -1)';
@@ -306,7 +315,7 @@ itrn = nsrc + (1 : ntrn);
 for ipnt = 1:npnt
     
     % % get the current downstream power split
-    SplitDwn = PropulsionPkg.EvalSplit(OperDwn, 0);
+    SplitDwn = PropulsionPkg.EvalSplit(OperDwn, LamDwn(ipnt, :));
     
     % check for the power supplement
     Psupp(ipnt, itrn) = PropulsionPkg.PowerSupplementCheck( ...
@@ -360,9 +369,8 @@ if (any(Batt))
                 Pout(BattDeplete:end, icol) = 0;
                 
                 % zero the splits
-                % LamDwn(BattDeplete:end, :) = 0;
-                % I do not know how to create equivalent check here!!
-                
+                LamDwn(BattDeplete:end, :) = 0;
+                                
                 % change the SOC (prior index is last charge > 20%)
                 SOC(BattDeplete:end, icol) = SOC(BattDeplete - 1, icol);
                 
@@ -540,7 +548,7 @@ if (any(Fuel))
             ielem = [ifuel, icol];
             
             % evaluate the function handles for the current splits
-            SplitDwn = PropulsionPkg.EvalSplit(OperDwn, 0);
+            SplitDwn = PropulsionPkg.EvalSplit(OperDwn, LamDwn(ipnt, :));
             
             % temporary mass flow rate
             Tempdmdt = PropulsionPkg.PowerFlow([zeros(1, nfuel), MDotFuel(ipnt, HasEng(ieng))]', ...
