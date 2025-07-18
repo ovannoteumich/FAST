@@ -110,11 +110,13 @@ if SizedEngine.States.Station9.Mach > 1
     %warning('Core exhaust is supersonic')
 end
 
-if ~isfield(EngSpecFun,'Sizing')
-elseif EngSpecFun.Sizing == 1
-SizedEngine.OffDesignMap = EngineModelPkg.TF_OD_MapMaker(SizedEngine);
-SizedEngine.Specs.Sizing = 0;
-end
+
+%% Off design map maker. no longer used since we use the numerical model
+% if ~isfield(EngSpecFun,'Sizing')
+% elseif EngSpecFun.Sizing == 1
+%     SizedEngine.OffDesignMap = EngineModelPkg.TF_OD_MapMaker(SizedEngine);
+%     SizedEngine.Specs.Sizing = 0;
+% end
 
 
 %% Graphing
@@ -128,7 +130,7 @@ elseif EngSpecFun.Visualize == 1
 
     if EngSpecFun.Mach > 0.2
         target = 5*EngSpecFun.DesignThrust;
-    else 
+    else
         target = EngSpecFun.DesignThrust;
     end
 
