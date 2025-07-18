@@ -38,7 +38,6 @@ Engine.Alt = 0;
 % Overall Pressure Ratio 
 Engine.OPR = 50;
 
-
 % Fan Pressure Ratio
 Engine.FPR = 1.4;
 
