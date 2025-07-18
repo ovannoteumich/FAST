@@ -48,7 +48,7 @@ SegPts = ones(nsegs, 1);
 for isegs = 1:nsegs
     
     % get the segment name
-    SegName = Mission.Segs(isegs);
+    SegName = Mission.Segs{isegs};
     
     % check for a valid segment name
     if     ((strcmpi(SegName,         "Takeoff") == 1) || ...
@@ -142,7 +142,7 @@ for itarget = 1:ntarget
         end
         
         % get the target name
-        TarName = Mission.Target.Type(itarget);
+        TarName = Mission.Target.Type{itarget};
         
         % check for valid name
         if ((strcmp(TarName, "Dist") == 0) && ...
