@@ -160,7 +160,7 @@ Tt39old = OnDesignEngine.States.Station39.Tt;
 fprimex = 1;
 
 iter = 0;
-while abs(fprimex) > 1e-10
+while abs(fprimex) > 1e-10 && iter < 100
     
 
     fx = m31*EngineModelPkg.SpecHeatPkg.CpAir(Tt3,Tt39old)/(OnDesignEngine.Specs.EtaPoly.Combustor*LHVFuel - EngineModelPkg.SpecHeatPkg.CpJetA(Tt3,Tt39old));
@@ -170,7 +170,7 @@ while abs(fprimex) > 1e-10
 
     Tt39old = Tt39new;
 
-%     iter = iter+1;
+    iter = iter+1;
 %     scatter(iter,fx)
 %     hold on
 
@@ -316,7 +316,7 @@ prime = 1;
 
 iter = 0;
 
-while abs(prime) > 1e-7
+while abs(prime) > 1e-7 && iter < 100
 
     Ts = Tt*(1+(g-1)/2*M^2)^(-1);
     Ps = Pt*(1+(g-1)/2*M^2)^(-g/(g-1));
