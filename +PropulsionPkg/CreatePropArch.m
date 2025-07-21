@@ -569,30 +569,30 @@ elseif (strcmpi(ArchName, "O"  ) == 1)
     %                            %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    % number of energy sources
-    nsrc = sum(sum(Arch, 1) == 0);
-    
-    % number of power sinks
-    nsnk = sum(sum(Arch, 2) == 0);
-    
-    % number of power transmitters
-    ntrn = nrow - nsrc - nsnk;
-    
-    % check that the number of energy sources match
-    if (nsrc ~= length(SrcType))
-        
-        % throw an error
-        error("ERROR - CreatePropArch: incorrect number of sources prescribed.");
-        
-    end
-    
-    % check that the number of power transmitters match
-    if (ntrn ~= length(TrnType))
-        
-        % throw an error
-        error("ERROR - CreatePropArch: incorrect number of transmitters prescribed.");
-        
-    end
+%     % number of energy sources
+%     nsrc = sum(sum(Arch, 1) == 0);
+%     
+%     % number of power sinks
+%     nsnk = sum(sum(Arch, 2) == 0);
+%     
+%     % number of power transmitters
+%     ntrn = nrow - nsrc - nsnk;
+%     
+%     % check that the number of energy sources match
+%     if (nsrc ~= length(SrcType))
+%         
+%         % throw an error
+%         error("ERROR - CreatePropArch: incorrect number of sources prescribed.");
+%         
+%     end
+%     
+%     % check that the number of power transmitters match
+%     if (ntrn ~= length(TrnType))
+%         
+%         % throw an error
+%         error("ERROR - CreatePropArch: incorrect number of transmitters prescribed.");
+%         
+%     end
     
     % ------------------------------------------------------
     
