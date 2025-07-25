@@ -46,7 +46,7 @@ Engine.FPR = 1.65;
 Engine.BPR = 12.2;
 
 % Combustion Temperature [K]
-Engine.Tt4Max = 1950;
+Engine.Tt4Max = 2000;
 
 % Temperature Limits [K]
 Engine.TempLimit.Val = NaN;

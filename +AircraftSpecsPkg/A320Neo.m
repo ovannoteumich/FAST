@@ -3,7 +3,8 @@ function [Aircraft] = A320Neo()
 % [Aircraft] = A320Neo()
 % written by Max Arnson, marnson@umich.edu and Yi-Chih Wang,
 % ycwangd@umich.edu
-% last updated: 20 jun 2025
+% emmasmit@umich.edu
+% last updated: 18 july 2025
 % 
 % create a baseline model of the A320neo WV054. this version uses a 
 % conventional propulsion architecture.
@@ -36,8 +37,8 @@ Aircraft.Specs.TLAR.EIS = 2016;
 Aircraft.Specs.TLAR.Class = "Turbofan";
 
 % ** required **
-% approximate number of passengers (payload / average passenger mass)
-Aircraft.Specs.TLAR.MaxPax = 15309 / 95;
+% approximate number of passengers 
+Aircraft.Specs.TLAR.MaxPax = 165;
 
 
 %% MODEL CALIBRATION FACTORS %%
@@ -48,17 +49,17 @@ Aircraft.Specs.Aero.L_D.ClbCF = 1;
 Aircraft.Specs.Aero.L_D.CrsCF = 1;
 
 % fuel flow calibration factor
-Aircraft.Specs.Propulsion.MDotCF = 1;
+Aircraft.Specs.Propulsion.MDotCF = 1.11;
 
 % airframe weight calibration factor
-Aircraft.Specs.Weight.WairfCF = 1;
+Aircraft.Specs.Weight.WairfCF = 1.01;
  
 
 %% VEHICLE PERFORMANCE %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
 % takeoff speed (m/s)
-Aircraft.Specs.Performance.Vels.Tko = UnitConversionPkg.ConvVel(135, "kts", "m/s");
+Aircraft.Specs.Performance.Vels.Tko = UnitConversionPkg.ConvVel(185, "kts", "m/s");
 
 % cruise speed (mach)
 Aircraft.Specs.Performance.Vels.Crs = 0.82;
@@ -69,9 +70,8 @@ Aircraft.Specs.Performance.Alts.Tko = 0;
 % cruise altitude (m)
 Aircraft.Specs.Performance.Alts.Crs = UnitConversionPkg.ConvLength(35000, "ft", "m");
 
-% ** required **
 % design range (m)
-Aircraft.Specs.Performance.Range = 4815e3;
+Aircraft.Specs.Performance.Range = 6500e3;
 
 % maximum rate of climb (m/s), assumed 2,250 ft/min
 Aircraft.Specs.Performance.RCMax = UnitConversionPkg.ConvLength(2250/60, "ft", "m");
@@ -96,7 +96,7 @@ Aircraft.Specs.Aero.W_S.SLS = 79000 / 126.5;
 %% WEIGHTS %%
 %%%%%%%%%%%%%
 
-% maximum takeoff weight (kg)
+% maximum takeoff weight (kg) % 79015
 Aircraft.Specs.Weight.MTOW = 79000;
 
 % electric generator weight (kg)
@@ -111,6 +111,10 @@ Aircraft.Specs.Weight.Fuel = 19000;
 % battery weight (kg), leave NaN for propulsion systems without batteries
 Aircraft.Specs.Weight.Batt = NaN;
 
+% Literature weight values
+% MTOW: 79000
+% OEW: 62000 %zero fuel weight
+% Fuel: 19051
 
 %% PROPULSION %%
 %%%%%%%%%%%%%%%%
@@ -127,16 +131,17 @@ Aircraft.Specs.Propulsion.PropArch.Type = "C";
 
 % **required** for configurations using gas-turbine engines
 % get the engine model
-%C1100G_JM;
+Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.PW_1100G_JM;
+%Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.LEAP_1A26;
 
 % number of engines
 Aircraft.Specs.Propulsion.NumEngines = 2;
 
 % thrust-weight ratio (if a turbojet/turbofan)
-Aircraft.Specs.Propulsion.T_W.SLS = 2.37e5 / (73500 * 9.81);
+Aircraft.Specs.Propulsion.T_W.SLS = 2.40e5 / (74000 * 9.81);
 
 % total sea-level static thrust available (N)
-Aircraft.Specs.Propulsion.Thrust.SLS = 2.37e5;
+Aircraft.Specs.Propulsion.Thrust.SLS = 2.40e5;
 
 % engine propulsive efficiency
 Aircraft.Specs.Propulsion.Eta.Prop = 0.8;
@@ -191,10 +196,10 @@ Aircraft.Specs.Power.Battery.BegSOC = NaN;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % number of control points in each segment
-Aircraft.Settings.TkoPoints = 4;
-Aircraft.Settings.ClbPoints = 5;
-Aircraft.Settings.CrsPoints = 5;
-Aircraft.Settings.DesPoints = 5;
+Aircraft.Settings.TkoPoints = NaN;
+Aircraft.Settings.ClbPoints = NaN;
+Aircraft.Settings.CrsPoints = NaN;
+Aircraft.Settings.DesPoints = NaN;
 
 % maximum number of iterations during oew estimation
 Aircraft.Settings.OEW.MaxIter = 50;
