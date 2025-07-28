@@ -19,7 +19,6 @@ function [] = InitializeComponents()
 % https://www.engineeringtoolbox.com/thermal-conductivity-metals-d_858.html
 
 
-
 %% Metals
 
 Metals.RefUnits.Density = 'kg/m3';
