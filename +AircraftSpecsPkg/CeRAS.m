@@ -1,9 +1,9 @@
 function [Aircraft] = CeRAS()
 %
-% [Aircraft] = ERJ175LR()
-% originally written for E175 by Nawa Khailany
-% modified to E175LR by Paul Mokotoff, prmoko@umich.edu
-% last updated: 13 dec 2024
+% [Aircraft] = CeRAS()
+% central reference aircraft data system
+% modified off ERJ template by Max Arnson, marnson@umich.edu
+% last updated: 28 Jul 2025
 % 
 % Create a baseline model of the ERJ 175, long-range version (also known as
 % an ERJ 170-200). This version uses a conventional propulsion
