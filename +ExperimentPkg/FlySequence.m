@@ -1,24 +1,29 @@
 function [ACs, SeqTable] = FlySequence(Aircraft, Sequence)
 
 
+% objective function selection
+%if cost load cost table
+priceTable = readtable('\+ExperimentPkg\Energy_CostbyAirport.xlsx');
+
 % number of missions to fly
 nflight = height(Sequence);
 
 % setup a table large enough for all flights
 % note that 24 = number of data metrics returned (setup in varTypes/Names)
-sz = [nflight, 13];
+sz = [nflight, 14];
 
 % list the variable types to be returned in the table (24 total)
 varTypes = ["double", "double", "double", "double",...
             "double", "double", "double", "double", ...
             "double", "double", "double", "double", ...
-             "double"                                  ] ;
+             "double", "double"                               ] ;
 
 % list the variable names to be returned in the table (24 total)
 varNames = ["Segment"               , ...
             "Distance (nmi)"        , ...
             "Ground Time (min)"     , ...
             "TOGW (kg)"             , ...
+            "DOC ($)"               , ...
             "Fuel Burn (kg)"        , ...
             "Batt Energy (MJ)"      , ...
             "Intial SOC (%)"        , ...
@@ -32,6 +37,7 @@ varNames = ["Segment"               , ...
 % setup the table
 SeqTable = table('Size', sz, 'VariableTypes', varTypes, ...
                             'VariableNames', varNames) ;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                            %
@@ -72,6 +78,7 @@ g = 9.81;
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
 fburn = 0;
+DOC = 0;
 % iterate through missions
 for iflight = 1:nflight
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -152,16 +159,19 @@ for iflight = 1:nflight
     %           mission          %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
- Aircraft.Specs.Power.PC(10:36, [3,4]) = 0.05;
+ %Aircraft.Specs.Power.PC(10:36, [3,4]) = 0.05;
 %Aircraft.Mission.History.SI.Power.PC(10:36, [3,4]) = 0.05;
     
 
     % fly mission
     %try
-        %Aircraft = Main(Aircraft, @MissionProfilesPkg.ERJ_ClimbThenAccel);
-        Aircraft = OptimizationPkg.MissionPowerOpt(Aircraft);
-         %save fuel burn
-        fburn = fburn + Aircraft.Mission.History.SI.Weight.Fburn(npt);
+               Aircraft = Main(Aircraft, @MissionProfilesPkg.ERJ_ClimbThenAccel);
+            %Aircraft = OptimizationPkg.MissionPowerOpt(Aircraft);
+
+            Aircraft = ExperimentPkg.EnergyCost_perAirport(Aircraft, Sequence.ORIGIN(iflight), priceTable);
+
+        fburn = fburn + Aircraft.Mission.History.SI.Weight.Fburn(npt)
+        DOC = DOC + Aircraft.Mission.History.SI.Performance.Cost
     %catch
      %   fburn = 10^9;
     %end
@@ -200,6 +210,7 @@ save("single.mat", "SeqTable");
 %% ANALYZE AIRCRAFT %%
 function Results = AnaylzeMiss(Aircraft)
 
+%% EXTRACT MISSION SEGMENT INDECES %% 
 % get the number of points in each segment
 TkoPts = Aircraft.Settings.TkoPoints;
 ClbPts = Aircraft.Settings.ClbPoints;
@@ -218,14 +229,19 @@ EndClb = 2 * Aircraft.Settings.ClbPoints + EndTko - 2;
 % get the index of end of cruise
 EndCrs = EndClb + Aircraft.Settings.ClbPoints + Aircraft.Settings.CrsPoints + Aircraft.Settings.DesPoints - 3;
 
+% --------------------------------------------------------------------------------------------------------------------------
+%% EXTRACT MISSION SEGMENT INDECES %% 
+
 % takeoff gross weight
 TOGW = Aircraft.Specs.Weight.MTOW;
 
 % main mission fuelburn
 Fburn = Aircraft.Mission.History.SI.Weight.Fburn(npnt);
 
-if ~isnan(Aircraft.Specs.Power.Battery.ParCells) 
+% direct operting cost
+DOC = Aircraft.Mission.History.SI.Performance.Cost;
 
+if ~isnan(Aircraft.Specs.Power.Battery.ParCells) 
 % main mission battery energy use
 EBatt = Aircraft.Mission.History.SI.Energy.E_ES(npnt, 2);
 
@@ -235,23 +251,22 @@ SOCtko = Aircraft.Mission.History.SI.Power.SOC(EndTko, 2);
 SOCclb = Aircraft.Mission.History.SI.Power.SOC(EndClb, 2);
 SOCf = Aircraft.Mission.History.SI.Power.SOC(npnt, 2);
 else
-% main mission battery energy use
-EBatt = NaN;
-% SOC 
-SOCbeg = NaN;
-SOCtko = NaN;
-SOCclb = NaN;
-SOCf = NaN;
+    % main mission battery energy use
+EBatt = 0;
+% SOC af0;
+SOCbeg =0;
+SOCtko =0;
+SOCclb =0;
+SOCf   =0;
 end
+
 % mission seg TSFC values
 TSFC_tko = sum(Aircraft.Mission.History.SI.Propulsion.TSFC(1     :EndTko))/EndTko            ;
 TSFC_clb = sum(Aircraft.Mission.History.SI.Propulsion.TSFC(EndTko:EndClb))/(EndClb-EndTko +1);
 TSFC_crs = sum(Aircraft.Mission.History.SI.Propulsion.TSFC(EndClb:EndCrs))/(EndCrs-EndClb +1);
 
 % save results in a vector
-Results = [TOGW, Fburn, EBatt, SOCbeg, SOCtko, SOCclb, SOCf, TSFC_tko, TSFC_clb, TSFC_crs];
+Results = [TOGW, DOC, Fburn, EBatt, SOCbeg, SOCtko, SOCclb, SOCf, TSFC_tko, TSFC_clb, TSFC_crs];
 
 end
-
-
 end

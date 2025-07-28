@@ -142,13 +142,13 @@ for iflight =1:nflight
 end
 
 
-save("SeqOptAC_future.mat", "OptimizedAircraft");
+save("SeqOptAC_fuel.mat", "OptimizedAircraft");
 save("opttable.mat", "OptSeqTable");
     
 %% Nested Functions %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [DOC, SOC, dh_dt] = FlySequence(PC, Aircraft, Sequence)
+    function [fburn, SOC, dh_dt] = FlySequence(PC, Aircraft, Sequence)
 
     % both onjective function values
     fburn = 0;
@@ -260,13 +260,14 @@ function [DOC, SOC, dh_dt] = FlySequence(PC, Aircraft, Sequence)
             DOC = 10^15;
         end
 
-        % SOC for mission
-        SOC(:, iflight) = Aircraft.Mission.History.SI.Power.SOC(n1:n2+1,2);
+       
 
         % rate of climb
         dh_dt(:, iflight) = Aircraft.Mission.History.SI.Performance.RC(n1:n2+1);
         
         try
+             % SOC for mission
+            SOC(:, iflight) = Aircraft.Mission.History.SI.Power.SOC(n1:n2+1,2);
             % charge battery
             Aircraft = BatteryPkg.GroundCharge(Aircraft, ChargeTime);
     
@@ -361,7 +362,7 @@ TOGW = Aircraft.Specs.Weight.MTOW;
 Fburn = Aircraft.Mission.History.SI.Weight.Fburn(npnt);
 
 % direct operting cost
-DOC = Aircraft.Mission.History.SI;
+DOC = Aircraft.Mission.History.SI.Performance.Cost;
 
 % main mission battery energy use
 EBatt = Aircraft.Mission.History.SI.Energy.E_ES(npnt, 2);

@@ -28,6 +28,10 @@ function [Aircraft] = GroundCharge(Aircraft, ChrgTime, PowerStrategy)
 
 %% Check Inputs %%
 %%%%%%%%%%%%%%%%%%
+if nargin<3
+    PowerStrategy = Aircraft.Specs.Battery.Charging;
+end
+
 TimeStep = 1;                           % simulate in 1-second increments
 maxSteps = ceil(ChrgTime / TimeStep);
 
