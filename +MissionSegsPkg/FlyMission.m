@@ -73,11 +73,12 @@ for imiss = 1:nmiss
         
     else
         
+
         % find the cruise segment in the mission
         %icrs = find(contains(Mission.Segs(MissSegs), 'Cruise'));
-        for findicrs = 1:length(Mission.Segs)
-            if size(Mission.Segs{findicrs}) == size('Cruise')
-                if Mission.Segs{findicrs} == 'Cruise'
+        for findicrs = 1:length(MissSegs)
+            if size(Mission.Segs{MissSegs(findicrs)}) == size('Cruise')
+                if Mission.Segs{MissSegs(findicrs)} == 'Cruise'
                     icrs = findicrs;
                     break
                 end
