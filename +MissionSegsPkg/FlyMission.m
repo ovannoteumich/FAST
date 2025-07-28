@@ -79,6 +79,7 @@ for imiss = 1:nmiss
             if size(Mission.Segs{findicrs}) == size('Cruise')
                 if Mission.Segs{findicrs} == 'Cruise'
                     icrs = findicrs;
+                    break
                 end
             end
 
