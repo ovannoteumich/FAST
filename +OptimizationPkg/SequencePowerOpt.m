@@ -148,7 +148,6 @@ save("opttable_cost.mat", "OptSeqTable");
 %% Nested Functions %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [DOC, SOC, dh_dt] = FlySequence(PC, Aircraft, Sequence)
 
     % both onjective function values
     fburn = 0;
@@ -260,8 +259,7 @@ function [DOC, SOC, dh_dt] = FlySequence(PC, Aircraft, Sequence)
             DOC = 10^15;
         end
 
-        % SOC for mission
-        SOC(:, iflight) = Aircraft.Mission.History.SI.Power.SOC(n1:n2+1,2);
+       
 
         % rate of climb
         dh_dt(:, iflight) = Aircraft.Mission.History.SI.Performance.RC(n1:n2+1);

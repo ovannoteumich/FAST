@@ -110,6 +110,7 @@ EMPC = [];
 battE = [];
 SOC = [];
 ground = [];
+ef = 0;
 
 
 for i = 1:n
@@ -132,6 +133,7 @@ for i = 1:n
     disp(t(37))
     disp(t(73))
     fuel = Aircraft.Mission.History.SI.Weight.Fburn(1:npt);
+    ef = ef + Aircraft.Mission.History.SI.Energy.E_ES(npt,1)
     if i > 1
     t = t +time(end)+ground;
     fuel = fuel + fburn(end);
