@@ -142,8 +142,8 @@ for iflight =1:nflight
 end
 
 
-save("SeqOptAC_future.mat", "OptimizedAircraft");
-save("opttable.mat", "OptSeqTable");
+save("SeqOptAC_cost.mat", "OptimizedAircraft");
+save("opttable_cost.mat", "OptSeqTable");
     
 %% Nested Functions %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -361,7 +361,7 @@ TOGW = Aircraft.Specs.Weight.MTOW;
 Fburn = Aircraft.Mission.History.SI.Weight.Fburn(npnt);
 
 % direct operting cost
-DOC = Aircraft.Mission.History.SI;
+DOC = Aircraft.Mission.History.SI.Performance.Cost;
 
 % main mission battery energy use
 EBatt = Aircraft.Mission.History.SI.Energy.E_ES(npnt, 2);
