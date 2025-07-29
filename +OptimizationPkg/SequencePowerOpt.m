@@ -142,13 +142,13 @@ for iflight =1:nflight
 end
 
 
-save("SeqOptAC_cost.mat", "OptimizedAircraft");
-save("opttable_cost.mat", "OptSeqTable");
+save("SeqOptAC_fuel.mat", "OptimizedAircraft");
+save("opttable_fuel.mat", "OptSeqTable");
     
 %% Nested Functions %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+    function [fburn,SOC, dh_dt]  = FlySequence(PC, Aircraft, Sequence)
     % both onjective function values
     fburn = 0;
     DOC = 0;
@@ -263,6 +263,9 @@ save("opttable_cost.mat", "OptSeqTable");
 
         % rate of climb
         dh_dt(:, iflight) = Aircraft.Mission.History.SI.Performance.RC(n1:n2+1);
+
+        %SOC
+        SOC(:, iflight) = Aircraft.Mission.History.SI.Power.SOC(n1:n2+1);
         
         try
             % charge battery

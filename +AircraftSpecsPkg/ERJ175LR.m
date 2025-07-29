@@ -232,7 +232,7 @@ Aircraft.Specs.Battery.MaxAllowCRate = 5;
 Aircraft.Specs.Battery.Charging = 150*-1000;
 
 %%%% battery degradation effect analysis %%%
-Aircraft.Settings.Degradation = 0; % 1 = analysis with degradation effect; 0 = without degradation effect
+Aircraft.Settings.Degradation = 1; % 1 = analysis with degradation effect; 0 = without degradation effect
 
 if Aircraft.Settings.Degradation == 1
     
