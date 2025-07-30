@@ -265,16 +265,16 @@ save("opttable_fuel.mat", "OptSeqTable");
         dh_dt(:, iflight) = Aircraft.Mission.History.SI.Performance.RC(n1:n2+1);
 
         %SOC
-        SOC(:, iflight) = Aircraft.Mission.History.SI.Power.SOC(n1:n2+1);
+        SOC(:, iflight) = Aircraft.Mission.History.SI.Power.SOC(n1:n2+1,2);
         
         try
             % charge battery
             Aircraft = BatteryPkg.GroundCharge(Aircraft, ChargeTime);
     
             % assign charges SOC to begSOC for next flight
-            Aircraft.Specs.Battery.BegSOC = Aircraft.Mission.History.SI.Power.ChargedAC.SOC(end);
+            Aircraft.Specs.Battery.BegSOC = Aircraft.Mission.History.SI.Power.ChargedAC.SOCEnd;
         catch
-            Aircraft.Specs.battery.BegSOC = 20;
+            Aircraft.Specs.Battery.BegSOC = 20;
         end
         
         % save optimized aircraft struct

@@ -198,7 +198,7 @@ Aircraft.Specs.Power.Battery.ParCells = 100;%100;
 Aircraft.Specs.Power.Battery.SerCells = 62;% 62;
 
 % initial battery SOC (commented value used for electrified aircraft)
-Aircraft.Specs.Power.Battery.BegSOC = 100;%100;
+%Aircraft.Specs.Power.Battery.BegSOC = 100;%100;
 Aircraft.Specs.Battery.BegSOC = 100;%100;
 
 % nominal cell voltage [V]
@@ -229,7 +229,7 @@ Aircraft.Specs.Battery.BegSOC = 100;
 Aircraft.Specs.Battery.MaxAllowCRate = 5;
 
 % charging rate 
-Aircraft.Specs.Battery.Charging = 150*-1000;
+Aircraft.Specs.Battery.Charging = 150*1000;
 
 %%%% battery degradation effect analysis %%%
 Aircraft.Settings.Degradation = 1; % 1 = analysis with degradation effect; 0 = without degradation effect

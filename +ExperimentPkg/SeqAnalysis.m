@@ -2,7 +2,7 @@ load("SeqOptAC.mat")
 Case1 = OptimizedAircraft;
 disp("Case 1")
 case1 = AnalyzeAC(Case1, seq);
-load("SeqOptAC_future.mat")
+load("SeqOptAC_fuel.mat")
 Case2 = OptimizedAircraft;
 disp("Case 2")
 case2 = AnalyzeAC(Case2, seq);
