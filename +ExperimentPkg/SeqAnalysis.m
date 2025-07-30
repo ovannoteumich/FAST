@@ -1,4 +1,4 @@
-load("SeqOptAC.mat")
+load("SeqOptAC_cost.mat")
 Case1 = OptimizedAircraft;
 disp("Case 1")
 case1 = AnalyzeAC(Case1, seq);
@@ -45,7 +45,7 @@ plot(case2.Time, case2.GTPC, 'LineWidth', 1.5);
 %plot(case3.Time, case3.GTPC, 'LineWidth', 1.5);
 %plot(case4.Time, case4.GTPC, 'LineWidth', 1.5); 
 ylabel("GT PC (%)");
-legend("Current HEA", "Advanced HEA", 'FontSize', font);
+legend("Cost HEA", "Fuel HEA", 'FontSize', font);
 %legend("Case 1", "Case 2", "Case 3", "Case 4", 'FontSize', font);
 set(ax2, "FontSize", font);
 

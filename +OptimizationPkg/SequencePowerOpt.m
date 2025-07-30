@@ -67,7 +67,7 @@ OptSeqTable = table('Size', sz, 'VariableTypes', varTypes, ...
 options = optimoptions('fmincon','MaxIterations', 200 ,'Display','iter','Algorithm','interior-point', 'UseParallel',true);
 
 % objective function convergence tolerance
-options.OptimalityTolerance = 10^-3;
+options.OptimalityTolerance = 10^-4;
 
 % step size convergence
 options.StepTolerance = 10^-6;
@@ -142,13 +142,13 @@ for iflight =1:nflight
 end
 
 
-save("SeqOptAC_fuel.mat", "OptimizedAircraft");
-save("opttable_fuel.mat", "OptSeqTable");
+save("SeqOptAC_cost.mat", "OptimizedAircraft");
+save("opttable_cost.mat", "OptSeqTable");
     
 %% Nested Functions %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-    function [fburn,SOC, dh_dt]  = FlySequence(PC, Aircraft, Sequence)
+    function [DOC,SOC, dh_dt]  = FlySequence(PC, Aircraft, Sequence)
     % both onjective function values
     fburn = 0;
     DOC = 0;
