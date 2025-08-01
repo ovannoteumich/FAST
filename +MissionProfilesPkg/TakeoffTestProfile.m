@@ -2,7 +2,7 @@ function [Aircraft] = TakeoffTestProfile(Aircraft)
 %
 % TakeoffTestProfile.m
 % written by Nawa Khailany, nawakhai@umich.edu
-% last updated: 12 Jun 2024
+% last updated: 15 Jul 2025 
 %
 % define a mostly takeoff flight profile for testing
 %
@@ -41,6 +41,10 @@ Mission.Segs = ["DetailedTakeoff"; "Climb"; "Cruise"];
 
 % define the mission id (segments in same mission must be consecutive)
 Mission.ID   = [        1;       1;        1];
+
+% define the target power management strategy
+    % uses power split method, so set all indices to zero
+Mission.PowerStrategyIndex = zeros(size(Mission.ID));
 
 % define the starting/ending altitudes (in m)
 Mission.AltBeg = convlength([0;     0; 50], "ft", "m");

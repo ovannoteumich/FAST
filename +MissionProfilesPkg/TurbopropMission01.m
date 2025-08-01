@@ -2,7 +2,7 @@ function [Aircraft] = TurbopropMission01(Aircraft)
 %
 % [Aircraft] = TurbopropMission01(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 26 mar 2024
+% last updated: 15 jul 2025 
 %
 % Define a typical mission with a design and distance-based reserve mission
 % (see below). This profile contains altitudes and speeds for a turboprop.
@@ -49,6 +49,10 @@ Mission.Segs = ["Takeoff"; "Climb"; "Cruise"; "Descent"; "Climb"; "Cruise"; "Des
 
 % define the mission id (segments in same mission must be consecutive)
 Mission.ID   = [        1;       1;        1;        1;        2;        2;         2;         2];
+
+% define the target power management strategy
+    % uses power split method, so set all indices to zero
+Mission.PowerStrategyIndex = zeros(size(Mission.ID));
 
 % define the starting/ending altitudes (in m)
 Mission.AltBeg = UnitConversionPkg.ConvLength([     0;     0; 22000; 22000;  3000;  5000;  5000;     0], "ft", "m");

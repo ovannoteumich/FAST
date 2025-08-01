@@ -2,7 +2,7 @@ function [Aircraft] = A320(Aircraft)
 %
 % [Aircraft] = A320(Aircraft)
 % written by Max Arnson, marnson@umich.edu
-% last updated: 28 feb 2023
+% last updated: 15 jul 2025
 %
 % define an A320(Neo) design mission
 % (see below).
@@ -60,6 +60,10 @@ Mission.ID   = [ 1; 1; 1; 1;
     3; 3; 3;
     4; 4; 4;
     5; 5; 5];
+
+% define the target power management strategy
+    % uses power split method, so set all indices to zero
+Mission.PowerStrategyIndex = zeros(size(Mission.ID));
 
 % define the starting/ending altitudes (in m)
 Mission.AltBeg = UnitConversionPkg.ConvLength([ 0; 0; 10000; 35000;

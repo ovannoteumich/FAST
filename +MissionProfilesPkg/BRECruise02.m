@@ -2,7 +2,7 @@ function [Aircraft] = BRECruise02(Aircraft)
 %
 % [Aircraft] = BRECruise02(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 26 mar 2024
+% last updated: 15 jul 2025
 %
 % Fly all missions using only the Breguet Range-based cruise segment (see
 % below) with a time-based reserve mission.
@@ -41,6 +41,10 @@ Mission.Segs = ["CruiseBRE"; "CruiseBRE"];
 
 % define the mission id (segments in same mission must be consecutive)
 Mission.ID   = [          1;           2];
+
+% define the target power management strategy
+    % uses power split method, so set all indices to zero
+Mission.PowerStrategyIndex = zeros(size(Mission.ID));
 
 % define the starting/ending altitudes (in m)
 Mission.AltBeg = UnitConversionPkg.ConvLength([35000; 35000], "ft", "m");

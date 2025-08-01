@@ -2,7 +2,7 @@ function [Aircraft] = PowerAvailable(Aircraft)
 %
 % [Aircraft] = PowerAvailable(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 17 dec 2024
+% last updated: 15 jul 2025
 %
 % For a given propulsion architecture, compute the power available.
 %

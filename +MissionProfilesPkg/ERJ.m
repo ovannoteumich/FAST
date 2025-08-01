@@ -3,7 +3,7 @@ function [Aircraft] = ERJ(Aircraft)
 % [Aircraft] = ERJ(Aircraft)
 % written by Emma Smith, emmasmit@umich.edu
 % modified by Paul Mokotoff, prmoko@umich.edu
-% last updated: 26 mar 2024
+% last updated: 15 jul 2025
 %
 % Parametric mission for the ERJ175LR (but can be accommodated for any
 % regional jet)           
@@ -91,6 +91,10 @@ Mission.Segs = ["Takeoff"; "Climb";   "Climb";   "Climb"; "Cruise";  "Descent"; 
 
 % define the mission id (segments in same mission must be consecutive)
 Mission.ID   = [       1;      1;          1;          1;       1;          1;          1;         1;         2;             2;            2;         2;         3;             3;            3;         3;      3;];
+
+% define the target power management strategy
+    % uses power split method, so set all indices to zero
+Mission.PowerStrategyIndex = zeros(size(Mission.ID));
 
 % define the starting/ending altitudes (in m)
 Mission.AltBeg = [AltTko; AltTko;     AltClb; AltClb2Crs;  AltCrs;     AltCrs; AltClb2Crs;    AltClb; ResAltBeg;     ResAltClb; ResAltClb2Crs; ResAltCrs; ResAltCrs;     ResAltCrs; ResAltClb2Crs; ResAltClb; AltTko;];

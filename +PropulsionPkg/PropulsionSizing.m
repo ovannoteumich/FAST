@@ -2,7 +2,7 @@ function [Aircraft] = PropulsionSizing(Aircraft)
 %
 % [Aircraft] = PropulsionSizing(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 16 jan 2025
+% last updated: 15 jul 2025
 %
 % Split the total thrust/power throughout the powertrain and determine the
 % total power needed to size each component.

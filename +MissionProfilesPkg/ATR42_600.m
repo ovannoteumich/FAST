@@ -2,8 +2,8 @@ function [Aircraft] = ATR42_600(Aircraft)
 %
 % [Aircraft] = ATRMissionEPASS(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% modified by Max Arnson, marnson@umich.edu
-% last updated: 2 apr 2024
+% modified by Miranda Stockhausen, mstockha@umich.edu
+% last updated: 15 jul 2925
 %
 % Define a mission for the ATR42 as defined in Cinar's "Advanced 2030 ..." 
 % https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9813858&tag=1
@@ -47,6 +47,10 @@ Mission.Segs = [           "Takeoff"; "Climb"; "Cruise"; "Descent"; "Descent"; "
 
 % define the mission id (segments in same mission must be consecutive)
 Mission.ID   = [                   1;       1;        1;         1;         1;       2;        2;        3;         3;         3;         3];
+
+% define the target power management strategy
+    % uses power split method, so set all indices to zero
+Mission.PowerStrategyIndex = zeros(size(Mission.ID));
 
 % define the starting/ending altitudes (in m)
 Mission.AltBeg =  UnitConversionPkg.ConvLength([     0;       0;   25000;    25000;      3000;      1500;    15000;    15000;    15000;     3000;        1500], "ft", "m");

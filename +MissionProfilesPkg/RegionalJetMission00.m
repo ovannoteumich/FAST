@@ -2,7 +2,7 @@ function [Aircraft] = RegionalJetMission00(Aircraft)
 %
 % [Aircraft] = RegionalJetMission00(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 26 mar 2024
+% last updated: 15 jul 2025
 %
 % Define a typical mission with a design mission only (no reserves, see
 % below). This profile contains altitudes and speeds for a regional jet.
@@ -47,6 +47,10 @@ Mission.Segs = ["Takeoff"; "Climb"; "Cruise"; "Descent"; "Landing"];
 
 % define the mission id (segments in same mission must be consecutive)
 Mission.ID   = [        1;       1;        1;         1;         1];
+
+% define the target power management strategy
+    % uses power split method, so set all indices to zero
+Mission.PowerStrategyIndex = zeros(size(Mission.ID));
 
 % define the starting/ending altitudes (in m)
 Mission.AltBeg = UnitConversionPkg.ConvLength([0;     0; 35000; 35000; 0], "ft", "m");

@@ -2,7 +2,7 @@ function [Aircraft] = ATRMissionBRE(Aircraft)
 %
 % [Aircraft] = ATRMissionBRE(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 26 mar 2024
+% last updated: 15 jul 2025
 %
 % Define a mission for the ATR42 as defined in E-PASS using only the
 % Breguet Range Equation.
@@ -40,6 +40,10 @@ Mission.Segs = ["CruiseBRE"; "CruiseBRE"; "CruiseBRE"];
 
 % define the mission id (segments in same mission must be consecutive)
 Mission.ID   = [          1;           2;           3];
+
+% define the target power management strategy
+    % uses power split method, so set all indices to zero
+Mission.PowerStrategyIndex = zeros(size(Mission.ID));
 
 % define the starting/ending altitudes (in m)
 Mission.AltBeg =  UnitConversionPkg.ConvLength([   25000;       25000;       25000], "ft", "m");
