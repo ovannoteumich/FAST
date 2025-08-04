@@ -2,14 +2,15 @@ function [Aircraft] = A320(Aircraft)
 %
 % [Aircraft] = A320(Aircraft)
 % written by Max Arnson, marnson@umich.edu
-% last updated: 28 feb 2023
+% 
+% last updated: 1 Aug 2025, Emma Cassidy
 %
 % define an A320(Neo) design mission
 % (see below).
 %
-% mission 1: 3400/3 nmi climb and cruise  
-% mission 2: 3400/3 nmi climb and cruise
-% mission 3: 3400/3 nmi climb and cruise and descent
+% mission 1: Range/3 nmi climb and cruise  
+% mission 2: Range/3 nmi climb and cruise
+% mission 3: Range/3 nmi climb and cruise and descent
 % mission 4: climb and divert, descend
 % mission 5: hold for 30 minutes
 %             |          |                   |              |
@@ -36,8 +37,14 @@ function [Aircraft] = A320(Aircraft)
 %% DEFINE THE MISSION TARGETS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% get aircraft range
+Range = Aircraft.Specs.Performance.Range;
+
+% diversion distance
+Div =  UnitConversionPkg.ConvLength(200,'naut mi', 'm');
+
 % define the targets (in m or min)
-Ranges = UnitConversionPkg.ConvLength([3400/3; 3400/3; 3400/3; 200],'naut mi', 'm');
+Ranges = [Range/3; Range/3; Range/3; Div];
 Mission.Target.Valu = [Ranges; 30];
 
 % define the target types ("Dist" or "Time")
