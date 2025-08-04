@@ -193,7 +193,7 @@ while (iter < MaxIter)
     if (iter > 0)
         
         % iterate on OEW for on-design only
-        if (Type > 0)
+        if (Type > 0) 
             Aircraft = OEWPkg.OEWIteration(Aircraft);
         end
         

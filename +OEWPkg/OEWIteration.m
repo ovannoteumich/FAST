@@ -34,6 +34,7 @@ g = 9.81; % m / s^2
 % get the TLARs
 Class = Aircraft.Specs.TLAR.Class;
 EIS   = Aircraft.Specs.TLAR.EIS;
+Type = Aircraft.Settings.Analysis.Type;
 
 % get the wing loading
 W_S = Aircraft.Specs.Aero.W_S.SLS;
@@ -119,7 +120,7 @@ switch Class
             
             % remember the SLS thrust
             Aircraft.Specs.Propulsion.Thrust.SLS = T;
-                        
+           
             % size the propulsion system
             Aircraft = PropulsionPkg.PropulsionSizing(Aircraft);
             
