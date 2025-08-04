@@ -2,7 +2,7 @@ function [Aircraft] = PropulsionSizing(Aircraft)
 %
 % [Aircraft] = PropulsionSizing(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 15 jul 2025
+% last updated: 20 jun 2025
 %
 % Split the total thrust/power throughout the powertrain and determine the
 % total power needed to size each component.
@@ -32,16 +32,20 @@ function [Aircraft] = PropulsionSizing(Aircraft)
 % aircraft class
 aclass = Aircraft.Specs.TLAR.Class;
 
+% analysis type
+Type = Aircraft.Settings.Analysis.Type;
+
 % get the takeoff speed
 TkoVel = Aircraft.Specs.Performance.Vels.Tko;
 
 % get the power source type
 TrnType = Aircraft.Specs.Propulsion.PropArch.TrnType;
 
-% find the engines and electric motors
+% find the appropriate transmitters
 Eng = TrnType == 1;
 EM  = TrnType == 0;
 EG  = TrnType == 3;
+Cab = TrnType == 4;
 
 % get the electric motor power-weight ratio
 P_Wem = Aircraft.Specs.Power.P_W.EM;
@@ -97,18 +101,7 @@ elseif ((strcmpi(aclass, "Turboprop") == 1) || ...
 end
 
 % get the power/thrust split function handles
-if Aircraft.Specs.Propulsion.NumStrats > 0
-
-    % mission power strategy index
-    n = Aircraft.Specs.Propulsion.DesignStrategy;
-    % get the downstream operational matrix
-    OperDwn = Aircraft.Specs.Propulsion.PowerManagement(n).Dwn;
-
-else
-
-    OperDwn = Aircraft.Specs.Propulsion.PropArch.OperDwn;
-
-end
+OperDwn = Aircraft.Specs.Propulsion.PropArch.OperDwn;
 
 % get the power splits
 Splits = PropulsionPkg.EvalSplit(OperDwn, LamDwn);
@@ -130,7 +123,7 @@ Pdwn = PropulsionPkg.PowerFlow([zeros(1, ntrn), P0]', Arch(idx, idx)', Splits(id
 idx = nsrc + (1 : ntrn);
 
 % get the supplemental power
-Psupp = PropulsionPkg.PowerSupplementCheck(Pdwn(1:end-1)', Arch(idx, idx), Splits(), EtaDwn(idx, idx), TrnType, EtaFan);
+Psupp = PropulsionPkg.PowerSupplementCheck(Pdwn(1:end-1)', Arch(idx, idx), Splits(idx, idx), EtaDwn(idx, idx), TrnType, EtaFan);
 
 % convert power to thrust
 Tdwn  = Pdwn  ./ TkoVel;
@@ -145,93 +138,142 @@ Aircraft.Specs.Propulsion.SLSThrust  = Tdwn(1:end-1)';
 Aircraft.Specs.Propulsion.ThrustSupp = Tsupp         ;
 
 % check for a fully-electric architecture (so engines don't get sized)
-if (any(TrnType > 0 & TrnType ~= 2))
-
-    % lapse thrust/power for turbofan/turboprops, respectively
-    if      (strcmpi(aclass, "Turbofan" ) == 1)
-
-        % predict engine weight using the design thrust
-        TurbofanEngines = Aircraft.HistData.Eng;
-        IO = {["Thrust_Max"],["DryWeight"]};
-
-        % row vector can have multiple targets for a single input
-        target = Tdwn(Eng);
-
-        % run the regression - input must be a column vector
-        Weng = RegressionPkg.NLGPR(TurbofanEngines,IO,target);
-        
-        % get the first engine index (assume all engines are the same)
-        ieng = find(Eng, 1);
-        
-        % add flight conditions
-        Aircraft.Specs.Propulsion.Engine.Alt = 0;
-        Aircraft.Specs.Propulsion.Engine.Mach = 0.05;
-        
-        % check if the thrust supplement is positive
-        if (Tsupp(ieng) > 0)
+if (Type < 3)
+    if (any(TrnType > 0 & TrnType ~= 2))
+    
+        % lapse thrust/power for turbofan/turboprops, respectively
+        if      (strcmpi(aclass, "Turbofan" ) == 1)
+    
+            % predict engine weight using the design thrust
+            TurbofanEngines = Aircraft.HistData.Eng;
+            IO = {["Thrust_Max"],["DryWeight"]};
+    
+            % row vector can have multiple targets for a single input
+            target = Tdwn(Eng);
+    
+            % run the regression - input must be a column vector
+            Weng = RegressionPkg.NLGPR(TurbofanEngines,IO,target);
             
-            % increase the engine size to generate all the thrust
-            Aircraft.Specs.Propulsion.Engine.DesignThrust = Tdwn(ieng) + Tsupp(ieng);
+            % get the first engine index (assume all engines are the same)
+            ieng = find(Eng, 1);
             
-        else
+            % add flight conditions
+            Aircraft.Specs.Propulsion.Engine.Alt = 0;
+            Aircraft.Specs.Propulsion.Engine.Mach = 0.05;
             
-            % leave the engine size as is, power is siphoned off
-            Aircraft.Specs.Propulsion.Engine.DesignThrust = Tdwn(ieng);
-            
-        end
-
-        % turn on flag for sizing the engine
-        Aircraft.Specs.Propulsion.Engine.Sizing = 1;
-        
-        % size the engine
-        Aircraft.Specs.Propulsion.SizedEngine = EngineModelPkg.TurbofanNonlinearSizing(Aircraft.Specs.Propulsion.Engine, Psupp(ieng));
-        
-        % turn off the sizing flags
-        Aircraft.Specs.Propulsion.Engine.Sizing = 0; % unnnecessary
-        Aircraft.Specs.Propulsion.SizedEngine.Specs.Sizing = 0;
-        
-    elseif ((strcmpi(aclass, "Turboprop") == 1) || ...
-            (strcmpi(aclass, "Piston"   ) == 1) )
-
-        % Predict Engine Weight using SLS power
-        TurbopropEngines = Aircraft.HistData.Eng;
-        [~,WengReg] = RegressionPkg.SearchDB(TurbopropEngines,["DryWeight"]);
-        WengReg = cell2mat(WengReg(:,2));
-        [~,PowReg] = RegressionPkg.SearchDB(TurbopropEngines,["Power_SLS"]);
-        PowReg = cell2mat(PowReg(:,2));
-        cind = [];
-        for ii = 1:length(PowReg)
-            if isnan(PowReg(ii)) || isnan(WengReg(ii))
-                cind = [cind,ii];
+            % check if the thrust supplement is positive
+            if (Tsupp(ieng) > 0)
+                
+                % increase the engine size to generate all the thrust
+                Aircraft.Specs.Propulsion.Engine.DesignThrust = Tdwn(ieng) + Tsupp(ieng);
+                
+            else
+                
+                % leave the engine size as is, power is siphoned off
+                Aircraft.Specs.Propulsion.Engine.DesignThrust = Tdwn(ieng);
+                
             end
+    
+            % turn on flag for sizing the engine
+            Aircraft.Specs.Propulsion.Engine.Sizing = 1;
+            
+            % size the engine
+            Aircraft.Specs.Propulsion.SizedEngine = EngineModelPkg.TurbofanNonlinearSizing(Aircraft.Specs.Propulsion.Engine, Psupp(ieng));
+            
+            % turn off the sizing flags
+            Aircraft.Specs.Propulsion.Engine.Sizing = 0; % unnnecessary
+            Aircraft.Specs.Propulsion.SizedEngine.Specs.Sizing = 0;
+            
+        elseif ((strcmpi(aclass, "Turboprop") == 1) || ...
+                (strcmpi(aclass, "Piston"   ) == 1) )
+    
+            % Predict Engine Weight using SLS power
+            TurbopropEngines = Aircraft.HistData.Eng;
+            [~,WengReg] = RegressionPkg.SearchDB(TurbopropEngines,["DryWeight"]);
+            WengReg = cell2mat(WengReg(:,2));
+            [~,PowReg] = RegressionPkg.SearchDB(TurbopropEngines,["Power_SLS"]);
+            PowReg = cell2mat(PowReg(:,2));
+            cind = [];
+            for ii = 1:length(PowReg)
+                if isnan(PowReg(ii)) || isnan(WengReg(ii))
+                    cind = [cind,ii];
+                end
+            end
+            WengReg(cind) = [];
+            PowReg(cind) = [];
+            W_f_of_pow = polyfit(PowReg,WengReg,1);
+    
+            % estimate the engine weights
+            Weng = polyval(W_f_of_pow, Pdwn(Eng) / 1000);
+    
+        else
+    
+            % throw error
+            error("ERROR - PropulsionSizing: invalid aircraft class.");
+    
         end
-        WengReg(cind) = [];
-        PowReg(cind) = [];
-        W_f_of_pow = polyfit(PowReg,WengReg,1);
-
-        % estimate the engine weights
-        Weng = polyval(W_f_of_pow, Pdwn(Eng) / 1000);
-
+    
     else
-
-        % throw error
-        error("ERROR - PropulsionSizing: invalid aircraft class.");
-
+    
+        % no engines need to be sized
+        Weng = 0;
+    
     end
+else 
+    Weng = Aircraft.Specs.Weight.Engines / Aircraft.Specs.Propulsion.NumEngines;
+end
 
+% check if the cable weight must be computed
+if (any(Cab))
+    
+    % check if the cables are included
+    if (isfield(Aircraft.Specs.Propulsion.PropArch, "CableConns"  ) && ...
+        isfield(Aircraft.Specs.Propulsion.PropArch, "CableLengths") )
+    
+        % get the cable lengths and connections
+        CabCon = Aircraft.Specs.Propulsion.PropArch.CableConns  ;
+        CabLen = Aircraft.Specs.Propulsion.PropArch.CableLengths;
+        
+        % get the number of connections from the cables
+        [ndwn, ~] = size(CabCon);
+        
+        % get the required power for the cables
+        Pcab = repmat(Pdwn(Cab)', ndwn, 1);
+        
+        % get the cable weight-power ratio
+        W_Pcab = Aircraft.Specs.Power.P_W.Cables;
+        
+        % compute the individual cable weights
+        Wcab = W_Pcab .* (Pcab ./ 1.0e+06) .* CabCon .* CabLen;
+        
+        % compute the weight of the cables
+        Aircraft.Specs.Weight.Cables = sum(Wcab, "all");
+        
+    else
+        
+        % assume no detailed cable model
+        Aircraft.Specs.Weight.Cables = 0;
+        
+    end
+    
 else
-
-    % no engines need to be sized
-    Weng = 0;
-
+    
+    % no cables are included
+    Aircraft.Specs.Weight.Cables = 0;
+        
 end
 
 % remember the weight of the engines
 Aircraft.Specs.Weight.Engines = sum(Weng);
 
-% compute the electric motor and generator weight
-Aircraft.Specs.Weight.EM = sum(Pdwn(EM)) / P_Wem;
-Aircraft.Specs.Weight.EG = sum(Pdwn(EG)) / P_Weg;
+if (Type ~= 4) % type 4 is a battery retrofit for a set of user-assigned 
+    % propulsion weights; do not size the EG or EM in that case
+
+    % compute the electric motor and generator weight
+    Aircraft.Specs.Weight.EM = sum(Pdwn(EM)) / P_Wem;
+    Aircraft.Specs.Weight.EG = sum(Pdwn(EG)) / P_Weg;
+
+end
 
 % ----------------------------------------------------------
 
