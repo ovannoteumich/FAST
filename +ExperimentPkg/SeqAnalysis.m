@@ -1,4 +1,5 @@
 load("SeqOptAC_cost.mat")
+load("SeqOptAC_fuele.mat")
 Case1 = OptimizedAircraft;
 disp("Case 1")
 case1 = AnalyzeAC(Case1, seq);

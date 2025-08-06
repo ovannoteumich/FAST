@@ -142,16 +142,17 @@ for iflight =1:nflight
 end
 
 
-save("SeqOptAC_cost.mat", "OptimizedAircraft");
-save("opttable_cost.mat", "OptSeqTable");
+save("SeqOptAC_fuele.mat", "OptimizedAircraft");
+save("opttable_fuele.mat", "OptSeqTable");
     
 %% Nested Functions %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-    function [DOC,SOC, dh_dt]  = FlySequence(PC, Aircraft, Sequence)
+    function [fuele,SOC, dh_dt]  = FlySequence(PC, Aircraft, Sequence)
     % both onjective function values
     fburn = 0;
     DOC = 0;
+    fuele = 0;
 
     %objfunc = 'DOC'; 
 
@@ -254,6 +255,8 @@ save("opttable_cost.mat", "OptSeqTable");
             fburn = fburn + Aircraft.Mission.History.SI.Weight.Fburn(npt);
             %objective function: DOC
             DOC = DOC + Aircraft.Mission.History.SI.Performance.Cost;
+
+            fuele = fuele + Aircraft.Mission.History.SI.Energy.E_ES(npt,1);
         catch
             fburn = 10^9;
             DOC = 10^15;
