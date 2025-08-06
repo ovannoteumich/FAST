@@ -107,6 +107,7 @@ if Aircraft.Specs.Propulsion.NumStrats > 0
     n = Aircraft.Specs.Propulsion.DesignStrategy;
     % get the downstream operational matrix
     OperDwn = Aircraft.Specs.Propulsion.PowerManagement(n).Dwn;
+    Splits = PropulsionPkg.EvalSplit(OperDwn, 0);
 
 else
 
