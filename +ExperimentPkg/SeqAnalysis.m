@@ -1,4 +1,4 @@
-load("SeqOptAC_cost.mat")
+load("SeqOptAC_fuele.mat")
 Case1 = OptimizedAircraft;
 disp("Case 1")
 case1 = AnalyzeAC(Case1, seq);
@@ -133,6 +133,7 @@ for i = 1:n
     disp(t(37))
     disp(t(73))
     fuel = Aircraft.Mission.History.SI.Weight.Fburn(1:npt);
+    
     ef = ef + Aircraft.Mission.History.SI.Energy.E_ES(npt,1)
     if i > 1
     t = t +time(end)+ground;
