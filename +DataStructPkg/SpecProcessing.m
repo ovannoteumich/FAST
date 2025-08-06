@@ -2,7 +2,7 @@ function [Aircraft] = SpecProcessing(Aircraft)
 %
 % [Aircraft] = SpecProcessing(Aircraft)
 % written by Maxfield Arnson, marnson@umich.edu
-% lasat updated: 13 dec 2024
+% lasat updated: 15 jul 2025
 %
 % This function initializes mission outputs, runs regressions, and
 % overwrites values left as NaN in the user input. It prepares the aircraft
@@ -364,6 +364,10 @@ DefaultPropulsion.Eta.Prop = 0.85;
 DefaultPower.Eta.EM = 0.96;
 DefaultPower.Eta.EG = 0.96;
 
+%% Default Power Management Strategy Inputs
+DefaultPropulsion.DesignStrategy = 0;
+DefaultPropulsion.NumStrats = 0;
+
 %% EDC Projections
 DefaultPower.P_W.EM = ProjectionPkg.KPPProjection(TLAR.Class, TLAR.EIS, 'Electric Motor Specific Power');
 DefaultPower.SpecEnergy.Batt = ProjectionPkg.KPPProjection(TLAR.Class,TLAR.EIS,'Battery Specific Energy');
@@ -493,7 +497,11 @@ for i = 1:length(Propulsionfields)
     if isstruct(Propulsion.(Propulsionfields{i}))
         subfields = fieldnames(Propulsion.(Propulsionfields{i}));
         for j = 1:length(subfields)
-            if isstring(Propulsion.(Propulsionfields{i}).(subfields{j})) || ischar(Propulsion.(Propulsionfields{i}).(subfields{j})) || isa(Propulsion.(Propulsionfields{i}).(subfields{j}), 'function_handle')
+            if i == 12
+                aaaaaaaa = 1;
+            end
+            tempvar = Propulsion.(Propulsionfields{i}).(subfields{j});
+            if  isa(tempvar, 'function_handle') || isstring(tempvar) || ischar(tempvar)
             elseif isnan(Propulsion.(Propulsionfields{i}).(subfields{j}))
                 Propulsion.(Propulsionfields{i}).(subfields{j}) = DefaultPropulsion.(Propulsionfields{i}).(subfields{j});
             end

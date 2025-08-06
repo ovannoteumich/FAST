@@ -2,7 +2,7 @@ function [Aircraft] = PreSpecProcessing(Aircraft)
 %
 % [Aircraft] = PreSpecProcessing(Aircraft)
 % written by Max Arnson, marnson@umich.edu
-% last updated: 20 jun 2025
+% last updated: 15 jul 2025
 %
 % Instantiate any variables not specified in an aircraft data structure.
 % This function allows users to neglect to assign NaN values to parameters
@@ -48,6 +48,8 @@ if ~ isfield(Aircraft,"Specs")
     Aircraft.Specs.Propulsion.Eta.Prop = NaN;
     Aircraft.Specs.Propulsion.MDotCF = NaN;
     Aircraft.Specs.Propulsion.PropArch.Type = NaN;
+    Aircraft.Specs.Propulsion.DesignStrategy = NaN;
+    Aircraft.Specs.Propulsion.NumStrats = NaN;
     Aircraft.Specs.Power.SpecEnergy.Fuel = NaN;
     Aircraft.Specs.Power.SpecEnergy.Batt = NaN;
     Aircraft.Specs.Power.Eta.EM = NaN;
@@ -58,20 +60,9 @@ if ~ isfield(Aircraft,"Specs")
     Aircraft.Specs.Power.P_W.EG = NaN;
     Aircraft.Specs.Power.LamDwn.SLS = NaN;
     Aircraft.Specs.Power.LamUps.SLS = NaN;
-    Aircraft.Specs.Power.LamDwn.Tko = NaN;
-    Aircraft.Specs.Power.LamUps.Tko = NaN;
-    Aircraft.Specs.Power.LamDwn.Clb = NaN;
-    Aircraft.Specs.Power.LamUps.Clb = NaN;
-    Aircraft.Specs.Power.LamDwn.Crs = NaN;
-    Aircraft.Specs.Power.LamUps.Crs = NaN;
-    Aircraft.Specs.Power.LamDwn.Des = NaN;
-    Aircraft.Specs.Power.LamUps.Des = NaN;
-    Aircraft.Specs.Power.LamDwn.Lnd = NaN;
-    Aircraft.Specs.Power.LamUps.Lnd = NaN;
     Aircraft.Specs.Power.Battery.ParCells = NaN;
     Aircraft.Specs.Power.Battery.SerCells =  NaN;
     Aircraft.Specs.Power.Battery.BegSOC = NaN;
-
 
 else
 
@@ -205,6 +196,8 @@ else
         Aircraft.Specs.Propulsion.Eta.Prop = NaN;
         Aircraft.Specs.Propulsion.MDotCF = NaN;
         Aircraft.Specs.Propulsion.PropArch.Type = NaN;
+        Aircraft.Specs.Propulsion.DesignStrategy = NaN;
+        Aircraft.Specs.Propulsion.NumStrats = NaN;
     else
         if ~isfield(Aircraft.Specs.Propulsion,"Engine")
             Aircraft.Specs.Propulsion.Engine = NaN;
@@ -226,6 +219,12 @@ else
         end
         if ~isfield(Aircraft.Specs.Propulsion,"PropArch")
             Aircraft.Specs.Propulsion.PropArch.Type = NaN;
+        end
+        if ~isfield(Aircraft.Specs.Propulsion, "DesignStrategy")
+            Aircraft.Specs.Propulsion.DesignStrategy = NaN;
+        end
+        if ~isfield(Aircraft.Specs.Propulsion, "NumStrats")
+            Aircraft.Specs.Propulsion.NumStrats = NaN;
         end
     end
 
