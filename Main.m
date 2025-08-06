@@ -66,8 +66,18 @@ if (Aircraft.Settings.Analysis.Type > 0)
     Aircraft = DataStructPkg.SpecProcessing(Aircraft);
 end
 
-% create the propulsion architecture
-Aircraft = PropulsionPkg.CreatePropArch(Aircraft);
+% create the propulsion architecture based on propulsion method
+if Aircraft.Specs.Propulsion.NumStrats > 0
+
+    % using power management strategy method
+    Aircraft = PropulsionPkg.CreatePropArch_PMS(Aircraft);
+
+else
+
+    % using power split method
+    Aircraft = PropulsionPkg.CreatePropArch(Aircraft);
+
+end
 
 % identify any parallel connections (for propulsion analysis)
 Aircraft = PropulsionPkg.PropArchConnections(Aircraft);
