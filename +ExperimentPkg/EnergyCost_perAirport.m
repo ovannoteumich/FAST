@@ -48,7 +48,7 @@ battE = battE ./ 3.6e6;
 index = find(strcmp(Origin, priceTable.AirportCode));
 
 % compute cost of fuel and electricity 
-fuelCost = priceTable.JetFuelPricekWh(index) * fuelE;
+fuelCost = priceTable.JetFuelPricekWh(index)*fuelE;
 battCost = priceTable.ElectricityPricekWh(index)*battE;
 
 % total for full direct operating cost of flight

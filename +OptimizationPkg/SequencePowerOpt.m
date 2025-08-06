@@ -142,13 +142,13 @@ for iflight =1:nflight
 end
 
 
-save("SeqOptAC_fuele.mat", "OptimizedAircraft");
-save("opttable_fuele.mat", "OptSeqTable");
+save("SeqOptAC_cost2.mat", "OptimizedAircraft");
+save("opttable_cost2.mat", "OptSeqTable");
     
 %% Nested Functions %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-    function [fuele,SOC, dh_dt]  = FlySequence(PC, Aircraft, Sequence)
+    function [DOC,SOC, dh_dt]  = FlySequence(PC, Aircraft, Sequence)
     % both onjective function values
     fburn = 0;
     DOC = 0;

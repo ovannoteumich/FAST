@@ -1,5 +1,5 @@
+
 load("SeqOptAC_cost.mat")
-load("SeqOptAC_fuele.mat")
 Case1 = OptimizedAircraft;
 disp("Case 1")
 case1 = AnalyzeAC(Case1, seq);
@@ -7,15 +7,11 @@ load("SeqOptAC_fuel.mat")
 Case2 = OptimizedAircraft;
 disp("Case 2")
 case2 = AnalyzeAC(Case2, seq);
-
-load("NonOptHEA.mat")
-Case3 = ACs;
+load("SeqOptAC_fuele.mat")
+Case3 = OptimizedAircraft;
 disp("Case 3")
 case3 = AnalyzeAC(Case3, seq);
-load("Conv.mat")
-Case4 = ACs;
-disp("Case 4")
-case4 = AnalyzeAC(Case4, seq);
+
 
 case1.diff = (case1.fburn-case4.fburn)./case4.fburn.*100;
 case2.diff = (case2.fburn-case4.fburn)./case4.fburn.*100;
@@ -43,10 +39,10 @@ ax2 = subplot(4, 1, 2);
 hold on;
 plot(case1.Time, case1.GTPC, 'LineWidth', 1.5);
 plot(case2.Time, case2.GTPC, 'LineWidth', 1.5);
-%plot(case3.Time, case3.GTPC, 'LineWidth', 1.5);
+plot(case3.Time, case3.GTPC, 'LineWidth', 1.5);
 %plot(case4.Time, case4.GTPC, 'LineWidth', 1.5); 
 ylabel("GT PC (%)");
-legend("Cost HEA", "Fuel HEA", 'FontSize', font);
+legend("Cost", "Fuel kg", "Fuel E")
 %legend("Case 1", "Case 2", "Case 3", "Case 4", 'FontSize', font);
 set(ax2, "FontSize", font);
 
@@ -55,7 +51,7 @@ ax3 = subplot(4, 1, 3);
 hold on;
 plot(case1.Time, case1.EMPC, 'LineWidth', 1.5);
 plot(case2.Time, case2.EMPC, 'LineWidth', 1.5);
-%plot(case3.Time, case3.EMPC, 'LineWidth', 1.5);
+plot(case3.Time, case3.EMPC, 'LineWidth', 1.5);
 ylabel("EM PC (%)");
 %legend("Case 1", "Case 2", "Case 3", 'FontSize', font);
 set(ax3, "FontSize", font);
@@ -65,7 +61,7 @@ ax4 = subplot(4, 1, 4);
 hold on;
 plot(case1.Time, case1.SOC, 'LineWidth', 1.5);
 plot(case2.Time, case2.SOC, 'LineWidth', 1.5);
-%plot(case3.Time, case3.SOC, 'LineWidth', 1.5);
+plot(case3.Time, case3.SOC, 'LineWidth', 1.5);
 ylabel("SOC (%)");
 xlabel("Time (hr)");
 %legend("Case 1", "Case 2", "Case 3", 'FontSize', font);
@@ -78,20 +74,30 @@ figure;
 hold on;
 plot(case1.Time, case1.FuelE, 'LineWidth', 1.5);
 plot(case2.Time, case2.FuelE, 'LineWidth', 1.5);
-%plot(case3.Time, case3.SOC, 'LineWidth', 1.5);
+plot(case3.Time, case3.FuelE, 'LineWidth', 1.5);
 ylabel("Fuele");
 xlabel("Time (hr)");
-%legend("Case 1", "Case 2", "Case 3", 'FontSize', font);
+legend("Cost", "Fuel kg", "Fuel E")
+set(ax4, "FontSize", font);
+
+figure;
+hold on;
+plot(case1.Time, case1.fburn, 'LineWidth', 1.5);
+plot(case2.Time, case2.fburn, 'LineWidth', 1.5);
+plot(case3.Time, case3.fburn, 'LineWidth', 1.5);
+ylabel("Fuel burn");
+xlabel("Time (hr)");
+legend("Cost", "Fuel kg", "Fuel E")
 set(ax4, "FontSize", font);
 
 figure;
 hold on;
 plot(case1.Time, case1.BattE, 'LineWidth', 1.5);
 plot(case2.Time, case2.BattE, 'LineWidth', 1.5);
-%plot(case3.Time, case3.SOC, 'LineWidth', 1.5);
+plot(case3.Time, case3.BattE, 'LineWidth', 1.5);
 ylabel("BattE");
 xlabel("Time (hr)");
-%legend("Case 1", "Case 2", "Case 3", 'FontSize', font);
+legend("Cost", "Fuel kg", "Fuel E")
 set(ax4, "FontSize", font);
 
 %%
@@ -155,7 +161,6 @@ for i = 1:n
     disp(t(37))
     disp(t(73))
     fuel = Aircraft.Mission.History.SI.Weight.Fburn(1:npt);
-    format long
     ef = Aircraft.Mission.History.SI.Energy.E_ES(1:npt,1)./1000./3600;
     if i > 1
     t = t +time(end)+ground;
