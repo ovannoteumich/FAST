@@ -73,6 +73,26 @@ set(ax4, "FontSize", font);
 % Link the x-axes of all subplots explicitly
 linkaxes([ax1, ax2, ax3, ax4], 'x');
 
+figure;
+hold on;
+plot(case1.Time, case1.FuelE, 'LineWidth', 1.5);
+plot(case2.Time, case2.FuelE, 'LineWidth', 1.5);
+%plot(case3.Time, case3.SOC, 'LineWidth', 1.5);
+ylabel("Fuele");
+xlabel("Time (hr)");
+%legend("Case 1", "Case 2", "Case 3", 'FontSize', font);
+set(ax4, "FontSize", font);
+
+figure;
+hold on;
+plot(case1.Time, case1.BattE, 'LineWidth', 1.5);
+plot(case2.Time, case2.BattE, 'LineWidth', 1.5);
+%plot(case3.Time, case3.SOC, 'LineWidth', 1.5);
+ylabel("BattE");
+xlabel("Time (hr)");
+%legend("Case 1", "Case 2", "Case 3", 'FontSize', font);
+set(ax4, "FontSize", font);
+
 %%
 %{
 % plot fburn
@@ -105,12 +125,13 @@ time = [];
 alt = [];
 TAS = [];
 fburn = [];
+fuele = [];
 GTPC = [];
 EMPC = [];
 battE = [];
 SOC = [];
 ground = [];
-ef = 0;
+
 
 
 for i = 1:n
@@ -133,10 +154,12 @@ for i = 1:n
     disp(t(37))
     disp(t(73))
     fuel = Aircraft.Mission.History.SI.Weight.Fburn(1:npt);
-    ef = ef + Aircraft.Mission.History.SI.Energy.E_ES(npt,1)
+    format long
+    ef = Aircraft.Mission.History.SI.Energy.E_ES(1:npt,1)./1000./3600;
     if i > 1
     t = t +time(end)+ground;
     fuel = fuel + fburn(end);
+    ef = ef + fuele(end);
     end
     a = Aircraft.Mission.History.SI.Performance.Alt(1:npt);
     a(end) = 0;
@@ -163,6 +186,7 @@ for i = 1:n
     alt = [alt; a];
     TAS = [TAS; v];
     fburn = [fburn; fuel];
+    fuele = [fuele; ef];
     GTPC = [GTPC; GT];
     EMPC = [EMPC;EM];
     battE = [battE; E];
@@ -172,7 +196,7 @@ end
 
 time = time./60;
 
-result = struct('Time', time, 'Alt', alt,'TAS', TAS, 'fburn', fburn, 'GTPC', GTPC, 'EMPC', EMPC, 'BattE', battE, 'SOC', SOC);
+result = struct('Time', time, 'Alt', alt,'TAS', TAS, 'fburn', fburn, 'GTPC', GTPC, 'EMPC', EMPC, "FuelE", fuele,'BattE', battE, 'SOC', SOC);
 end
 
 
@@ -190,6 +214,12 @@ fburn2 = OptACs.Aircraft2.Mission.History.SI.Weight.Fburn(1:73) + fburn1(end);
 fburn3 = OptACs.Aircraft3.Mission.History.SI.Weight.Fburn(1:73) + fburn2(end);
 fburn4 = OptACs.Aircraft4.Mission.History.SI.Weight.Fburn(1:73) + fburn3(end);
 fburn = [fburn1; fburn2; fburn3; fburn4;];
+
+fuele1 = OptACs.Aircraft1.Mission.History.SI.Energy.E_ES(1:73,1);
+fuele2 = OptACs.Aircraft2.Mission.History.SI.Energy.E_ES(1:73,1) + fuele1(end);
+fuele3 = OptACs.Aircraft3.Mission.History.SI.Energy.E_ES(1:73,1) + fuele2(end);
+fuele4 = OptACs.Aircraft4.Mission.History.SI.Energy.E_ES(1:73,1) + fuele3(end);
+fuele = [fuele1; fuele2; fuele3; fuele4;]./3600./1000;
 
 GTPC1 = OptACs.Aircraft1.Mission.History.SI.Power.PC(1:73, 1);
 GTPC1(end) = 0;
@@ -238,8 +268,8 @@ t = [t1; t2; t3; t4]./60;
 
 % make miss hist table
 time = minutes(t);
-mytable = table(time, alt, fburn, e, SOC, GTPC, EMPC);
-mytable.Properties.VariableNames = string(["Time (min)", "Altitude (m)", "Fuel Burn (kg)", "Ebatt (kWh)", "SOC", "GT PC", "EM PC"]);
+mytable = table(time, alt, fburn, fuele, e, SOC, GTPC, EMPC);
+mytable.Properties.VariableNames = string(["Time (min)", "Altitude (m)", "Fuel Burn (kg)", "Efuel (kwh)", "Ebatt (kWh)", "SOC", "GT PC", "EM PC"]);
 
 History = table2timetable(mytable);
 end
