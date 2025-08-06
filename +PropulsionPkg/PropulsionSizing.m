@@ -101,10 +101,22 @@ elseif ((strcmpi(aclass, "Turboprop") == 1) || ...
 end
 
 % get the power/thrust split function handles
-OperDwn = Aircraft.Specs.Propulsion.PropArch.OperDwn;
+if Aircraft.Specs.Propulsion.NumStrats > 0
 
-% get the power splits
-Splits = PropulsionPkg.EvalSplit(OperDwn, LamDwn);
+    % mission power strategy index
+    n = Aircraft.Specs.Propulsion.DesignStrategy;
+    % get the downstream operational matrix
+    OperDwn = Aircraft.Specs.Propulsion.PowerManagement(n).Dwn;
+
+else
+
+    % get the downstream operational matrix
+    OperDwn = Aircraft.Specs.Propulsion.PropArch.OperDwn;
+    % get the power splits
+    Splits = PropulsionPkg.EvalSplit(OperDwn, LamDwn);
+
+end
+
 
 % get the number of sources and transmitters
 nsrc = length(Aircraft.Specs.Propulsion.PropArch.SrcType);
