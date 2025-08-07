@@ -68,7 +68,12 @@ Batt = Aircraft.Specs.Propulsion.PropArch.SrcType == 0;
 MTOW  = Aircraft.Specs.Weight.MTOW;
 Wfuel = Aircraft.Specs.Weight.Fuel;
 Wbatt = Aircraft.Specs.Weight.Batt;
-Wbb = Aircraft.Specs.Weight.BattBox;
+
+if ~isfield(Aircraft.Specs.Weight, "BattBox")
+    Wbb = 0;
+else
+    Wbb = Aircraft.Specs.Weight.BattBox;
+end
 
 % get the wing loading
 W_S = Aircraft.Specs.Aero.W_S.SLS;
