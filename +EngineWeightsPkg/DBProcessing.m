@@ -21,7 +21,7 @@ function [Eng] = CalcEngVals(Eng)
 Eng.CoreFlow = Eng.Airflow_SLS / Eng.BPR;
 
 % From Power_To_Thrust, gives Newtons to watts
-Eng.Power_SLS = Eng.Thrust_SLS * 187.7055;
+Eng.Power_SLS = Eng.Thrust_SLS * 187;
 
 
 end

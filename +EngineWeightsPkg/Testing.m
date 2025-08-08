@@ -60,8 +60,15 @@ xlabel("Actual Weight (kg)")
 ylabel("Error (%)")
 grid on
 
-mean(Err)
+summary = [mean(Err)
+median(Err)
 std(Err)
+skewness(Err)
+kurtosis(Err)];
+
+sumnames = ["Mean"; "Median";"Std Dev";"Skewness";"Kurtosis"];
+
+ErrorTable = table(sumnames,summary,'VariableNames',["Error Metric","value"])
 
 
 
@@ -69,8 +76,11 @@ std(Err)
 function [Err, Pred, True] = RunReg(TempStruct,IO_Space,IO_Vals)
 
   
-    [Pred,~] = RegressionPkg.NLGPR(TempStruct,IO_Space,IO_Vals(1:end-1));
+    [Pred,~] = RegressionPkg.NLGPR(TempStruct,IO_Space,IO_Vals(1:end-1),'Weights',[3 1 3]);
     True = IO_Vals(end);
     Err = (Pred - True) ./ True .* 100;
 
 end
+
+
+
