@@ -48,10 +48,10 @@ Aircraft.Specs.Aero.L_D.ClbCF = 1;
 Aircraft.Specs.Aero.L_D.CrsCF = 1;
 
 % fuel flow calibration factor
-Aircraft.Specs.Propulsion.MDotCF = 1;
+Aircraft.Specs.Propulsion.MDotCF = 1.092;
 
 % airframe weight calibration factor
-Aircraft.Specs.Weight.WairfCF = 1;
+Aircraft.Specs.Weight.WairfCF = 0.993;
  
 
 %% VEHICLE PERFORMANCE %%
@@ -80,6 +80,9 @@ Aircraft.Specs.Performance.RCMax = UnitConversionPkg.ConvLength(2250/60, "ft", "
 %% AERODYNAMICS %%
 %%%%%%%%%%%%%%%%%%
 
+% aerodynamic analysis method
+Aircraft.Specs.Aero.L_D.Method = @(Aircraft) AerodynamicsPkg.DragPolar(Aircraft);
+
 % lift-drag ratio during climb  
 Aircraft.Specs.Aero.L_D.Clb = 16 * Aircraft.Specs.Aero.L_D.ClbCF;
 
@@ -91,6 +94,53 @@ Aircraft.Specs.Aero.L_D.Des = Aircraft.Specs.Aero.L_D.Clb;
 
 % wing loading (kg / m^2)
 Aircraft.Specs.Aero.W_S.SLS = 79000 / 126.5;
+
+% ----------------------------------------------------------
+
+% scale factors for drag contributions
+Aircraft.Specs.Aero.ScaleCD0 = 1;
+Aircraft.Specs.Aero.ScaleCDI = 1;
+Aircraft.Specs.Aero.ScaleSub = 0.8016;
+Aircraft.Specs.Aero.ScaleSup = 1;
+Aircraft.Specs.Aero.ScaleWnd = 1;
+
+% get the component properties --- fuse, htail, vtail, wing, eng1, eng2
+Aircraft.Specs.Aero.Components.Cf = [0.0026, 0.0026, 0.0026, 0.0026, 0.0026, 0.0026];
+Aircraft.Specs.Aero.Components.Re = [2e+6, 2e+6, 2e+6, 2e+6, 2e+6, 2e+6];
+Aircraft.Specs.Aero.Components.Fine = [9.5114, 0.12, 0.12, 0.12, 1.5928, 1.5928];
+Aircraft.Specs.Aero.Components.Swet = [441.0079, 49.1499, 46.6784, 200.0672, 17.4970, 17.4970];
+Aircraft.Specs.Aero.Components.LamFracUpper = [0, 0, 0, 0, 0, 0];
+Aircraft.Specs.Aero.Components.LamFracLower = [0, 0, 0, 0, 0, 0];
+
+% get the wing geometry and properties
+Aircraft.Specs.Aero.Wing.S = 126.5;
+Aircraft.Specs.Aero.Wing.AirfoilTech = 1;
+
+% get the excrescences drag factor
+Aircraft.Specs.Aero.ExcrescencesDrag = 0.06;
+
+% get the design conditions
+Aircraft.Specs.Aero.DesignCL = 0.5;
+Aircraft.Specs.Aero.DesignMach = 0.82;
+
+% get the wing geometry
+Aircraft.Specs.Aero.Wing.AR = 10.1315; % 35.80 ^ 2 / 126.5;
+Aircraft.Specs.Aero.Wing.MaxCamber = 0.02;
+Aircraft.Specs.Aero.Wing.t_c = 0.12;
+Aircraft.Specs.Aero.Wing.e = 0.85;
+Aircraft.Specs.Aero.Wing.Sweep = 26.9085;
+Aircraft.Specs.Aero.Wing.TR = 0.2702; % 1.64 / 6.07
+
+% check option for extreme taper ratios
+Aircraft.Specs.Aero.Wing.Redux = 0;
+
+% get the fuselage geometry
+Aircraft.Specs.Aero.Fuse.Area = 13.4614; % pi * (4.14 / 2) ^ 2;
+Aircraft.Specs.Aero.Fuse.Len_Diam = 9.0749; % 37.57 / 4.14;
+Aircraft.Specs.Aero.Fuse.Diam_Span = 0.1156; % 4.14 / 35.80;
+
+% get the base area
+Aircraft.Specs.Aero.BaseArea = 0;
 
 
 %% WEIGHTS %%
@@ -141,6 +191,9 @@ Aircraft.Specs.Propulsion.Thrust.SLS = 2.37e5;
 % engine propulsive efficiency
 Aircraft.Specs.Propulsion.Eta.Prop = 0.8;
 
+% engine inlet areas (account for all components)
+Aircraft.Specs.Propulsion.InletArea = [NaN(1, 3), repmat(1.9831, 1, 2), NaN];
+
 
 %% POWER %%
 %%%%%%%%%%%
@@ -163,38 +216,6 @@ Aircraft.Specs.Power.P_W.SLS = NaN;
 Aircraft.Specs.Power.P_W.EM = NaN;
 Aircraft.Specs.Power.P_W.EG = NaN;
 
-% thrust splits (thrust / total thrust)
-Aircraft.Specs.Power.LamTS.Tko = 0;
-Aircraft.Specs.Power.LamTS.Clb = 0;
-Aircraft.Specs.Power.LamTS.Crs = 0;
-Aircraft.Specs.Power.LamTS.Des = 0;
-Aircraft.Specs.Power.LamTS.Lnd = 0;
-Aircraft.Specs.Power.LamTS.SLS = 0;
-
-% power splits between power/thrust sources (electric power / total power)
-Aircraft.Specs.Power.LamTSPS.Tko = 0;
-Aircraft.Specs.Power.LamTSPS.Clb = 0;
-Aircraft.Specs.Power.LamTSPS.Crs = 0;
-Aircraft.Specs.Power.LamTSPS.Des = 0;
-Aircraft.Specs.Power.LamTSPS.Lnd = 0;
-Aircraft.Specs.Power.LamTSPS.SLS = 0;
-
-% power splits between power/power sources (electric power / total power)
-Aircraft.Specs.Power.LamPSPS.Tko = 0;
-Aircraft.Specs.Power.LamPSPS.Clb = 0;
-Aircraft.Specs.Power.LamPSPS.Crs = 0;
-Aircraft.Specs.Power.LamPSPS.Des = 0;
-Aircraft.Specs.Power.LamPSPS.Lnd = 0;
-Aircraft.Specs.Power.LamPSPS.SLS = 0;
-
-% power splits between energy/power sources (electric power / total power)
-Aircraft.Specs.Power.LamPSES.Tko = 0;
-Aircraft.Specs.Power.LamPSES.Clb = 0;
-Aircraft.Specs.Power.LamPSES.Crs = 0;
-Aircraft.Specs.Power.LamPSES.Des = 0;
-Aircraft.Specs.Power.LamPSES.Lnd = 0;
-Aircraft.Specs.Power.LamPSES.SLS = 0;
-
 % battery cells in series and parallel 
 Aircraft.Specs.Power.Battery.ParCells = NaN;
 Aircraft.Specs.Power.Battery.SerCells = NaN;
@@ -202,15 +223,22 @@ Aircraft.Specs.Power.Battery.SerCells = NaN;
 % initial battery SOC
 Aircraft.Specs.Power.Battery.BegSOC = NaN;
 
+% windmilling engines
+Aircraft.Specs.Power.Windmill.Tko = 0;
+Aircraft.Specs.Power.Windmill.Clb = 0;
+Aircraft.Specs.Power.Windmill.Crs = 0;
+Aircraft.Specs.Power.Windmill.Des = 0;
+Aircraft.Specs.Power.Windmill.Lnd = 0;
+
 
 %% SETTINGS (LEAVE AS NaN FOR DEFAULTS) %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % number of control points in each segment
-Aircraft.Settings.TkoPoints = 4;
-Aircraft.Settings.ClbPoints = 5;
-Aircraft.Settings.CrsPoints = 5;
-Aircraft.Settings.DesPoints = 5;
+Aircraft.Settings.TkoPoints = 10;
+Aircraft.Settings.ClbPoints = 10;
+Aircraft.Settings.CrsPoints = 10;
+Aircraft.Settings.DesPoints = 10;
 
 % maximum number of iterations during oew estimation
 Aircraft.Settings.OEW.MaxIter = 50;

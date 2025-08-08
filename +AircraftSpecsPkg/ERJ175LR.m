@@ -40,14 +40,14 @@ Aircraft.Specs.TLAR.MaxPax = 78;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % calibration factors for lift-drag ratios
-Aircraft.Specs.Aero.L_D.ClbCF = 1.002;
-Aircraft.Specs.Aero.L_D.CrsCF = 1.000;
+Aircraft.Specs.Aero.L_D.ClbCF = 1.000; % 1.002
+Aircraft.Specs.Aero.L_D.CrsCF = 1.000; % 1.000
 
 % fuel flow calibration factor
-Aircraft.Specs.Propulsion.MDotCF = 1.029;
+Aircraft.Specs.Propulsion.MDotCF = 1.050; % 1.029
 
 % airframe weight calibration factor
-Aircraft.Specs.Weight.WairfCF = 1.018;
+Aircraft.Specs.Weight.WairfCF = 1.016; % 1.018
  
 
 %% VEHICLE PERFORMANCE %%
@@ -76,6 +76,9 @@ Aircraft.Specs.Performance.RCMax = UnitConversionPkg.ConvVel(2250, "ft/min", "m/
 %% AERODYNAMICS %%
 %%%%%%%%%%%%%%%%%%
 
+% aerodynamic analysis method
+Aircraft.Specs.Aero.L_D.Method = @(Aircraft) AerodynamicsPkg.DragPolar(Aircraft);
+
 % lift-drag ratio during climb  (assumed same as ERJ175, standard range)
 Aircraft.Specs.Aero.L_D.Clb = 10.9773 * Aircraft.Specs.Aero.L_D.ClbCF;
 
@@ -88,6 +91,53 @@ Aircraft.Specs.Aero.L_D.Des = Aircraft.Specs.Aero.L_D.Clb;
 % wing loading (kg / m^2)
 Aircraft.Specs.Aero.W_S.SLS = UnitConversionPkg.ConvMass(109.25, "lbm", "kg") / ...
                               (UnitConversionPkg.ConvLength(1, "ft", "m")) ^ 2;
+
+% ----------------------------------------------------------
+
+% scale factors for drag contributions
+Aircraft.Specs.Aero.ScaleCD0 = 1;
+Aircraft.Specs.Aero.ScaleCDI = 1;
+Aircraft.Specs.Aero.ScaleSub = 0.8942;
+Aircraft.Specs.Aero.ScaleSup = 1;
+Aircraft.Specs.Aero.ScaleWnd = 1;
+
+% get the component properties --- fuse, htail, vtail, wing, eng1, eng2
+Aircraft.Specs.Aero.Components.Cf = [0.0026, 0.0026, 0.0026, 0.0026, 0.0026, 0.0026];
+Aircraft.Specs.Aero.Components.Re = [2e+6, 2e+6, 2e+6, 2e+6, 2e+6, 2e+6];
+Aircraft.Specs.Aero.Components.Fine = [9.8385, 0.12, 0.12, 0.12, 1.6734, 1.6734];
+Aircraft.Specs.Aero.Components.Swet = [301.4080, 37.3547, 35.3073, 126.2423, 8.4248, 8.4248];
+Aircraft.Specs.Aero.Components.LamFracUpper = [0, 0, 0, 0, 0, 0];
+Aircraft.Specs.Aero.Components.LamFracLower = [0, 0, 0, 0, 0, 0];
+
+% get the wing geometry and properties
+Aircraft.Specs.Aero.Wing.S = 79.8322;
+Aircraft.Specs.Aero.Wing.AirfoilTech = 1;
+
+% get the excrescences drag factor
+Aircraft.Specs.Aero.ExcrescencesDrag = 0.06;
+
+% get the design conditions
+Aircraft.Specs.Aero.DesignCL = 0.5;
+Aircraft.Specs.Aero.DesignMach = 0.78;
+
+% get the wing geometry
+Aircraft.Specs.Aero.Wing.AR = 10.3465; % 28.74 ^ 2 / 79.8322;
+Aircraft.Specs.Aero.Wing.MaxCamber = 0.02;
+Aircraft.Specs.Aero.Wing.t_c = 0.12;
+Aircraft.Specs.Aero.Wing.e = 0.85;
+Aircraft.Specs.Aero.Wing.Sweep = 26.4413; % 26.5 - (1 - 0.2441) / (10.3465 * (1 + 0.2441))
+Aircraft.Specs.Aero.Wing.TR = 0.2441; % 1.35 / 5.53;
+
+% check option for extreme taper ratios
+Aircraft.Specs.Aero.Wing.Redux = 0;
+
+% get the fuselage geometry
+Aircraft.Specs.Aero.Fuse.Area = 9.8980; % pi * (3.55 / 2) ^ 2;
+Aircraft.Specs.Aero.Fuse.Len_Diam = 8.9239; % 31.68 / 3.55;
+Aircraft.Specs.Aero.Fuse.Diam_Span = 0.1235; % 3.55 / 28.74;
+
+% get the base area
+Aircraft.Specs.Aero.BaseArea = 0;
 
 
 %% WEIGHTS %%
@@ -137,6 +187,9 @@ Aircraft.Specs.Propulsion.Thrust.SLS = UnitConversionPkg.ConvForce(2 * 14510, "l
 % engine propulsive efficiency
 Aircraft.Specs.Propulsion.Eta.Prop = 0.8;
 
+% engine inlet areas (account for all components)
+Aircraft.Specs.Propulsion.InletArea = [NaN(1, 3), repmat(1.4914, 1, 2), NaN];
+
 
 %% POWER %%
 %%%%%%%%%%%
@@ -182,6 +235,13 @@ Aircraft.Specs.Power.Battery.SerCells = NaN;% 62;
 
 % initial battery SOC (commented value used for electrified aircraft)
 Aircraft.Specs.Power.Battery.BegSOC = NaN;%100;
+
+% windmilling engines
+Aircraft.Specs.Power.Windmill.Tko = 0;
+Aircraft.Specs.Power.Windmill.Clb = 0;
+Aircraft.Specs.Power.Windmill.Crs = 0;
+Aircraft.Specs.Power.Windmill.Des = 0;
+Aircraft.Specs.Power.Windmill.Lnd = 0;
 
 
 %% SETTINGS (LEAVE AS NaN FOR DEFAULTS) %%
