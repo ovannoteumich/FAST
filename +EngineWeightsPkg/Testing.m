@@ -7,7 +7,7 @@ load('+DatabasePkg\IDEAS_DB.mat')
 % additional fields
 TurbofanEngines = EngineWeightsPkg.DBProcessing(TurbofanEngines);
 
-
+% Get engine field names
 names = fieldnames(TurbofanEngines);
 N = length(names);
 
@@ -16,33 +16,41 @@ Err  = zeros(N,1);
 Pred = zeros(N,1);
 True = zeros(N,1);
 
-
+% Loop through each engine and run the regression while excluding the current engine from the training set
 for ii = 1:N
 
-    CurrentEngine = TurbofanEngines.(names{ii}); 
+    % Identify and exclude the current engine from the training set
+    CurrentEngine = TurbofanEngines.(names{ii});
     TempStruct = rmfield(TurbofanEngines, names{ii});
 
+    % set the inputs and output space: SLS Power, Core Mass Flow, High Pressure Turbine RPM at 100%, Dry Weight
     IO_Space = {["Power_SLS"],["CoreFlow"],["HP100"],["DryWeight"]};
     IO_Vals = [CurrentEngine.Power_SLS, CurrentEngine.CoreFlow,...
         CurrentEngine.HP100, CurrentEngine.DryWeight];
+
+    % Run the regression function
     [Err(ii), Pred(ii), True(ii)] = RunReg(TempStruct,IO_Space,IO_Vals);
 
 end
 
-% Clean Up
+% Clean Up the outputs
 ind = find(~isnan(Err));
 Err = Err(ind);
 Pred = Pred(ind);
 True = True(ind);
 
+% Save to a mat file
 save('+EngineWeightsPkg/EngineWeightVals.mat','Err','Pred','True')
 
 %% Plotting
 clear; clc; close all;
+
+% Load the saved values
 load('+EngineWeightsPkg/EngineWeightVals.mat')
 
 figure(1)
 
+%
 subplot(1,2,1)
 scatter(True,Pred,'bo')
 hold on
@@ -52,6 +60,7 @@ ylabel("Predicted Weight (kg)")
 grid on
 
 
+% error vs actual plot
 subplot(1,2,2)
 scatter(True,Err,'ro')
 hold on
@@ -60,14 +69,9 @@ xlabel("Actual Weight (kg)")
 ylabel("Error (%)")
 grid on
 
-summary = [mean(Err)
-median(Err)
-std(Err)
-skewness(Err)
-kurtosis(Err)];
-
+% Make a table of summary metrics
+summary = [mean(Err);median(Err);std(Err);skewness(Err);kurtosis(Err)];
 sumnames = ["Mean"; "Median";"Std Dev";"Skewness";"Kurtosis"];
-
 ErrorTable = table(sumnames,summary,'VariableNames',["Error Metric","value"])
 
 
@@ -75,10 +79,12 @@ ErrorTable = table(sumnames,summary,'VariableNames',["Error Metric","value"])
 %% Function of repetetive stuff
 function [Err, Pred, True] = RunReg(TempStruct,IO_Space,IO_Vals)
 
-  
-    [Pred,~] = RegressionPkg.NLGPR(TempStruct,IO_Space,IO_Vals(1:end-1),'Weights',[3 1 3]);
-    True = IO_Vals(end);
-    Err = (Pred - True) ./ True .* 100;
+% Call the regression
+[Pred,~] = RegressionPkg.NLGPR(TempStruct,IO_Space,IO_Vals(1:end-1),'Weights',[3 1 3]);
+
+% Process the outputs
+True = IO_Vals(end);
+Err = (Pred - True) ./ True .* 100;
 
 end
 

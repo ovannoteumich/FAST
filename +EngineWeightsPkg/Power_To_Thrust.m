@@ -1,6 +1,8 @@
-
 clear; clc;
 
+% Rough script to get a value for scaling the thrust into power so it works
+% with "turboshaft" engines. This actually has no effect on the testing
+% script. see DBProcessing.m
 Ceras = EngineModelPkg.TurbofanNonlinearSizing(EngineModelPkg.EngineSpecsPkg.CeRAS);
 
 PW1919 = EngineModelPkg.TurbofanNonlinearSizing(EngineModelPkg.EngineSpecsPkg.PW_1919G);
