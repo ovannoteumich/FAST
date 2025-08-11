@@ -242,7 +242,7 @@ Aircraft.Settings.Analysis.Type = +1;
 % plot mission results/ do no
 % 0 = no plotting
 % 1 = plotting
-Aircraft.Settings.Plotting = 1;
+Aircraft.Settings.Plotting = 0;
 
 % plot visualization results
 % 0 = no plotting
