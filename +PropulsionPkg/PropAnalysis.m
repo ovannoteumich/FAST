@@ -371,7 +371,7 @@ if (any(Batt))
                 
                 % zero the splits
                 LamDwn(BattDeplete:end, :) = 0;
-                                
+                
                 % change the SOC (prior index is last charge > 20%)
                 SOC(BattDeplete:end, icol) = SOC(BattDeplete - 1, icol);
                 
@@ -449,7 +449,7 @@ if (any(Fuel))
         EngFun = @(EngSpec, EMPower) EngineModelPkg.TurbopropNonlinearSizing(EngSpec, EMPower);
 
         % get the BSFC from the engine sizing
-        GetSFC = @(SizedEngine) SizedEngine.BSFC_Imp;
+        GetSFC = @(SizedEngine) SizedEngine.BSFC;
         
         % get the fuel flow rate
         MDot = @(OffDesignEng) OffDesignEng.Fuel.MDot;
