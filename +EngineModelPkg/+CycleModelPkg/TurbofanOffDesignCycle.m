@@ -1,6 +1,5 @@
 
 
-
 function [OffDesignEngine] = TurbofanOffDesignCycle(OnDesignEngine,OffParams)
 % DEFUNCT DO NOT USE THIS%
 
@@ -160,7 +159,7 @@ Tt39old = OnDesignEngine.States.Station39.Tt;
 fprimex = 1;
 
 iter = 0;
-while abs(fprimex) > 1e-10
+while abs(fprimex) > 1e-10 && iter < 10
     
 
     fx = m31*EngineModelPkg.SpecHeatPkg.CpAir(Tt3,Tt39old)/(OnDesignEngine.Specs.EtaPoly.Combustor*LHVFuel - EngineModelPkg.SpecHeatPkg.CpJetA(Tt3,Tt39old));
@@ -169,6 +168,7 @@ while abs(fprimex) > 1e-10
     Tt39new = Tt39old - (fx-mfuel)^2/fprimex;
 
     Tt39old = Tt39new;
+    iter = iter+1;
 
 %     iter = iter+1;
 %     scatter(iter,fx)
@@ -316,7 +316,7 @@ prime = 1;
 
 iter = 0;
 
-while abs(prime) > 1e-7
+while abs(prime) > 1e-7 && iter < 100
 
     Ts = Tt*(1+(g-1)/2*M^2)^(-1);
     Ps = Pt*(1+(g-1)/2*M^2)^(-g/(g-1));
@@ -362,12 +362,3 @@ C2 = 100;
 dmdt = -2*((m31*(C1 + L1 - (L1*exp(-k1*(T_high - y1)))/(exp(-k1*(T_high - y1)) + 1)))/(etaH - T_high*(C2 + L2) + T_low*(C2 + L2) - (L2*log(exp(-k2*(T_high - y2)) + 1))/k2 + (L2*log(exp(-k2*(T_low - y2)) + 1))/k2) + (m31*(C2 + L2 - (L2*exp(-k2*(T_high - y2)))/(exp(-k2*(T_high - y2)) + 1))*(T_high*(C1 + L1) - T_low*(C1 + L1) + (L1*log(exp(-k1*(T_high - y1)) + 1))/k1 - (L1*log(exp(-k1*(T_low - y1)) + 1))/k1))/(etaH - T_high*(C2 + L2) + T_low*(C2 + L2) - (L2*log(exp(-k2*(T_high - y2)) + 1))/k2 + (L2*log(exp(-k2*(T_low - y2)) + 1))/k2)^2)*(mtrue - (m31*(T_high*(C1 + L1) - T_low*(C1 + L1) + (L1*log(exp(-k1*(T_high - y1)) + 1))/k1 - (L1*log(exp(-k1*(T_low - y1)) + 1))/k1))/(etaH - T_high*(C2 + L2) + T_low*(C2 + L2) - (L2*log(exp(-k2*(T_high - y2)) + 1))/k2 + (L2*log(exp(-k2*(T_low - y2)) + 1))/k2));
 
 end
-
-
-
-
-
-
-
-
-

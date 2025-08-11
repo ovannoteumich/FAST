@@ -319,7 +319,7 @@ prime = 1;
 
 iter = 0;
 
-while abs(prime) > 1e-4
+while abs(prime) > 1e-4 && iter < 10
 
     Ts = Tt*(1+(g-1)/2*M^2)^(-1);
     Ps = Pt*(1+(g-1)/2*M^2)^(-g/(g-1));
@@ -365,12 +365,3 @@ C2 = 100;
 dmdt = -2*((m31*(C1 + L1 - (L1*exp(-k1*(T_high - y1)))/(exp(-k1*(T_high - y1)) + 1)))/(etaH - T_high*(C2 + L2) + T_low*(C2 + L2) - (L2*log(exp(-k2*(T_high - y2)) + 1))/k2 + (L2*log(exp(-k2*(T_low - y2)) + 1))/k2) + (m31*(C2 + L2 - (L2*exp(-k2*(T_high - y2)))/(exp(-k2*(T_high - y2)) + 1))*(T_high*(C1 + L1) - T_low*(C1 + L1) + (L1*log(exp(-k1*(T_high - y1)) + 1))/k1 - (L1*log(exp(-k1*(T_low - y1)) + 1))/k1))/(etaH - T_high*(C2 + L2) + T_low*(C2 + L2) - (L2*log(exp(-k2*(T_high - y2)) + 1))/k2 + (L2*log(exp(-k2*(T_low - y2)) + 1))/k2)^2)*(mtrue - (m31*(T_high*(C1 + L1) - T_low*(C1 + L1) + (L1*log(exp(-k1*(T_high - y1)) + 1))/k1 - (L1*log(exp(-k1*(T_low - y1)) + 1))/k1))/(etaH - T_high*(C2 + L2) + T_low*(C2 + L2) - (L2*log(exp(-k2*(T_high - y2)) + 1))/k2 + (L2*log(exp(-k2*(T_low - y2)) + 1))/k2));
 
 end
-
-
-
-
-
-
-
-
-
