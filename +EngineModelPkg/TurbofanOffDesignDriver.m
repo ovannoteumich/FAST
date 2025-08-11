@@ -32,4 +32,3 @@ OffDesign.TSFC = BSFCoff*BSFCScale/BSFCon*OnDesignEngine.TSFC_Imperial;
 %% Output BSFC In off Design
 
 end
-
