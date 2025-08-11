@@ -10,6 +10,16 @@ Slits_Up_A320 = A320Neo.Mission.History.SI.Power.LamUps;
 DesignStrat_A320 = A320Neo.Specs.Propulsion.DesignStrategy;
 NumStrat_A320 = A320Neo.Specs.Propulsion.NumStrats;
 
+%% LM100J_Hybrid Testing ; LM100J()
+% call main
+LMhybrid = Main(AircraftSpecsPkg.LM100J_Hybrid(), @MissionProfilesPkg.LM100J)
+
+% collect variables of interest
+Weights_LMH = LMhybrid.Specs.Weight;
+Slits_Up_LMH = LMhybrid.Mission.History.SI.Power.LamUps;
+DesignStrat_LMH = LMhybrid.Specs.Propulsion.DesignStrategy;
+NumStrat_LMH = LMhybrid.Specs.Propulsion.NumStrats;
+
 %% AEA Testing ; AEAProfile()
 % call main
 AEA = Main(AircraftSpecsPkg.AEA(), @MissionProfilesPkg.AEAProfile)
@@ -31,15 +41,15 @@ Slits_Up_ATR = ATR.Mission.History.SI.Power.LamUps;
 DesignStrat_ATR = ATR.Specs.Propulsion.DesignStrategy;
 NumStrat_ATR = ATR.Specs.Propulsion.NumStrats;
 
-%% ATR42 Testing ; ATR42MissionBRE()
-% call main
-ATR_BRE = Main(AircraftSpecsPkg.ATR42(), @MissionProfilesPkg.ATRMissionBRE)
-
-% collect variables of interest
-Weights_ATR_BRE = ATR_BRE.Specs.Weight;
-Slits_Up_ATR_BRE = ATR_BRE.Mission.History.SI.Power.LamUps;
-DesignStrat_ATR_BRE = ATR_BRE.Specs.Propulsion.DesignStrategy;
-NumStrat_ATR_BRE = ATR_BRE.Specs.Propulsion.NumStrats;
+% %% ATR42 Testing ; ATR42MissionBRE()
+% % call main
+% ATR_BRE = Main(AircraftSpecsPkg.ATR42(), @MissionProfilesPkg.ATRMissionBRE)
+% 
+% % collect variables of interest
+% Weights_ATR_BRE = ATR_BRE.Specs.Weight;
+% Slits_Up_ATR_BRE = ATR_BRE.Mission.History.SI.Power.LamUps;
+% DesignStrat_ATR_BRE = ATR_BRE.Specs.Propulsion.DesignStrategy;
+% NumStrat_ATR_BRE = ATR_BRE.Specs.Propulsion.NumStrats;
 
 %% ATR42 Testing ; ATR42MissionEPASS()
 % call main
@@ -191,35 +201,35 @@ Slits_Up_Param = Param.Mission.History.SI.Power.LamUps;
 DesignStrat_Param = Param.Specs.Propulsion.DesignStrategy;
 NumStrat_Param = Param.Specs.Propulsion.NumStrats;
 
-%% Example Testing ; BRECruise00()
-% call main
-BRE00 = Main(AircraftSpecsPkg.Example(), @MissionProfilesPkg.BRECruise00)
+% %% Example Testing ; BRECruise00()
+% % call main
+% BRE00 = Main(AircraftSpecsPkg.Example(), @MissionProfilesPkg.BRECruise00)
+% 
+% % collect variables of interest
+% Weights_BRE00 = BRE00.Specs.Weight;
+% Slits_Up_BRE00 = BRE00.Mission.History.SI.Power.LamUps;
+% DesignStrat_BRE00 = BRE00.Specs.Propulsion.DesignStrategy;
+% NumStrat_BRE00 = BRE00.Specs.Propulsion.NumStrats;
 
-% collect variables of interest
-Weights_BRE00 = BRE00.Specs.Weight;
-Slits_Up_BRE00 = BRE00.Mission.History.SI.Power.LamUps;
-DesignStrat_BRE00 = BRE00.Specs.Propulsion.DesignStrategy;
-NumStrat_BRE00 = BRE00.Specs.Propulsion.NumStrats;
-
-%% Example Testing ; BRECruise01()
-% call main
-BRE01 = Main(AircraftSpecsPkg.Example(), @MissionProfilesPkg.BRECruise01)
-
-% collect variables of interest
-Weights_BRE01 = BRE01.Specs.Weight;
-Slits_Up_BRE01 = BRE01.Mission.History.SI.Power.LamUps;
-DesignStrat_BRE01 = BRE01.Specs.Propulsion.DesignStrategy;
-NumStrat_BRE01 = BRE01.Specs.Propulsion.NumStrats;
-
-%% Example Testing ; BRECruise02()
-% call main
-BRE02 = Main(AircraftSpecsPkg.Example(), @MissionProfilesPkg.BRECruise02)
-
-% collect variables of interest
-Weights_BRE02 = BRE02.Specs.Weight;
-Slits_Up_BRE02 = BRE02.Mission.History.SI.Power.LamUps;
-DesignStrat_BRE02 = BRE02.Specs.Propulsion.DesignStrategy;
-NumStrat_BRE02 = BRE02.Specs.Propulsion.NumStrats;
+% %% Example Testing ; BRECruise01()
+% % call main
+% BRE01 = Main(AircraftSpecsPkg.Example(), @MissionProfilesPkg.BRECruise01)
+% 
+% % collect variables of interest
+% Weights_BRE01 = BRE01.Specs.Weight;
+% Slits_Up_BRE01 = BRE01.Mission.History.SI.Power.LamUps;
+% DesignStrat_BRE01 = BRE01.Specs.Propulsion.DesignStrategy;
+% NumStrat_BRE01 = BRE01.Specs.Propulsion.NumStrats;
+% 
+% %% Example Testing ; BRECruise02()
+% % call main
+% BRE02 = Main(AircraftSpecsPkg.Example(), @MissionProfilesPkg.BRECruise02)
+% 
+% % collect variables of interest
+% Weights_BRE02 = BRE02.Specs.Weight;
+% Slits_Up_BRE02 = BRE02.Mission.History.SI.Power.LamUps;
+% DesignStrat_BRE02 = BRE02.Specs.Propulsion.DesignStrategy;
+% NumStrat_BRE02 = BRE02.Specs.Propulsion.NumStrats;
 
 %% LM100J_Conventional Testing ; LM100J_NoRsrv()
 % call main
@@ -231,12 +241,3 @@ Slits_Up_LMC = LMconv.Mission.History.SI.Power.LamUps;
 DesignStrat_LMC = LMconv.Specs.Propulsion.DesignStrategy;
 NumStrat_LMC = LMconv.Specs.Propulsion.NumStrats;
 
-%% LM100J_Hybrid Testing ; LM100J()
-% call main
-LMhybrid = Main(AircraftSpecsPkg.LM100J_Hybrid(), @MissionProfilesPkg.LM100J)
-
-% collect variables of interest
-Weights_LMH = LMhybrid.Specs.Weight;
-Slits_Up_LMH = LMhybrid.Mission.History.SI.Power.LamUps;
-DesignStrat_LMH = LMhybrid.Specs.Propulsion.DesignStrategy;
-NumStrat_LMH = LMhybrid.Specs.Propulsion.NumStrats;
