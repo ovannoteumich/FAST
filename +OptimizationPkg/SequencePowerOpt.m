@@ -67,13 +67,13 @@ OptSeqTable = table('Size', sz, 'VariableTypes', varTypes, ...
 options = optimoptions('fmincon','MaxIterations', 200 ,'Display','iter','Algorithm','interior-point', 'UseParallel',true);
 
 % objective function convergence tolerance
-options.OptimalityTolerance = 10^-4;
+options.OptimalityTolerance = 10^-6;
 
 % step size convergence
 options.StepTolerance = 10^-6;
 
 % max function evaluations
-options.MaxFunctionEvaluations = 10^6;
+options.MaxFunctionEvaluations = 10^9;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                            %
@@ -110,6 +110,8 @@ n2= TkoPts + 3 * (ClbPts - 1)-1;
 
 % get intial power code
 PC = Aircraft.Specs.Power.PC(n1:n2, [1,3]);
+
+
 % expand across for each flight
 PC0 = repmat(PC, 1, nflight);
 b = size(PC0);
@@ -153,7 +155,7 @@ save("opttable_cost2.mat", "OptSeqTable");
     fburn = 0;
     DOC = 0;
     fuele = 0;
-
+    e= 0;
     %objfunc = 'DOC'; 
 
     % iterate through missions
@@ -257,18 +259,25 @@ save("opttable_cost2.mat", "OptSeqTable");
             DOC = DOC + Aircraft.Mission.History.SI.Performance.Cost;
 
             fuele = fuele + Aircraft.Mission.History.SI.Energy.E_ES(npt,1);
+
+                % rate of climb
+            dh_dt(:, iflight) = Aircraft.Mission.History.SI.Performance.RC(n1:n2+1);
+        
+            %SOC
+            SOC(:, iflight) = Aircraft.Mission.History.SI.Power.SOC(n1:n2+1,2);
         catch
             fburn = 10^9;
             DOC = 10^15;
+             % rate of climb
+            dh_dt(:, iflight) = Aircraft.Mission.History.SI.Performance.RC(n1:n2+1)*1000;
+
+        %SOC
+            SOC(:, iflight) = Aircraft.Mission.History.SI.Power.SOC(n1:n2+1,2)-100;
         end
 
        
 
-        % rate of climb
-        dh_dt(:, iflight) = Aircraft.Mission.History.SI.Performance.RC(n1:n2+1);
-
-        %SOC
-        SOC(:, iflight) = Aircraft.Mission.History.SI.Power.SOC(n1:n2+1,2);
+     
         
         try
             % charge battery
