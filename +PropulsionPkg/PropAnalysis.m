@@ -106,6 +106,7 @@ if Aircraft.Specs.Propulsion.NumStrats > 0
 
 else
 
+    % get the downstream operational matrix
     OperDwn = Aircraft.Specs.Propulsion.PropArch.OperDwn;
 
 end

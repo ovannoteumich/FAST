@@ -2,7 +2,7 @@ function [Aircraft] = PowerAvailable(Aircraft)
 %
 % [Aircraft] = PowerAvailable(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 15 jul 2025
+% last updated: 19 jun 2025
 %
 % For a given propulsion architecture, compute the power available.
 %
@@ -97,7 +97,7 @@ isnk = (nsrc + ntrn + 1) : ncomp;
 
 % remember the SLS thrust/power available in each transmitter
 ThrustAv = repmat(Aircraft.Specs.Propulsion.SLSThrust, npnt, 1);
-PowerAv  = repmat(Aircraft.Specs.Propulsion.SLSPower , npnt, 1);
+ PowerAv = repmat(Aircraft.Specs.Propulsion.SLSPower , npnt, 1);
  
 % remember the SLS power separately
 SLSPower = Aircraft.Specs.Propulsion.SLSPower;
