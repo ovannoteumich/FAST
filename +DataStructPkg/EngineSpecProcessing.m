@@ -69,6 +69,7 @@ if ~isstruct(Aircraft.Specs.Propulsion.Engine)
             [Engine.OPR,~] = RegressionPkg.NLGPR(Data,{["Thrust_SLS"],["OPR_SLS"]},Engine.DesignThrust);
             [Engine.BPR,~] = RegressionPkg.NLGPR(Data,{["Thrust_SLS"],["BPR"]},Engine.DesignThrust);
             [Engine.FPR,~] = RegressionPkg.NLGPR(Data,{["Thrust_SLS"],["FPR"]},Engine.DesignThrust);
+        
         case "Turboprop"
 
             %% Default Values
