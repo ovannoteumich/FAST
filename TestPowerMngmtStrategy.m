@@ -51,15 +51,15 @@ NumStrat_ATR = ATR.Specs.Propulsion.NumStrats;
 % DesignStrat_ATR_BRE = ATR_BRE.Specs.Propulsion.DesignStrategy;
 % NumStrat_ATR_BRE = ATR_BRE.Specs.Propulsion.NumStrats;
 
-%% ATR42 Testing ; ATR42MissionEPASS()
-% call main
-ATR_EPASS = Main(AircraftSpecsPkg.ATR42(), @MissionProfilesPkg.ATRMissionEPASS)
-
-% collect variables of interest
-Weights_ATR_EPASS = ATR_EPASS.Specs.Weight;
-Slits_Up_ATR_EPASS = ATR_EPASS.Mission.History.SI.Power.LamUps;
-DesignStrat_ATR_EPASS = ATR_EPASS.Specs.Propulsion.DesignStrategy;
-NumStrat_ATR_EPASS = ATR_EPASS.Specs.Propulsion.NumStrats;
+% %% ATR42 Testing ; ATR42MissionEPASS()
+% % call main
+% ATR_EPASS = Main(AircraftSpecsPkg.ATR42(), @MissionProfilesPkg.ATRMissionEPASS)
+% 
+% % collect variables of interest
+% Weights_ATR_EPASS = ATR_EPASS.Specs.Weight;
+% Slits_Up_ATR_EPASS = ATR_EPASS.Mission.History.SI.Power.LamUps;
+% DesignStrat_ATR_EPASS = ATR_EPASS.Specs.Propulsion.DesignStrategy;
+% NumStrat_ATR_EPASS = ATR_EPASS.Specs.Propulsion.NumStrats;
 
 %% ERJ175LR Testing ; ERJ()
 % call main
