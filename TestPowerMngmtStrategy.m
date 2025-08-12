@@ -143,7 +143,7 @@ NumStrat_Reg00 = Reg00.Specs.Propulsion.NumStrats;
 
 %% Example Testing ; RegionalJetMission01()
 % call main
-Reg01 = Main(AircraftSpecsPkg.Example(), @MissionProfilesPkg.RegionalJetMission00)
+Reg01 = Main(AircraftSpecsPkg.Example(), @MissionProfilesPkg.RegionalJetMission01)
 
 % collect variables of interest
 Weights_Reg01 = Reg01.Specs.Weight;
