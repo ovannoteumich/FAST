@@ -1,11 +1,16 @@
+% This script adds some new parameters to the database and then runs the
+% regression, removing one aircraft at a time to avoid biasing the
+% posterior prediction. The second section plots the resultant error
+% distribution and makes a data table
+
 clear; clc; close all;
 
 % Load databases
-load('+DatabasePkg\IDEAS_DB.mat')
+load('IDEAS_DB.mat')
 
 % Process engines using the processing function in this folder to add
 % additional fields
-TurbofanEngines = EngineWeightsPkg.DBProcessing(TurbofanEngines);
+TurbofanEngines = DBProcessing(TurbofanEngines);
 
 % Get engine field names
 names = fieldnames(TurbofanEngines);
@@ -40,13 +45,13 @@ Pred = Pred(ind);
 True = True(ind);
 
 % Save to a mat file
-save('+EngineWeightsPkg/EngineWeightVals.mat','Err','Pred','True')
+save('EngineWeightVals.mat','Err','Pred','True')
 
 %% Plotting
 clear; clc; close all;
 
 % Load the saved values
-load('+EngineWeightsPkg/EngineWeightVals.mat')
+load('EngineWeightVals.mat')
 
 figure(1)
 
@@ -80,7 +85,7 @@ ErrorTable = table(sumnames,summary,'VariableNames',["Error Metric","value"])
 function [Err, Pred, True] = RunReg(TempStruct,IO_Space,IO_Vals)
 
 % Call the regression
-[Pred,~] = RegressionPkg.NLGPR(TempStruct,IO_Space,IO_Vals(1:end-1),'Weights',[3 1 3]);
+[Pred,~] = RegressionFunctions.NLGPR(TempStruct,IO_Space,IO_Vals(1:end-1),'Weights',[3 1 3]);
 
 % Process the outputs
 True = IO_Vals(end);
