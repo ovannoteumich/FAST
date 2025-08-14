@@ -73,8 +73,18 @@ for imiss = 1:nmiss
         
     else
         
+
         % find the cruise segment in the mission
-        icrs = find(contains(Mission.Segs(MissSegs), "Cruise"));
+        %icrs = find(contains(Mission.Segs(MissSegs), 'Cruise'));
+        for findicrs = 1:length(MissSegs)
+            if size(Mission.Segs{MissSegs(findicrs)}) == size('Cruise')
+                if Mission.Segs{MissSegs(findicrs)} == 'Cruise'
+                    icrs = findicrs;
+                    break
+                end
+            end
+
+        end
         
         % confirm that there is a cruise segment, otherwise throw a warning
         if (~any(icrs))
@@ -153,7 +163,7 @@ for imiss = 1:nmiss
             Aircraft.Mission.Profile = Mission;
         
             % get the segment name
-            SegName = Mission.Segs(isegs);
+            SegName = Mission.Segs{isegs};
             
             % get the last point in the segment
             SegEnd = Mission.SegEnd(isegs);
