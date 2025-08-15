@@ -23,7 +23,7 @@ function [Split] = EvalSplit(SplitFun, SplitVal)
 % ----------------------------------------------------------
 
 % get the number of arguments in the split
-narg = nargin(SplitFun);
+narg = length(SplitVal);%nargin(SplitFun);
 
 % create a cell array for storing arguments
 Vals = cell(1, narg);
@@ -34,7 +34,13 @@ for i = 1:narg
 end
 
 % evaluate the function
-Split = SplitFun(Vals{:});
+if (narg > 0)
+    Split = SplitFun(Vals{:});
+    
+else
+    Split = SplitFun();
+    
+end
 
 % ----------------------------------------------------------
 

@@ -2,7 +2,7 @@ function [Aircraft] = RecomputeSplits(Aircraft, SegBeg, SegEnd)
 %
 % [Aircraft] = RecomputeSplits(Aircraft, SegBeg, SegEnd)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 05 mar 2025
+% last updated: 15 aug 2025
 %
 % Re-compute the operational power splits for a "full throttle" setting
 % during the mission.
@@ -67,7 +67,7 @@ LamDwn = Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :);
 idx = any(LamUps > 0, 2);
 
 % get the number of downstream splits
-nsplit = Aircraft.Settings.nargOperDwn;
+nsplit = length(Aircraft.Specs.Power.LamDwn.SLS);
 
 % get a temporary power split
 TmpSplit = LamDwn(1, :);
@@ -100,7 +100,7 @@ for ipar = 1:npar
         OperNew = PropulsionPkg.EvalSplit(Aircraft.Specs.Propulsion.PropArch.OperDwn, TmpSplit);
         
         % check if the matrices are different
-        UseSplit(isplit) = OperDwn(isupp+nsrc, imain) ~= OperNew(isupp+nsrc, imain);
+        UseSplit(isplit) = reshape(OperDwn(isupp+nsrc, imain), 1, []) ~= reshape(OperNew(isupp+nsrc, imain), 1, []);
         
         % remove the perturbation
         TmpSplit(isplit) = TmpSplit(isplit) - 0.01;
