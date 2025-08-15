@@ -2,7 +2,7 @@ function [Aircraft] = PropulsionSizing(Aircraft)
 %
 % [Aircraft] = PropulsionSizing(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 19 jun 2025
+% last updated: 15 aug 2025
 %
 % Split the total thrust/power throughout the powertrain and determine the
 % total power needed to size each component.
@@ -159,49 +159,61 @@ if (any(TrnType > 0 & TrnType ~= 2))
         % run the regression - input must be a column vector
         Weng = RegressionPkg.NLGPR(TurbofanEngines,IO,target);
         
-        % get the first engine index (assume all engines are the same)
+        % get all engine indices (no longer assume all are the same)
         ieng = find(Eng);
         
         % add flight conditions
         Aircraft.Specs.Propulsion.Engine.Alt = 0;
         Aircraft.Specs.Propulsion.Engine.Mach = 0.05;
         
-        % check if the thrust supplement is positive
-        if (Tsupp(ieng(1)) > 0)
-            
-            % increase the engine size to generate all the thrust
-            Aircraft.Specs.Propulsion.Engine.DesignThrust = Tdwn(ieng(1)) + Tsupp(ieng(1));
-            
-        else
-            
-            % leave the engine size as is, power is siphoned off
-            Aircraft.Specs.Propulsion.Engine.DesignThrust = Tdwn(ieng(1));
-            
-        end
-
-        % turn on flag for sizing the engine
-        Aircraft.Specs.Propulsion.Engine.Sizing = 1;
+        % array for the sized engines
+        SizedEngines = [];
         
-        % size the engine
-        Aircraft.Specs.Propulsion.SizedEngine = EngineModelPkg.TurbofanNonlinearSizing(Aircraft.Specs.Propulsion.Engine, Psupp(ieng(1)));
-        
-        % turn off the sizing flags
-        Aircraft.Specs.Propulsion.Engine.Sizing = 0; % unnnecessary
-        Aircraft.Specs.Propulsion.SizedEngine.Specs.Sizing = 0;
+        % size each engine
+        for jeng = 1:length(ieng)
+            
+            % check if the thrust supplement is positive
+            if (Tsupp(ieng(jeng)) > 0)
                 
-        % get the new inlet area
-        InletArea = pi * Aircraft.Specs.Propulsion.SizedEngine.FanDiam ^ 2 / 4;
-        
-        % loop through the engines
-        for jeng = ieng
+                % increase the engine size to generate all the thrust
+                Aircraft.Specs.Propulsion.Engine.DesignThrust = Tdwn(ieng(jeng)) + Tsupp(ieng(jeng));
+                
+            else
+                
+                % leave the engine size as is, power is siphoned off
+                Aircraft.Specs.Propulsion.Engine.DesignThrust = Tdwn(ieng(jeng));
+                
+            end
             
-            % find the fan
-            ifan = find((Arch(jeng+nsrc, idx) == 1) & Prop);
+            % turn on flag for sizing the engine
+            Aircraft.Specs.Propulsion.Engine.Sizing = 1;
             
-            % remember the inlet area
-            Aircraft.Specs.Propulsion.InletArea(ifan) = InletArea;
+            % if the thrust requirement is small, don't size it
+            if (Aircraft.Specs.Propulsion.Engine.DesignThrust > 1.0e-06)
             
+                % size the engine
+                Engine = EngineModelPkg.TurbofanNonlinearSizing(Aircraft.Specs.Propulsion.Engine, Psupp(ieng(1)));
+                
+                % turn off engine sizing
+                Engine.Specs.Sizing = 0;                
+                
+                % remember the sized engine
+                SizedEngines = [SizedEngines; Engine];
+                                
+                % get the new inlet area
+                InletArea = pi * Engine.FanDiam ^ 2 / 4;
+                
+                % find the fan connected to the engine
+                ifan = find((Arch(jeng+nsrc, idx) == 1) & Prop);
+                
+                % remember the inlet area
+                Aircraft.Specs.Propulsion.InletArea(ifan) = InletArea;
+            
+            end
         end
+        
+        % remember the sized engines
+        Aircraft.Specs.Propulsion.SizedEngine = SizedEngines;
         
     elseif ((strcmpi(aclass, "Turboprop") == 1) || ...
             (strcmpi(aclass, "Piston"   ) == 1) )
