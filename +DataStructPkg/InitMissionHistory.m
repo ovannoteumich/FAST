@@ -2,7 +2,7 @@ function [Aircraft] = InitMissionHistory(Aircraft)
 %
 % [Aircraft] = InitMissionHistory(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 17 jun 2025
+% last updated: 15 aug 2025
 %
 % Initialize all arrays to zeros in the mission history for both SI and
 % English units (although only SI units are currently used).
@@ -52,8 +52,8 @@ ZeroTrn = zeros(npnt, ntrn);
 ZeroComps = zeros(npnt, ncomp);
 
 % array of zeros for energy/power/thrust splits
-ZeroOperUps = zeros(npnt, max(1, Aircraft.Settings.nargOperUps));
-ZeroOperDwn = zeros(npnt, max(1, Aircraft.Settings.nargOperDwn));
+ZeroOperUps = zeros(npnt, length(Aircraft.Specs.Power.LamUps.SLS));
+ZeroOperDwn = zeros(npnt, length(Aircraft.Specs.Power.LamDwn.SLS));
 
 % array of zeros for windmilling
 ZeroWind = zeros(npnt, nwind);
