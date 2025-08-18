@@ -4,13 +4,6 @@
 % distribution and makes a data table
 function [] = Regression4D(TurbofanEngines,Weights)
 
-% Load databases
-% load('+EngineWeightsPkg/IDEAS_DB.mat')
-
-% Process engines using the processing function in this folder to add
-% additional fields
-TurbofanEngines = EngineWeightsPkg.DBProcessing(TurbofanEngines);
-
 % Get engine field names
 names = fieldnames(TurbofanEngines);
 N = length(names);
@@ -51,6 +44,7 @@ ind = find(~isnan(Err));
 Err = Err(ind);
 Pred = Pred(ind);
 True = True(ind);
+summary = [mean(Err);median(Err);std(Err);skewness(Err);kurtosis(Err); max(abs(Err)); length(Err)];
 
 % Save to a mat file
 % save('EngineWeightVals.mat','Err','Pred','True')
@@ -60,28 +54,27 @@ True = True(ind);
 % Load the saved values
 % load('EngineWeightVals.mat')
 
-figure(1)
-
-subplot(1,2,1)
-scatter(True,Pred,'bo')
-hold on
-plot([0 8000],[0 8000],'k--')
-xlabel("Actual Weight (kg)")
-ylabel("Predicted Weight (kg)")
-grid on
-
-subplot(1,2,2)
-scatter(True,Err,'ro')
-hold on
-plot([0 8000],[0 0],'k--')
-xlabel("Actual Weight (kg)")
-ylabel("Error (%)")
-grid on
-
-% Make a table of summary metrics
-summary = [mean(Err);median(Err);std(Err);skewness(Err);kurtosis(Err); max(abs(Err)); length(Err)];
-sumnames = ["Mean"; "Median";"Std Dev";"Skewness";"Kurtosis"; "Max Error"; "Sample Size"];
-ErrorTable = table(sumnames,summary,'VariableNames',["Error Metric","Value"])
+% figure(1)
+% 
+% subplot(1,2,1)
+% scatter(True,Pred,'bo')
+% hold on
+% plot([0 8000],[0 8000],'k--')
+% xlabel("Actual Weight (kg)")
+% ylabel("Predicted Weight (kg)")
+% grid on
+% 
+% subplot(1,2,2)
+% scatter(True,Err,'ro')
+% hold on
+% plot([0 8000],[0 0],'k--')
+% xlabel("Actual Weight (kg)")
+% ylabel("Error (%)")
+% grid on
+% 
+% % Make a table of summary metrics
+% sumnames = ["Mean"; "Median";"Std Dev";"Skewness";"Kurtosis"; "Max Error"; "Sample Size"];
+% ErrorTable = table(sumnames,summary,'VariableNames',["Error Metric","Value"])
 
 foo = "+EngineWeightsPkg/Results4D/" + num2str(Weights);
 foo = strrep(foo,' ','');
