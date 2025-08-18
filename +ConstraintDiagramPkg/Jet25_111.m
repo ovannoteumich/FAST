@@ -2,7 +2,7 @@ function [FAR] = Jet25_111(W_S, T_W, Aircraft)
 %
 % [FAR] = Jet25_111(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 15 aug 2025
+% last updated: 18 aug 2025
 %
 % derive the constraints for takeoff climb with one engine inoperative.
 %
@@ -28,7 +28,7 @@ function [FAR] = Jet25_111(W_S, T_W, Aircraft)
 
 % retrieve parameters from the aircraft structure
 CL      = Aircraft.Specs.Aero.CL.Tko;
-CD0     = Aircraft.Specs.Aero.CD0.Tko;
+CD0     = Aircraft.Specs.Aero.CD0.Tko - 0.025;
 AR      = Aircraft.Specs.Aero.AR;
 e       = Aircraft.Specs.Aero.e.Tko;
 TempInc = Aircraft.Specs.Performance.TempInc;
