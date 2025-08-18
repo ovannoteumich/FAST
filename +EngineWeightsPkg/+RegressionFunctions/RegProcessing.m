@@ -74,7 +74,7 @@ function [DataMatrix,HyperParams,InverseTerm] =...
 % call the build data function, which will neatly format our desired data
 % and return our weighted hyperparameters too.
 [DataMatrix,HyperParams] = ...
-    RegressionFunctions.BuildData(Datastruct,IOSpace,Weights);
+    EngineWeightsPkg.RegressionFunctions.BuildData(Datastruct,IOSpace,Weights);
 
 % set a "noise variance"
 % This is arbitrary and can be considered a tuning parameter. It represents
@@ -94,7 +94,7 @@ Kbarbar = zeros(PS);
 % also called the squared exponential kernel
 for i = 1:PS
     for j = 1:PS
-        Kbarbar(i,j) = RegressionFunctions.SquareExKernel(DataMatrix(i,1:end-1),...
+        Kbarbar(i,j) = EngineWeightsPkg.RegressionFunctions.SquareExKernel(DataMatrix(i,1:end-1),...
             DataMatrix(j,1:end-1),HyperParams);
     end
 end

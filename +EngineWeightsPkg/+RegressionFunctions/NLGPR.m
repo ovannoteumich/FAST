@@ -46,7 +46,7 @@ function [PostMu,PostVar] = NLGPR(DataStruct,IOSpace,Target,varargin)
 
 % Default values for settings
 Options.Weights = ones(1,length(IOSpace)-1);
-Options.Prior = ones(length(Target),1) .* RegressionFunctions.PriorCalculation(DataStruct,IOSpace);
+Options.Prior = ones(length(Target),1) .* EngineWeightsPkg.RegressionFunctions.PriorCalculation(DataStruct,IOSpace);
 Options.Preprocessing = [];
 
 % Get all possible inputs
@@ -73,7 +73,7 @@ if isempty(Options.Preprocessing)
     % this line is computationally heavy, which is why functionality is
     % built into this file to avoid it being used inside a loop
     [DataMatrix,HyperParams,InverseTerm] =...
-        RegressionFunctions.RegProcessing(DataStruct,IOSpace, Options.Prior, Options.Weights);
+        EngineWeightsPkg.RegressionFunctions.RegProcessing(DataStruct,IOSpace, Options.Prior, Options.Weights);
 
 elseif ~isstruct(Options.Preprocessing)
 
@@ -113,14 +113,14 @@ for ii = 1:length(PostMu)
     RepHyper = repmat(HyperParams,[NDat,1]);
 
     % compute the covariance term between the data and the target
-    Kbarstar = RegressionFunctions.SquareExKernel(DataMatrix(:,1:end-1),...
+    Kbarstar = EngineWeightsPkg.RegressionFunctions.SquareExKernel(DataMatrix(:,1:end-1),...
         RepTarget,RepHyper)';
 
     % compute posterior mean
     PostMu(ii) = Options.Prior(ii) + Kbarstar*InverseTerm*(DataMatrix(:,end) - Options.Prior(ii));
 
     % compute posterior variance
-    PostVar(ii) = RegressionFunctions.SquareExKernel(Target(ii,:),Target(ii,:),HyperParams)...
+    PostVar(ii) = EngineWeightsPkg.RegressionFunctions.SquareExKernel(Target(ii,:),Target(ii,:),HyperParams)...
         - Kbarstar*InverseTerm*Kbarstar';
 
 end

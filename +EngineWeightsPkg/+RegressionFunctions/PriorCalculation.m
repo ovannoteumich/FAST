@@ -4,7 +4,7 @@ function [Prior] = PriorCalculation(datastruct,IOspace)
 % simply finds the mean of the target parameter and assigns it to a Dx1
 % array, (the same initial guess for every point). The for loop/if statement
 % excludes NaN values.
-[~,priordata] = RegressionFunctions.SearchDB(datastruct,IOspace{end});
+[~,priordata] = EngineWeightsPkg.RegressionFunctions.SearchDB(datastruct,IOspace{end});
 priordata = cell2mat(priordata(:,2));
 c = 1;
 

@@ -67,7 +67,7 @@ DataMatrix = [];
 for i = 1:length(IOSpace)
     
     % Pull out the parameter cell array
-    [~,IOiMat] = RegressionFunctions.SearchDB(DataStruct,IOSpace{i});
+    [~,IOiMat] = EngineWeightsPkg.RegressionFunctions.SearchDB(DataStruct,IOSpace{i});
 
     % add a column, make sure to convert returned cell to a double
     % first column of IOiMat is AC name, we want the parameter value
@@ -115,7 +115,7 @@ HyperParams = zeros(1,length(IOSpace));
 % there may be some cross-elimination that is undesirable for individual
 % parameters
 for i = 1:length(IOSpace)
-    [~,ParameterI] = RegressionFunctions.SearchDB(DataStruct,IOSpace{i});
+    [~,ParameterI] = EngineWeightsPkg.RegressionFunctions.SearchDB(DataStruct,IOSpace{i});
     ParameterI = cell2mat(ParameterI(:,2));
     ParameterI=(ParameterI(~isnan(ParameterI))); % Exclude NaNs
     HyperParams(i) = var(ParameterI);

@@ -6,11 +6,11 @@
 clear; clc; close all;
 
 % Load databases
-load('IDEAS_DB.mat')
+load('+EngineWeightsPkg/IDEAS_DB.mat')
 
 % Process engines using the processing function in this folder to add
 % additional fields
-TurbofanEngines = DBProcessing(TurbofanEngines);
+TurbofanEngines = EngineWeightsPkg.DBProcessing(TurbofanEngines);
 
 % Get engine field names
 names = fieldnames(TurbofanEngines);
@@ -29,7 +29,7 @@ for ii = 1:N
     TempStruct = rmfield(TurbofanEngines, names{ii});
 
     % set the inputs and output space: SLS Power, Core Mass Flow, High Pressure Turbine RPM at 100%, Dry Weight
-    IO_Space = {["Power_SLS"],["CoreFlow"],["HP100"],["DryWeight"]};
+    IO_Space = {{"Power_SLS"},{"CoreFlow"},{"HP100"},{"DryWeight"}};
     IO_Vals = [CurrentEngine.Power_SLS, CurrentEngine.CoreFlow,...
         CurrentEngine.HP100, CurrentEngine.DryWeight];
 
@@ -85,7 +85,7 @@ ErrorTable = table(sumnames,summary,'VariableNames',["Error Metric","value"])
 function [Err, Pred, True] = RunReg(TempStruct,IO_Space,IO_Vals)
 
 % Call the regression
-[Pred,~] = RegressionFunctions.NLGPR(TempStruct,IO_Space,IO_Vals(1:end-1),'Weights',[3 1 3]);
+[Pred,~] = EngineWeightsPkg.RegressionFunctions.NLGPR(TempStruct,IO_Space,IO_Vals(1:end-1),'Weights',[3 1 3]);
 
 % Process the outputs
 True = IO_Vals(end);
