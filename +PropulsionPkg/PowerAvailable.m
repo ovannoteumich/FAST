@@ -105,12 +105,16 @@ SLSPower = Aircraft.Specs.Propulsion.SLSPower;
 % get indices for transmitters
 itrn = (1:ntrn) + nsrc;
 
-% find all upstream transmitters (i.e., input at least one transmitter and
-% maybe a source)
-UpTrn = find(sum(Arch(itrn, itrn), 1) > 0);
- 
-% assume no power available at the propellers yet (need to propagate)
-PowerAv(:, UpTrn) = 0; %#ok<FNDSB>
+% % evaluate the function handles for the current splits
+% Lambda = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
+% 
+% % find all upstream transmitters (i.e., input at least one transmitter and
+% % maybe a source)
+%     % try Lambda in place of Arch
+% UpTrn = find(sum(Lambda(itrn, itrn), 1) > 0);
+% 
+% % assume no power available at the propellers yet (need to propagate)
+% PowerAv(:, UpTrn) = 0; %#ok<FNDSB>
  
 % loop through all transmitters
 for jtrn = 1:ntrn
