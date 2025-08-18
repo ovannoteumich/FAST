@@ -1,16 +1,20 @@
 
-load("SeqOptAC_cost.mat")
+load("SeqOptAC_fuele.mat")
 Case1 = OptimizedAircraft;
 disp("Case 1")
 case1 = AnalyzeAC(Case1, seq);
-load("SeqOptAC_fuel.mat")
-Case2 = OptimizedAircraft;
+load("Opt_singlemiss.mat")
+Case2 = ACs;
 disp("Case 2")
 case2 = AnalyzeAC(Case2, seq);
-load("SeqOptAC_fuele.mat")
-Case3 = OptimizedAircraft;
+load("NonOptHEA.mat")
+Case3 = ACs;
 disp("Case 3")
 case3 = AnalyzeAC(Case3, seq);
+load("Conv.mat")
+Case4 = ACs;
+disp("Case 4")
+case4 = AnalyzeAC(Case4, seq);
 
 
 case1.diff = (case1.fburn-case4.fburn)./case4.fburn.*100;
@@ -40,10 +44,10 @@ hold on;
 plot(case1.Time, case1.GTPC, 'LineWidth', 1.5);
 plot(case2.Time, case2.GTPC, 'LineWidth', 1.5);
 plot(case3.Time, case3.GTPC, 'LineWidth', 1.5);
-%plot(case4.Time, case4.GTPC, 'LineWidth', 1.5); 
+plot(case4.Time, case4.GTPC, 'LineWidth', 1.5); 
 ylabel("GT PC (%)");
-legend("Cost", "Fuel kg", "Fuel E")
-%legend("Case 1", "Case 2", "Case 3", "Case 4", 'FontSize', font);
+%legend("Cost", "Fuel kg", "Fuel E")
+legend("Case 1", "Case 2", "Case 3", "Case 4", 'FontSize', font);
 set(ax2, "FontSize", font);
 
 % Create the third subplot
@@ -175,7 +179,7 @@ for i = 1:n
     GT(end) = 0;
 
     % only hea catergories
-    if Aircraft.Settings.DetailedBatt == 1
+    if Aircraft.Specs.Weight.Batt > 0
         EM =  Aircraft.Mission.History.SI.Power.PC(1:npt, 3);
          E = Aircraft.Mission.History.SI.Energy.E_ES(1:npt, 2)./3600./1000;
          if i >1

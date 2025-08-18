@@ -146,7 +146,7 @@ Aircraft.Specs.Propulsion.Eta.Prop = 0.8;
 Aircraft.Specs.Power.SpecEnergy.Fuel = 12;
 
 % gravimetric specific energy of battery (kWh/kg), not used here
-Aircraft.Specs.Power.SpecEnergy.Batt = 0.25;
+Aircraft.Specs.Power.SpecEnergy.Batt = 0.5;
 
 % electric motor and generator efficiencies, not used here just in HEA one
 Aircraft.Specs.Power.Eta.EM = 0.96;
@@ -229,7 +229,7 @@ Aircraft.Specs.Battery.BegSOC = 100;
 Aircraft.Specs.Battery.MaxAllowCRate = 5;
 
 % charging rate 
-Aircraft.Specs.Battery.Charging = 150*1000;
+Aircraft.Specs.Battery.Charging = 500*1000;
 
 %%%% battery degradation effect analysis %%%
 Aircraft.Settings.Degradation = 0; % 1 = analysis with degradation effect; 0 = without degradation effect
