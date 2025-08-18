@@ -2,11 +2,10 @@
 % regression, removing one aircraft at a time to avoid biasing the
 % posterior prediction. The second section plots the resultant error
 % distribution and makes a data table
-
-clear; clc; close all;
+function [] = Regression4D(TurbofanEngines,Weights)
 
 % Load databases
-load('+EngineWeightsPkg/IDEAS_DB.mat')
+% load('+EngineWeightsPkg/IDEAS_DB.mat')
 
 % Process engines using the processing function in this folder to add
 % additional fields
@@ -17,9 +16,9 @@ names = fieldnames(TurbofanEngines);
 N = length(names);
 
 % Initialize
-Err  = zeros(N,1);
-Pred = zeros(N,1);
-True = zeros(N,1);
+Err  = nan(N,1);
+Pred = nan(N,1);
+True = nan(N,1);
 
 % Loop through each engine and run the regression while excluding the current engine from the training set
 for ii = 1:N
@@ -29,12 +28,21 @@ for ii = 1:N
     TempStruct = rmfield(TurbofanEngines, names{ii});
 
     % set the inputs and output space: SLS Power, Core Mass Flow, High Pressure Turbine RPM at 100%, Dry Weight
-    IO_Space = {{"Power_SLS"},{"CoreFlow"},{"HP100"},{"DryWeight"}};
-    IO_Vals = [CurrentEngine.Power_SLS, CurrentEngine.CoreFlow,...
-        CurrentEngine.HP100, CurrentEngine.DryWeight];
+    IO_Space = {{"Power_SLS"},{"CoreFlow"},{"HP100"},{"GearStages"},{"DryWeight"}};
+
+    Nio = length(IO_Space);
+    IO_Vals = zeros(1,Nio);
+
+    for jj = 1:Nio
+        IO_Vals(jj) = CurrentEngine.(IO_Space{jj}{1});
+    end
+
+    if any(isnan(IO_Vals))
+        continue % dont bother running regression if no IO vals
+    end
 
     % Run the regression function
-    [Err(ii), Pred(ii), True(ii)] = RunReg(TempStruct,IO_Space,IO_Vals);
+    [Err(ii), Pred(ii), True(ii)] = EngineWeightsPkg.RunReg(TempStruct,IO_Space,IO_Vals,Weights);
 
 end
 
@@ -45,17 +53,15 @@ Pred = Pred(ind);
 True = True(ind);
 
 % Save to a mat file
-save('EngineWeightVals.mat','Err','Pred','True')
+% save('EngineWeightVals.mat','Err','Pred','True')
 
-%% Plotting
-clear; clc; close all;
+% Plotting
 
 % Load the saved values
-load('EngineWeightVals.mat')
+% load('EngineWeightVals.mat')
 
 figure(1)
 
-%
 subplot(1,2,1)
 scatter(True,Pred,'bo')
 hold on
@@ -64,8 +70,6 @@ xlabel("Actual Weight (kg)")
 ylabel("Predicted Weight (kg)")
 grid on
 
-
-% error vs actual plot
 subplot(1,2,2)
 scatter(True,Err,'ro')
 hold on
@@ -75,23 +79,18 @@ ylabel("Error (%)")
 grid on
 
 % Make a table of summary metrics
-summary = [mean(Err);median(Err);std(Err);skewness(Err);kurtosis(Err)];
-sumnames = ["Mean"; "Median";"Std Dev";"Skewness";"Kurtosis"];
-ErrorTable = table(sumnames,summary,'VariableNames',["Error Metric","value"])
+summary = [mean(Err);median(Err);std(Err);skewness(Err);kurtosis(Err); max(abs(Err)); length(Err)];
+sumnames = ["Mean"; "Median";"Std Dev";"Skewness";"Kurtosis"; "Max Error"; "Sample Size"];
+ErrorTable = table(sumnames,summary,'VariableNames',["Error Metric","Value"])
 
+foo = "+EngineWeightsPkg/Results4D/" + num2str(Weights);
+foo = strrep(foo,' ','');
 
-
-%% Function of repetetive stuff
-function [Err, Pred, True] = RunReg(TempStruct,IO_Space,IO_Vals)
-
-% Call the regression
-[Pred,~] = EngineWeightsPkg.RegressionFunctions.NLGPR(TempStruct,IO_Space,IO_Vals(1:end-1),'Weights',[3 1 3]);
-
-% Process the outputs
-True = IO_Vals(end);
-Err = (Pred - True) ./ True .* 100;
+save(foo,'summary')
 
 end
+
+
 
 
 
