@@ -3,12 +3,12 @@ load("SeqOptAC_fuele.mat")
 Case1 = OptimizedAircraft;
 disp("Case 1")
 case1 = AnalyzeAC(Case1, seq);
-load("Opt_singlemiss.mat")
-Case2 = ACs;
+load("SeqOptAC_cost.mat")
+Case2 = OptimizedAircraft;
 disp("Case 2")
 case2 = AnalyzeAC(Case2, seq);
-load("NonOptHEA.mat")
-Case3 = ACs;
+load("SeqOptAC_futDOC.mat")
+Case3 = OptimizedAircraft;
 disp("Case 3")
 case3 = AnalyzeAC(Case3, seq);
 load("Conv.mat")
@@ -47,7 +47,7 @@ plot(case3.Time, case3.GTPC, 'LineWidth', 1.5);
 plot(case4.Time, case4.GTPC, 'LineWidth', 1.5); 
 ylabel("GT PC (%)");
 %legend("Cost", "Fuel kg", "Fuel E")
-legend("Case 1", "Case 2", "Case 3", "Case 4", 'FontSize', font);
+legend("Case 5", "Case 6", "Case 3", "Case 4", 'FontSize', font);
 set(ax2, "FontSize", font);
 
 % Create the third subplot
@@ -81,7 +81,7 @@ plot(case2.Time, case2.FuelE, 'LineWidth', 1.5);
 plot(case3.Time, case3.FuelE, 'LineWidth', 1.5);
 ylabel("Fuele");
 xlabel("Time (hr)");
-legend("Cost", "Fuel kg", "Fuel E")
+legend("Case 1", "Case 2", "Case 3", 'FontSize', font);
 set(ax4, "FontSize", font);
 
 figure;
@@ -91,7 +91,7 @@ plot(case2.Time, case2.fburn, 'LineWidth', 1.5);
 plot(case3.Time, case3.fburn, 'LineWidth', 1.5);
 ylabel("Fuel burn");
 xlabel("Time (hr)");
-legend("Cost", "Fuel kg", "Fuel E")
+legend("Case 1", "Case 2", "Case 3", 'FontSize', font);
 set(ax4, "FontSize", font);
 
 figure;
@@ -101,7 +101,7 @@ plot(case2.Time, case2.BattE, 'LineWidth', 1.5);
 plot(case3.Time, case3.BattE, 'LineWidth', 1.5);
 ylabel("BattE");
 xlabel("Time (hr)");
-legend("Cost", "Fuel kg", "Fuel E")
+legend("Case 1", "Case 2", "Case 3", 'FontSize', font);
 set(ax4, "FontSize", font);
 
 %%
