@@ -2,7 +2,7 @@ function [Aircraft] = PropAnalysis(Aircraft)
 %
 % [Aircraft] = PropAnalysis(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 06 mar 2025
+% last updated: 20 jun 2025
 %
 % Analyze the propulsion system for a given set of flight conditions.
 % Remember how the propulsion system performs in the mission history.
@@ -436,7 +436,7 @@ if (any(Fuel))
         EngFun = @(EngSpec, EMPower) EngineModelPkg.TurbopropNonlinearSizing(EngSpec, EMPower);
 
         % get the BSFC from the engine sizing
-        GetSFC = @(SizedEngine) SizedEngine.BSFC_Imp;
+        GetSFC = @(SizedEngine) SizedEngine.BSFC;
         
         % get the fuel flow rate
         MDot = @(OffDesignEng) OffDesignEng.Fuel.MDot;

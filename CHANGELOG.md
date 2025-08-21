@@ -1,6 +1,6 @@
 # **Changelog**
 
-Copyright 2024 The Regents of the University of Michigan, The Integrated Design of Environmentally-friendly Aircraft Systems Laboratory
+Copyright 2024 The Regents of the University of Michigan, The Integrated Design of Efficient Aerospace Systems Laboratory
 
 Written by the IDEAS Lab at the University of Michigan:
 <https://ideas.engin.umich.edu>
@@ -12,13 +12,13 @@ Principal Authors:
 - Paul Mokotoff, <prmoko@umich.edu>
 - Max Arnson, <marnson@umich.edu>
 
-Last Updated: 13 Feb 2024
+Last Updated: 20 Jun 2025
 
-## Version 1.0.0 - dd Mmm 2025
+## Version 1.0.0 - 20 Jun 2025
 
 ### Added
 
-1. The README file now contains a list of papers to cite when using FAST for your own research.
+1. The README file now contains a paper to cite when using FAST for your own research.
 
 ### Changed
 
@@ -50,7 +50,7 @@ If you use a custom propulsion architecture ("O"), then the matrices need to be 
 
     Refer to the following paper to learn about the matrices:
 
-    > Mokotoff, P. and Cinar, G. (2025). Graph Theory-based propulsion system analysis. *Journal* V(I), pp-pp.
+    > Mokotoff, P. and Cinar, G. (2025). Graph Theory-based propulsion system analysis. Aerospace Science and Technology (under review).
 
 ## Version 0.1.2 - 25 Jan 2025
 
@@ -90,7 +90,8 @@ If you are using a turbofan aircraft, you must define the following constants in
     - ``Engine.Cffch``
     - ``Engine.HEcoeff``
 
-    The first four variables
+The first four variables are further described in [this paper](https://www.gokcincinar.com/publication/c-2025-scitech-pm/c-2025-SciTech-PM.pdf).
+The fifth variable is only necessary for hybrid electric configurations and is proportional to the ratio of thrust produced by a hybrid electric configuration relative to a conventional baseline aircraft.
 
 ### Fixed
 

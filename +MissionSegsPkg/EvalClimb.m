@@ -3,7 +3,7 @@ function [Aircraft] = EvalClimb(Aircraft)
 % [Aircraft] = EvalClimb(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
 % patterned after code written by Gokcin Cinar in E-PASS
-% last updated: 12 mar 2025
+% last updated: 20 jun 2025
 %
 % Evaluate a climb segment by iterating over the power required. While
 % iterating over the power required, the drag and specific excess power

@@ -2,7 +2,7 @@ function [Aircraft] = PropulsionSizing(Aircraft)
 %
 % [Aircraft] = PropulsionSizing(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 30 apr 2025
+% last updated: 20 jun 2025
 %
 % Split the total thrust/power throughout the powertrain and determine the
 % total power needed to size each component.
@@ -219,24 +219,35 @@ end
 % check if the cable weight must be computed
 if (any(Cab))
     
-    % get the cable lengths and connections
-    CabCon = Aircraft.Specs.Propulsion.PropArch.CableConns  ;
-    CabLen = Aircraft.Specs.Propulsion.PropArch.CableLengths;
+    % check if the cables are included
+    if (isfield(Aircraft.Specs.Propulsion.PropArch, "CableConns"  ) && ...
+        isfield(Aircraft.Specs.Propulsion.PropArch, "CableLengths") )
     
-    % get the number of connections from the cables
-    [ndwn, ~] = size(CabCon);
-    
-    % get the required power for the cables
-    Pcab = repmat(Pdwn(Cab)', ndwn, 1);
-    
-    % get the cable weight-power ratio
-    W_Pcab = Aircraft.Specs.Power.P_W.Cables;
-    
-    % compute the individual cable weights
-    Wcab = W_Pcab .* (Pcab ./ 1.0e+06) .* CabCon .* CabLen;
-    
-    % compute the weight of the cables
-    Aircraft.Specs.Weight.Cables = sum(Wcab, "all");
+        % get the cable lengths and connections
+        CabCon = Aircraft.Specs.Propulsion.PropArch.CableConns  ;
+        CabLen = Aircraft.Specs.Propulsion.PropArch.CableLengths;
+        
+        % get the number of connections from the cables
+        [ndwn, ~] = size(CabCon);
+        
+        % get the required power for the cables
+        Pcab = repmat(Pdwn(Cab)', ndwn, 1);
+        
+        % get the cable weight-power ratio
+        W_Pcab = Aircraft.Specs.Power.P_W.Cables;
+        
+        % compute the individual cable weights
+        Wcab = W_Pcab .* (Pcab ./ 1.0e+06) .* CabCon .* CabLen;
+        
+        % compute the weight of the cables
+        Aircraft.Specs.Weight.Cables = sum(Wcab, "all");
+        
+    else
+        
+        % assume no detailed cable model
+        Aircraft.Specs.Weight.Cables = 0;
+        
+    end
     
 else
     
