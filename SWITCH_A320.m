@@ -15,26 +15,30 @@ Aircraft.Specs.Power.Battery.SerCells = 62;
 % initial battery SOC
 Aircraft.Specs.Power.Battery.BegSOC = 100;
 
-Aircraft = Main(Aircraft, @MissionProfilesPkg.A320);
+%AircraftOG = Main(Aircraft, @MissionProfilesPkg.A320);
+Aircraft =AircraftOG;
 %Aircraft = ans;
 Aircraft.Settings.Analysis.Type = -1;
 
-Aircraft.Specs.Weight.EM = 200;
+Aircraft.Specs.Weight.EM = 400;
 
 Aircraft.Specs.Power.P_W.EM = 10;
 
+Aircraft.Specs.Propulsion.SLSPower(:,[3,4]) = [200,200]*10;
+Aircraft.Specs.Propulsion.SLSThrust(:,[3,4]) = Aircraft.Specs.Propulsion.SLSPower(:,[3,4])/Aircraft.Specs.Performance.Vels.Tko;
+
 % upstream power splits
-Aircraft.Specs.Power.LamUps.SLS = 0.0003;
-Aircraft.Specs.Power.LamUps.Tko = 0.0003;
-Aircraft.Specs.Power.LamUps.Clb = 0.0003;
+Aircraft.Specs.Power.LamUps.SLS = 1;
+Aircraft.Specs.Power.LamUps.Tko = 1;
+Aircraft.Specs.Power.LamUps.Clb = 1;
 Aircraft.Specs.Power.LamUps.Crs = 0;
 Aircraft.Specs.Power.LamUps.Des = 0;
 Aircraft.Specs.Power.LamUps.Lnd = 0;
 
 % downstream power splits
-Aircraft.Specs.Power.LamDwn.SLS = 0.0003;
-Aircraft.Specs.Power.LamDwn.Tko = 0.0003;
-Aircraft.Specs.Power.LamDwn.Clb = 0.0003;
+Aircraft.Specs.Power.LamDwn.SLS = .001;
+Aircraft.Specs.Power.LamDwn.Tko = .001;
+Aircraft.Specs.Power.LamDwn.Clb = .001;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;
