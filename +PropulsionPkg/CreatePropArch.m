@@ -186,7 +186,7 @@ elseif (strcmpi(ArchName, "PHE") == 1)
     OperDwn = @(lam) ...
               [zeros(     1, 1), zeros(     1, 1), zeros(     1, NumEng)            , zeros(     1, NumEng)      , zeros(                  1, NumEng), zeros(     1, 1); ... % the fuel requires nothing
                zeros(     1, 1), zeros(     1, 1), zeros(     1, NumEng)            , zeros(     1, NumEng)      , zeros(                  1, NumEng), zeros(     1, 1); ... % the battery requires nothing
-                ones(NumEng, 1), zeros(NumEng, 1), zeros(NumEng, NumEng)            , zeros(NumEng, NumEng)      , zeros(             NumEng, NumEng), zeros(NumEng, 1); ... % the gas-turbine engines are powered by the fuel
+               ones(NumEng, 1), zeros(NumEng, 1), zeros(NumEng, NumEng)            , zeros(NumEng, NumEng)      , zeros(             NumEng, NumEng), zeros(NumEng, 1); ... % the gas-turbine engines are powered by the fuel
                zeros(NumEng, 1),  ones(NumEng, 1), zeros(NumEng, NumEng)            , zeros(NumEng, NumEng)      , zeros(             NumEng, NumEng), zeros(NumEng, 1); ... % the electric motors are powered by the battery
                zeros(NumEng, 1), zeros(NumEng, 1),   eye(NumEng, NumEng) * (1 - lam),   eye(NumEng, NumEng) * lam, zeros(             NumEng, NumEng), zeros(NumEng, 1); ... % the propeller/fan power is split between the gas-turbine engines and electric motors
                zeros(     1, 1), zeros(     1, 1), zeros(     1, NumEng)            , zeros(     1, NumEng)      , repmat(1 / NumEng,      1, NumEng), zeros(     1, 1)] ;   % the sink power is split evenly between the propellers/fans

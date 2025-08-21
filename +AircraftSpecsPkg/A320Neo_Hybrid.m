@@ -1,8 +1,7 @@
-function [Aircraft] = A320Neo()
+function [Aircraft] = A320Neo_Hybrid()
 %
-% [Aircraft] = A320Neo()
-% written by Max Arnson, marnson@umich.edu and Yi-Chih Wang,
-% ycwangd@umich.edu
+% [Aircraft] = A320Neo_Hybrid()
+% written by Emma Cassidy
 % emmasmit@umich.edu
 % last updated: 18 july 2025
 % 
@@ -49,10 +48,10 @@ Aircraft.Specs.Aero.L_D.ClbCF = 1;
 Aircraft.Specs.Aero.L_D.CrsCF = 1;
 
 % fuel flow calibration factor
-Aircraft.Specs.Propulsion.MDotCF = 1.06;
+Aircraft.Specs.Propulsion.MDotCF = 1.11;
 
 % airframe weight calibration factor
-Aircraft.Specs.Weight.WairfCF = 1.02;
+Aircraft.Specs.Weight.WairfCF = 1.01;
  
 
 %% VEHICLE PERFORMANCE %%
@@ -109,7 +108,7 @@ Aircraft.Specs.Weight.EM = NaN;
 Aircraft.Specs.Weight.Fuel = 19000;
 
 % battery weight (kg), leave NaN for propulsion systems without batteries
-Aircraft.Specs.Weight.Batt = NaN;
+Aircraft.Specs.Weight.Batt = 0;
 
 % Literature weight values
 % MTOW: 79000
@@ -127,11 +126,11 @@ Aircraft.Specs.Weight.Batt = NaN;
 % "SHE" = series hybrid electric
 % "TE"  = fully turboelectric
 % "PE"  = partially turboelectric
-Aircraft.Specs.Propulsion.PropArch.Type = "C";
+Aircraft.Specs.Propulsion.PropArch.Type = "PHE";
 
 % **required** for configurations using gas-turbine engines
 % get the engine model
-Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.PW_1100G_JM;
+Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.PW_1100G_SWITCH;
 %Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.LEAP_1A26;
 
 % number of engines

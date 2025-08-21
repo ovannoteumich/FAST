@@ -2,7 +2,6 @@ function [Aircraft] = PowerAvailable(Aircraft)
 %
 % [Aircraft] = PowerAvailable(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 24 mar 2025
 % last updated: 19 jun 2025
 %
 % For a given propulsion architecture, compute the power available.
@@ -28,9 +27,6 @@ SegsID = Aircraft.Mission.Profile.SegsID;
 % get the beginning and ending control point indices
 SegBeg = Aircraft.Mission.Profile.SegBeg(SegsID);
 SegEnd = Aircraft.Mission.Profile.SegEnd(SegsID);
-
-% get segment type
-Seg    = Aircraft.Mission.Profile.Segs(SegsID);
 
 % aircraft performance history
 TAS = Aircraft.Mission.History.SI.Performance.TAS(SegBeg:SegEnd);
@@ -119,11 +115,9 @@ for jtrn = 1:ntrn
         if      (strcmpi(aclass, "Turbofan" ) == 1)
                 
             % lapse the SLS thrust
-            ThrustAv(:, itrn) = PropulsionPkg.EngineLapse(ThrustAv(:, itrn), aclass, Rho);
+            ThrustAv(:, jtrn) = PropulsionPkg.EngineLapse(ThrustAv(:, jtrn), aclass, Rho);
             
             % get the available power from the gas-turbine engines
-
-            PowerAv(:, itrn) = ThrustAv(:, itrn) .* TAS;
             PowerAv(:, jtrn) = ThrustAv(:, jtrn) .* TAS;
             
         elseif ((strcmpi(aclass, "Turboprop") == 1) || ...
@@ -141,6 +135,8 @@ for jtrn = 1:ntrn
         
     elseif (TrnType(jtrn) == 0) % electric motor
         
+        PowerAv(:, jtrn) = Aircraft.Specs.Weight.EM * Aircraft.Specs.Power.P_W.EM;
+        ThrustAv(:,jtrn) = PowerAv(:, jtrn)./TAS;
         
     elseif (TrnType(jtrn) == 2) % fuel cell
         
@@ -214,7 +210,6 @@ Tav = Pav ./ TAS;
 % consolidate power from all sinks for now (later on, a flag will be
 % introduced to neglect power off-takes)
 TV = sum(Pav(:, nsrc+ntrn+1:end), 2);
-
 
 
 %% STORE OUTPUTS IN THE AIRCRAFT STRUCTURE %%

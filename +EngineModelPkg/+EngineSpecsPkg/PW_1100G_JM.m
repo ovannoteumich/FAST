@@ -1,9 +1,8 @@
-function [Engine] = LEAP_1A26()
+function [Engine] = PW_1100G_JM()
 %
-% [Engine] = LEAP_1A26()
-% Written By Maxfield Arnson
-% modified by Paul Mokotoff, prmoko@umich.edu
-% Last Updated: 07 oct 2024
+% [Engine] = PW_1100G_JM()
+% Written By: Emma Cassidy, emmasmit@umich.edu
+% Last Updated: 7/10/25
 %
 % Engine specification function for use with the EngineModelPkg
 %
@@ -23,7 +22,7 @@ function [Engine] = LEAP_1A26()
 % -----------
 %
 % Type = Turbofan
-% Applicable Aircraft = ERJ 170 Family
+% Applicable Aircraft = Airbus A320neo 
 
 %% Design Point Values
 
@@ -39,57 +38,46 @@ Engine.Alt = 0;
 Engine.OPR = 50;
 
 % Fan Pressure Ratio
-Engine.FPR = 1.4;
+% Estimated value based on PW GTF design
+Engine.FPR = 1.65;
 
 % Bypass Ratio
-Engine.BPR = 11; 
+% Published BPR for PW1100G-JM is ~12.2
+Engine.BPR = 12.2;
 
 % Combustion Temperature [K]
-% If unknown, 2000 is a good guess
-Engine.Tt4Max = 1593;
+Engine.Tt4Max = 2000;
 
 % Temperature Limits [K]
-% Not functional yet. Leave these values as NaN
 Engine.TempLimit.Val = NaN;
 Engine.TempLimit.Type = NaN;
 
 % Design point thrust [N]
-Engine.DesignThrust = 120640;
-
-
+% Max rated takeoff thrust for PW1133G (24,240 lbf)
+Engine.DesignThrust = 120430;
 
 %% Architecture
 
 % Number of Spools
-% Value between 1 and 3 (historically this is the case)
 Engine.NoSpools = 2;
 
 % Spool RPMs
-% Enter a 1xN vector where N = Engine.NoSpools
-% in the order: Fan Spool, Intermediate Pressure Spool, High Pressure Spool
-% omit any spools that do not exist but preserve the order
-Engine.RPMs = [3894,19391];
+% approximated from idle rpms
+Engine.RPMs = [10500, 19000];
 
 % Gear Ratio
-% enter NaN if not geared
-% if ratio is entered, make sure Engine.RPMs(1) is the fan spool rpm (LPT rpm),
-% not the fan rpm. This will get calculated from the gear ratio
-Engine.FanGearRatio = NaN;
+Engine.FanGearRatio = 3.0625;
 
-% Fan Boosters (Boolean: enter true or false)
-% If the low pressure compressor is connected to the fan shaft or not
-% it is almost always the case that an engine will not be geared and
-% boosted
-Engine.FanBoosters = true;
+% Fan Boosters
+% Typically false for geared turbofans
+Engine.FanBoosters = false;
 
 %% Airflows
 
 % Passenger Bleeds
-% Typically 0.03
 Engine.CoreFlow.PaxBleed = 0.03;
 
 % Air leakage
-% Typically 1%
 Engine.CoreFlow.Leakage = 0.01;
 
 % Core Cooling Flow
@@ -100,22 +88,22 @@ Engine.CoreFlow.Cooling = 0.0;
 % Maximum iterations allowed in the engine sizing loop
 Engine.MaxIter = 300;
 
-
 %% Efficiencies
 
-% Polytropic component efficiencies
+% Polytropic component efficiencies (modern values for GTF)
 Engine.EtaPoly.Inlet = 0.99;
 Engine.EtaPoly.Diffusers = 0.99;
 Engine.EtaPoly.Fan = 0.99;
 Engine.EtaPoly.Compressors = 0.96;
 Engine.EtaPoly.BypassNozzle = 0.99;
 Engine.EtaPoly.Combustor = 0.995;
-Engine.EtaPoly.Turbines = 0.96;
+Engine.EtaPoly.Turbines = 0.985;
 Engine.EtaPoly.CoreNozzle = 0.99;
 Engine.EtaPoly.Nozzles = 0.99;
-Engine.EtaPoly.Mixing = 0.0;
+Engine.EtaPoly.Mixing = 1;
 
 %% Offdesign coefficient of BADA equation 
+% currently same as Leap_1A26 because of similar thrust 
 Engine.Cff3    =  0.4006;
 Engine.Cff2    = -0.4323;
 Engine.Cff1    =  0.9946;

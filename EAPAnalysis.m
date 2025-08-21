@@ -173,6 +173,7 @@ if Type < 0
         Aircraft.Specs.Weight.Crew   +...
         Aircraft.Specs.Weight.Payload   +...
         Aircraft.Specs.Weight.Fuel   +...
+        Aircraft.Specs.Weight.EM   +...
         Aircraft.Specs.Weight.Batt;
 end
 
@@ -237,9 +238,10 @@ while (iter < MaxIter)
         end
         
     else
-        
-        % get the initial propulsion system weight
-        Aircraft = PropulsionPkg.PropulsionSizing(Aircraft);
+        if (Type>-2)
+            % get the initial propulsion system weight
+            Aircraft = PropulsionPkg.PropulsionSizing(Aircraft);
+        end
         
     end
     
