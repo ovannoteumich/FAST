@@ -1,4 +1,4 @@
-function [Aircraft] = ERJ175LR()
+function [Aircraft] =ERJ175LR_conv()
 %
 % [Aircraft] = ERJ175LR()
 % originally written for E175 by Nawa Khailany
@@ -69,6 +69,7 @@ Aircraft.Specs.Performance.Alts.Crs = UnitConversionPkg.ConvLength(35000, "ft", 
 % design range (m)
 Aircraft.Specs.Performance.Range = UnitConversionPkg.ConvLength(2150, "naut mi", "m");
 
+% maximum rate of climb (m/s), assumed 2,250 ft/min (and converted)
 % maximum rate of climb (m/s), assumed 2,250 ft/min (and converted), Im
 % seeing in literature 1944.4 ft/min
 Aircraft.Specs.Performance.RCMax = UnitConversionPkg.ConvVel(2250, "ft/min", "m/s");
@@ -121,7 +122,6 @@ Aircraft.Specs.Weight.Batt = 0;
 %     (5) "PHE" = parallel hybrid electric
 %     (6) "SHE" = series hybrid electric
 %     (7) "O"   = other architecture (specified by the user)
-Aircraft.Specs.Propulsion.Arch.Type = "C";
 
 % get the engine
 Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.CF34_8E5;
@@ -268,6 +268,7 @@ Aircraft.Settings.OEW.MaxIter = 50;
 Aircraft.Settings.OEW.Tol = 0.001;
 
 % maximum number of iterations during aircraft sizing
+Aircraft.Settings.Analysis.MaxIter = 20;
 Aircraft.Settings.Analysis.MaxIter = 30;
 
 % analysis type, either:
