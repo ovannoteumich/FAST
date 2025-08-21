@@ -63,6 +63,7 @@ if ~ isfield(Aircraft,"Specs")
 
    
     Aircraft.Specs.Power.LamDwn.Tko = NaN;
+    Aircraft.Specs.Power.LamUps.Tko = NaN;
     Aircraft.Specs.Power.LamDwn.Clb = NaN;
     Aircraft.Specs.Power.LamUps.Clb = NaN;
     Aircraft.Specs.Power.LamDwn.Crs = NaN;
