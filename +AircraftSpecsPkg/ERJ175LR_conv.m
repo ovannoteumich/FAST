@@ -1,4 +1,4 @@
-function [Aircraft] = ERJ175LR_conv()
+function [Aircraft] = ERJ175LR()
 %
 % [Aircraft] = ERJ175LR()
 % originally written for E175 by Nawa Khailany
@@ -69,7 +69,8 @@ Aircraft.Specs.Performance.Alts.Crs = UnitConversionPkg.ConvLength(35000, "ft", 
 % design range (m)
 Aircraft.Specs.Performance.Range = UnitConversionPkg.ConvLength(2150, "naut mi", "m");
 
-% maximum rate of climb (m/s), assumed 2,250 ft/min (and converted)
+% maximum rate of climb (m/s), assumed 2,250 ft/min (and converted), Im
+% seeing in literature 1944.4 ft/min
 Aircraft.Specs.Performance.RCMax = UnitConversionPkg.ConvVel(2250, "ft/min", "m/s");
 
 
@@ -120,7 +121,7 @@ Aircraft.Specs.Weight.Batt = 0;
 %     (5) "PHE" = parallel hybrid electric
 %     (6) "SHE" = series hybrid electric
 %     (7) "O"   = other architecture (specified by the user)
-Aircraft.Specs.Propulsion.Arch.Type = "PHE";
+Aircraft.Specs.Propulsion.Arch.Type = "C";
 
 % get the engine
 Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.CF34_8E5;
@@ -159,49 +160,97 @@ Aircraft.Specs.Power.P_W.SLS = NaN;
 Aircraft.Specs.Power.P_W.EM = 10;
 Aircraft.Specs.Power.P_W.EG = NaN;
 
+% EM Power code (only works for PHE right now)
+Aircraft.Specs.Power.PC.EM.Split = 0;
+Aircraft.Specs.Power.PC.EM.Alt = 0;
+
 % thrust splits (thrust / total thrust)
-Aircraft.Specs.Power.LamTS.Tko = 0;
-Aircraft.Specs.Power.LamTS.Clb = 0;
-Aircraft.Specs.Power.LamTS.Crs = 0;
-Aircraft.Specs.Power.LamTS.Des = 0;
-Aircraft.Specs.Power.LamTS.Lnd = 0;
+Aircraft.Specs.Power.LamTS.Split = 0;
+Aircraft.Specs.Power.LamTS.Alt = 0;
 Aircraft.Specs.Power.LamTS.SLS = 0;
 
 % power splits between power/thrust sources (electric power / total power)
-Aircraft.Specs.Power.LamTSPS.Tko = 0;
-Aircraft.Specs.Power.LamTSPS.Clb = 0;
-Aircraft.Specs.Power.LamTSPS.Crs = 0;
-Aircraft.Specs.Power.LamTSPS.Des = 0;
-Aircraft.Specs.Power.LamTSPS.Lnd = 0;
-Aircraft.Specs.Power.LamTSPS.SLS = 0;
+Aircraft.Specs.Power.LamTSPS.Split = 0; %{.09, .01};
+Aircraft.Specs.Power.LamTSPS.Alt = 0;
+Aircraft.Specs.Power.LamTSPS.SLS = 0; %0.09;
 
 % power splits between power/power sources (electric power / total power)
-Aircraft.Specs.Power.LamPSPS.Tko = 0;
-Aircraft.Specs.Power.LamPSPS.Clb = 0;
-Aircraft.Specs.Power.LamPSPS.Crs = 0;
-Aircraft.Specs.Power.LamPSPS.Des = 0;
-Aircraft.Specs.Power.LamPSPS.Lnd = 0;
+Aircraft.Specs.Power.LamPSPS.Split = 0;
+Aircraft.Specs.Power.LamPSPS.Alt = 0;
 Aircraft.Specs.Power.LamPSPS.SLS = 0;
 
 % power splits between energy/power sources (electric power / total power)
-Aircraft.Specs.Power.LamPSES.Tko = 0;
-Aircraft.Specs.Power.LamPSES.Clb = 0;
-Aircraft.Specs.Power.LamPSES.Crs = 0;
-Aircraft.Specs.Power.LamPSES.Des = 0;
-Aircraft.Specs.Power.LamPSES.Lnd = 0;
+Aircraft.Specs.Power.LamPSES.Split = 0;
+Aircraft.Specs.Power.LamPSES.Alt = 0;
 Aircraft.Specs.Power.LamPSES.SLS = 0;
+
+% coefficient for HEA engine analysis
+Aircraft.Specs.Propulsion.Engine.HEcoeff = 1 +  Aircraft.Specs.Power.LamTSPS.SLS;
+
+%% BATTERY SETTINGS %%
+%%%%%%%%%%%%%%%%%%%%%%
 
 % battery cells in series and parallel
 % (commented values used for electrified aircraft)
+%Aircraft.Specs.Battery.ParCells = NaN;%100;%100;
+%Aircraft.Specs.Battery.SerCells = NaN;%62;% 62;
 Aircraft.Specs.Power.Battery.ParCells = NaN;%100;
 Aircraft.Specs.Power.Battery.SerCells = NaN;% 62;
 
 % initial battery SOC (commented value used for electrified aircraft)
-Aircraft.Specs.Power.Battery.BegSOC = NaN;%100;
+Aircraft.Specs.Power.Battery.BegSOC = 100;%100;
+Aircraft.Specs.Battery.BegSOC = 100;%100;
 
-% % % coefficient for HEA engine analysis
- Aircraft.Specs.Propulsion.Engine.HEcoeff = 1 +  Aircraft.Specs.Power.LamTSPS.SLS;
+% nominal cell voltage [V]
+Aircraft.Specs.Battery.NomVolCell = 3.6;
 
+% maxinum extracted voltage [V]
+Aircraft.Specs.Battery.MaxExtVolCell = 4.0880;
+
+% maxinum cell capacity [Ah]
+Aircraft.Specs.Battery.CapCell = 3;
+
+% internal resistance [Ohm]
+Aircraft.Specs.Battery.IntResist = 0.0199;
+
+% exponential voltage [V]
+Aircraft.Specs.Battery.expVol = 0.0986;
+
+% exponential capacity [(Ah)^-1]
+Aircraft.Specs.Battery.expCap = 30;
+
+% acceptable SOC threshold
+Aircraft.Specs.Battery.MinSOC = 20;
+
+% intitial SOC
+Aircraft.Specs.Battery.BegSOC = 100;
+
+% acceptable max c-rate during discharging
+Aircraft.Specs.Battery.MaxAllowCRate = 5;
+
+%%%% battery degradation effect analysis %%%
+Aircraft.Settings.Degradation = 0; % 1 = analysis with degradation effect; 0 = without degradation effect
+
+if Aircraft.Settings.Degradation == 1
+    
+    % battery chemistry material (ONLY "NMC" or "LFP" FOR NOW)
+    Aircraft.Specs.Battery.Chem = 1; % NMC: 1    LFP:2
+    
+    % Charging time 
+    Aircraft.Specs.Battery.ChrgTime = 60*60; % in sec
+    
+    % charging rate (can be an array or scalar, or a function with output of a scalar or array)
+    Aircraft.Specs.Battery.Cpower = -500*1000; % charging means negative rate in W
+    
+    % battery Full Equivalent Cycles (FECs)
+    Aircraft.Specs.Battery.FEC = 0; % start with 0
+    
+    % battery State of Health (SoH)
+    Aircraft.Specs.Battery.SOH = 100; 
+
+    % battery operation temperature (for analysis only, will remove)
+    Aircraft.Specs.Battery.OpTemp = 35; % [°C]
+end
 
 %% SETTINGS (LEAVE AS NaN FOR DEFAULTS) %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -219,12 +268,18 @@ Aircraft.Settings.OEW.MaxIter = 50;
 Aircraft.Settings.OEW.Tol = 0.001;
 
 % maximum number of iterations during aircraft sizing
-Aircraft.Settings.Analysis.MaxIter = 20;
+Aircraft.Settings.Analysis.MaxIter = 30;
 
 % analysis type, either:
 %     +1 for on -design mode (aircraft performance and sizing)
 %     -1 for off-design mode (aircraft performance           )
 Aircraft.Settings.Analysis.Type = +1;
+
+% power optimaztion
+Aircraft.Settings.Analysis.PowerOpt = 0;
+
+% constrain SOC from 20% to 100% for off design 
+Aircraft.Settings.ConSOC = 1; 
 
 % plotting, either:
 %     1 for plotting on
@@ -236,6 +291,10 @@ Aircraft.Settings.Plotting = 0;
 %     0 for no table
 Aircraft.Settings.Table = 0;
 
+% sizing comamand window output
+%   1 output weights
+%   0 no weight output
+Aircraft.Settings.PrintOut = 1;
 % ----------------------------------------------------------
 
 end

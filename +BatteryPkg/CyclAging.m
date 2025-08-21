@@ -75,7 +75,7 @@ mSOC_ref_lfp   = 42;        % Reference middle state-of-charge (42%)
 % ERROR FOR OTHERS %
 else
 % Handle invalid inputs
-error('Invalid ChemType input. Please input "NMC" or "LFP".');
+error('Invalid ChemType input. Please input "1" for NMC or "2" for LFP.');
 end
 
 %% INPUTTING DEGRADATION PARAMETERS %%

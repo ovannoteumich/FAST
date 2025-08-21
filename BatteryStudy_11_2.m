@@ -78,7 +78,6 @@ end
 
 %% Save the battery structure of each iterations
 
-
 % Define the folder containing the .mat files
 loadFolder = 'AircraftIterations';
 
@@ -129,32 +128,27 @@ plot(1:length(loadedData),weight, "LineWidth", 2);
 
 
 
-%% Conceptual Battery degradation study (没啥用)
+%% Battery ground charging testing
+clc;clear;close all
+SizedERJ = Main(AircraftSpecsPkg.ERJ175LR, @MissionProfilesPkg.ERJ_ClimbThenAccel);
 
-SOHss = [];
-FECss = 0;
-FEC_info = [];
 
-for i = 1:1000
-    [a, b] = BatteryPkg.CyclAging(SizedERJ, 1, FECss, 30*60,-250000);
+ChargedERJ = BatteryPkg.GroundCharge(SizedERJ, 60*60, -500e3);
 
-    if a < 70
-        break
-    end
-    FECss = b;
-    FEC_info(i) = FECss;
-    SOHss(i) = a;
-end
 
-plot(SOHss, LineWidth= 2)
-xlabel('Battery Cycling Times');
+figure(1)
+plot(ChargeERJ.Mission.History.SI.Power.ChargedAC.C_rate, 'LineWidth', 2);
+hold on
+yline(70, 'r--', 'LineWidth', 2); % More efficient way to plot a horizontal line at y=70
+hold off
+xlabel('Flight Cycling Times');
 ylabel("Battery SOH [%]");
+% xlim([0 FECs(end)]);
 grid on
 title('Battery Degradation')
 
-
 %% OFF-design test
-clc;clear
+clc;clear;close all
 SizedERJ = Main(AircraftSpecsPkg.ERJ175LR, @MissionProfilesPkg.ERJ_ClimbThenAccel);
 SizedERJ.Settings.Analysis.Type=-2;
 
@@ -164,10 +158,26 @@ mSOC = [];
 dc_rate = [];
 c_rate = [];
 DOD = [];
+CellCapa = [];
+MaxV = [];
+MinV = [];
 
 Off_SizedERJ = Main(SizedERJ, @MissionProfilesPkg.ERJ_ClimbThenAccel);
 SOHs(end+1,1) = Off_SizedERJ.Specs.Battery.SOH(end);
 FECs(end+1,1) = Off_SizedERJ.Specs.Battery.FEC(end);
+% mean/median SOC %
+SOCs = Off_SizedERJ.Mission.History.SI.Power.SOC(:,2);
+active_mSOC = SOCs([true; diff(SOCs) ~= 0]); % Remove consecutive repeated SOC values
+mSOC(end+1,1) = mean(active_mSOC); % Averaged SOCs
+c_rate(end+1,1) = mean(Off_SizedERJ.Mission.History.SI.Power.ChargedAC.C_rate(Off_SizedERJ.Mission.History.SI.Power.ChargedAC.C_rate~=0));
+dc_rate(end+1,1) = mean(Off_SizedERJ.Mission.History.SI.Power.C_rate(Off_SizedERJ.Mission.History.SI.Power.C_rate~=0));
+DOD(end+1,1) = (max(Off_SizedERJ.Mission.History.SI.Power.SOC(:,2)) - min(Off_SizedERJ.Mission.History.SI.Power.SOC(:,2)));     
+CellCapa(end+1,1) = max(Off_SizedERJ.Mission.History.SI.Power.Cap_cell(:,2));
+MaxV(end+1,1) = max(Off_SizedERJ.Mission.History.SI.Power.V_cell(:,2));
+% MinV(end+1,1) = min(Off_SizedERJ.Mission.History.SI.Power.V_cell(Off_SizedERJ.Mission.History.SI.Power.V_cell(:,2)~=0, 2));
+MinV(end+1,1) = Off_SizedERJ.Mission.History.SI.Power.V_cell(end-1,2);
+
+
 for i = 1:100000
 
     Off_SizedERJ = Main(Off_SizedERJ, @MissionProfilesPkg.ERJ_ClimbThenAccel);
@@ -187,6 +197,12 @@ for i = 1:100000
 
     DOD(end+1,1) = (max(Off_SizedERJ.Mission.History.SI.Power.SOC(:,2)) - min(Off_SizedERJ.Mission.History.SI.Power.SOC(:,2)));     
 
+    CellCapa(end+1,1) = max(Off_SizedERJ.Mission.History.SI.Power.Cap_cell(:,2));
+
+    MaxV(end+1,1) = max(Off_SizedERJ.Mission.History.SI.Power.V_cell(:,2));
+
+    % MinV(end+1,1) = min(Off_SizedERJ.Mission.History.SI.Power.V_cell(Off_SizedERJ.Mission.History.SI.Power.V_cell(:,2)~=0, 2));
+    MinV(end+1,1) = Off_SizedERJ.Mission.History.SI.Power.V_cell(end-1,2);
     if Off_SizedERJ.Specs.Battery.SOH(end) <= 70
         break
     end
@@ -242,7 +258,26 @@ ylabel("Depth of Discharge (DoD)");
 grid on
 title('Depth of Discharge (DoD)')
 
+figure(7)
+plot(CellCapa, 'LineWidth', 2);
+xlabel('Flight Cycling Times');
+ylabel("Cell Available Capacity [Ah]");
+grid on
+title('Cell Available Capacity')
 
+figure(8)
+plot(MaxV, 'LineWidth', 2);
+xlabel('Flight Cycling Times');
+ylabel("Max Cell Voltage [V]");
+grid on
+title('Max Cell Voltage [V]')
+
+figure(9)
+plot(MinV, 'LineWidth', 2);
+xlabel('Flight Cycling Times');
+ylabel("Min Cell Voltage [V]");
+grid on
+title('Min Cell Voltage [V]')
 %% TEST degradation effect at different operation temperature
 
 clc; clear;
@@ -356,16 +391,314 @@ title('Battery Cycle Life vs Charging Power', 'FontSize', 14);
 set(gca, 'XDir', 'reverse'); % Reverse x-axis to show -100 kW to -250 kW
 
 
-%%
-SOCValues = [];
-SOCValues(end+1, 1)=SizedERJ.Mission.History.SI.Power.SOC(1,2);
-for i = 2:length(SizedERJ.Mission.History.SI.Power.SOC(:,2))
-    if SizedERJ.Mission.History.SI.Power.SOC(i,2) - SizedERJ.Mission.History.SI.Power.SOC(i-1,2) ~= 0
-        SOCValues(end+1, 1) = SizedERJ.Mission.History.SI.Power.SOC(i,2);
+%% Battery Charging Model testing (dynamic array power strategy input generation function)
+clc;clear
+function P = randomChargingSegments(TotalTime, minSegLen, maxSegLen)
+    if minSegLen < 1 || maxSegLen < minSegLen
+        error('Require 1 ≤ minSegLen ≤ maxSegLen.');
+    end
+    P = zeros(TotalTime, 1); 
+    idx = 1;                  
+    while idx <= TotalTime
+        segLen = randi([minSegLen, maxSegLen]);
+        if idx + segLen - 1 > TotalTime
+            segLen = TotalTime - idx + 1;
+        end
+        powerLevel = randi([250e3, 750e3]);
+        P(idx : idx + segLen - 1) = -powerLevel;
+        idx = idx + segLen;
     end
 end
-mSOC = mean(SOCValues)
 
-a = SizedERJ.Mission.History.SI.Power.SOC(:,2)
-active_mSOC = a([true; diff(a) ~= 0]);
-mSOC = mean(active_mSOC)
+TotalTime= 1500;
+minSegLen= 100;
+maxSegLen= 300;
+PowerStrategy = randomChargingSegments(TotalTime, minSegLen, maxSegLen);
+
+figure;
+stairs(PowerStrategy, 'LineWidth', 1.2);
+xlabel('Time');
+ylabel('Charging Power (kW)');
+title('Random Charging Strategy');
+
+
+SizedERJ = Main(AircraftSpecsPkg.ERJ175LR, @MissionProfilesPkg.ERJ_ClimbThenAccel);
+
+ChargedERJ = BatteryPkg.GroundCharge(SizedERJ, 60*60, -500e3);
+plot(ChargedERJ.Mission.History.SI.Power.ChargedAC.SOC)
+
+
+%%
+%% Prepare data
+soc   = ChargedERJ.Mission.History.SI.Power.ChargedAC.SOC;
+t     = (0:length(soc)-1) * ChargedERJ.Mission.History.SI.Power.ChargedAC.CtrlPtsTimeStep;
+tmin  = t/60;
+
+% Find the 80% index
+idx80 = find(soc>=80,1,'first');
+
+% Find CV start index
+crate    = abs(ChargedERJ.Mission.History.SI.Power.ChargedAC.C_rate);
+C_cutoff = crate(idx80);
+sub      = crate(idx80:end) < C_cutoff;
+firstInSub = find(sub,1,'first');
+if ~isempty(firstInSub)
+    idxCV = idx80 - 1 + firstInSub;
+else
+    idxCV = length(crate);
+end
+
+figure('Color','w'), hold on
+
+% Phase shading
+hBulk = patch([tmin(1) tmin(idx80) tmin(idx80) tmin(1)], [20 20 100 100], ...
+    [0.9 0.9 1], 'EdgeColor','none', 'FaceAlpha',0.3, 'DisplayName','Bulk CC');
+hCC1  = patch([tmin(idx80) tmin(idxCV) tmin(idxCV) tmin(idx80)], [20 20 100 100], ...
+    [0.9 1 0.9], 'EdgeColor','none', 'FaceAlpha',0.3, 'DisplayName','CC @ 1 C');
+hCV   = patch([tmin(idxCV) tmin(end) tmin(end) tmin(idxCV)], [20 20 100 100], ...
+    [1 0.9 0.9], 'EdgeColor','none', 'FaceAlpha',0.3, 'DisplayName','CV taper');
+
+% SOC curve
+hSOC = plot(tmin, soc, 'b-', 'LineWidth',2, 'DisplayName','SOC');
+
+% Threshold lines
+h80h = yline(80, ':r', '80%', ...
+    'LabelHorizontalAlignment','right', ...
+    'LabelVerticalAlignment','top', ...
+    'FontAngle','italic', ...
+    'DisplayName','80% threshold');
+hX80 = xline(tmin(idx80), '--k', 'I_{CC}=1C', ...
+    'LabelVerticalAlignment','bottom', ...
+    'DisplayName','80% entry');
+hXcv = xline(tmin(idxCV), '--k', 'CV start', ...
+    'LabelVerticalAlignment','bottom', ...
+    'DisplayName','CV start');
+
+% Annotations
+text(mean(tmin(1:idx80)),    70, 'Full Power', 'HorizontalAlignment','center');
+text(mean(tmin(idx80:idxCV)),70, 'CC Phase',   'HorizontalAlignment','center');
+text(mean(tmin(idxCV:end)),  70, 'CV Phase',   'HorizontalAlignment','center');
+
+% Labels & styling
+xlabel('Time (min)')
+ylabel('SOC (%)')
+title('SOC Profile with CC–CV Phases')
+ylim([20 100])
+grid on
+
+% Build the legend
+legend([hSOC, h80h], ...
+       'Location','southeast')
+
+hold off
+
+
+%% Battery degradation model testing
+close all;
+% ---------------------------
+% 1) CHOOSE CHEMISTRY & PARAMETERS
+% ---------------------------
+% For NMC:
+% beta    = 0.001673;   
+% kT      = -21.6745;    % !!
+% kDoD    = 0.022;     
+% kCch    = 0.2553;   
+% kCdis   = 0.1571;     
+% kmSOC   = -0.0212;   
+% alpha   = 0.915;     
+% Tref    = 293;    
+% mSOCref = 42;       
+
+% %-- Uncomment to test LFP by replacing the above values:
+beta    = 0.003414;
+kT      = 5.8755;
+kDoD    = -0.0045;
+kCch    = 0.1038;
+kCdis   = 0.296;
+kmSOC   = 0.0513;
+alpha   = 0.869;
+Tref    = 293;
+mSOCref = 42;
+
+% ---------------------------
+% 2) SET TEST CONDITIONS
+% ---------------------------
+temp_C   = 33;            
+temp_act = temp_C + 273; 
+DOD      = 80;          
+Cch      = 4;           
+Cdis     = 4;           
+mSOC     = 50;         
+
+% ---------------------------
+% 3) DEFINE CYCLE RANGE
+% ---------------------------
+maxCycles = 5000;            % number of cycles to simulate
+FEC       = (0:maxCycles)'; % full-equivalent cycle vector
+
+% ---------------------------
+% 4) COMPUTE SOH
+% ---------------------------
+ageing_term = exp( kT*((temp_act - Tref)./temp_act) ...
+                 + kDoD*DOD + kCch*Cch + kCdis*Cdis );
+msoc_term   = 1 + kmSOC*mSOC.*(1 - (mSOC/(2*mSOCref)));
+SOH         = 100 - beta * ageing_term .* msoc_term .* (FEC.^alpha);
+
+% ---------------------------
+% 5) PLOT RESULTS
+% ---------------------------
+figure;
+plot(FEC, SOH, 'LineWidth',1.5);
+xlabel('Full Equivalent Cycles');
+ylabel('State of Health (%)');
+title('Empirical SOH vs. Cycles');
+grid on;
+
+% ---------------------------
+% 6) OPTIONAL: STOP AT THRESHOLD
+% ---------------------------
+thresh = 70;  % SOH threshold [%]
+id = find(SOH <= thresh, 1, 'first');
+if ~isempty(id)
+    fprintf('SOH drops to %.1f%% at cycle %d.\n', SOH(id), id);
+end
+
+
+
+%% BatteryDegradationValidation_CaseSeparated.m
+% Compare empirical aging model to experimental Case A & Case B data
+% Produces separate plots for each case with matching model conditions
+% Calculates RMSE and MAE for each experimental file
+
+clear; clc; close all;
+
+% ---------------------------
+% 1) MODEL PARAMETERS (NMC example)
+% ---------------------------
+beta    = 0.003414;
+kT      = 5.8755;
+kDoD    = -0.0045;
+kCch    = 0.1038;
+kCdis   = 0.296;
+kmSOC   = 0.0513;
+alpha   = 0.869;
+Tref    = 293;
+mSOCref = 42;
+
+% ---------------------------
+% 2) Define case-specific conditions
+% ---------------------------
+cases = { ...
+    struct('name','CaseA', 'folder','Battery_validation/CaseA', ...
+           'temp_C',35, 'DOD',100, 'Cch',4.8, 'Cdis',4, 'mSOC',50), ...
+    struct('name','CaseB', 'folder','Battery_validation/CaseB', ...
+           'temp_C',35, 'DOD',100, 'Cch',5.3,  'Cdis',4, 'mSOC',50)  ...
+};
+
+% ---------------------------
+% 3) Loop over cases
+% ---------------------------
+for ci = 1:numel(cases)
+    c = cases{ci};
+    % determine maximum cycle across experimental files
+    files = dir(fullfile(c.folder,'*.csv'));
+    maxCycle = 0;
+    for f = 1:numel(files)
+        Texp = readtable(fullfile(c.folder, files(f).name));
+        maxCycle = max(maxCycle, max(Texp.Cycle));
+    end
+    % compute model SOH up to maxCycle
+    FEC = (0:maxCycle)';
+    temp_act = c.temp_C + 273.15;
+    ageing_term = exp(kT*((temp_act - Tref)./temp_act) + kDoD*c.DOD + kCch*c.Cch + kCdis*c.Cdis);
+    msoc_term   = 1 + kmSOC*(c.mSOC/100)*(1 - (c.mSOC/100)/(2*(mSOCref/100)));
+    SOH_model   = 100 - beta * ageing_term .* msoc_term .* (FEC.^alpha);
+
+    % create figure for this case
+    figure('Name',c.name,'NumberTitle','off'); hold on;
+    legendEntries = {};
+
+    % plot experimental data and compute errors
+    for f = 1:numel(files)
+        fname = files(f).name;
+        Texp = readtable(fullfile(c.folder, fname));
+        cycles_exp = Texp.Cycle;
+        SOH_exp    = Texp.SOH * 100;
+        plot(cycles_exp, SOH_exp, 'o', 'DisplayName', fname);
+        legendEntries{end+1} = fname;
+
+        % model prediction at experimental cycles
+        idx = cycles_exp + 1; % account for zero-cycle at index 1
+        SOH_pred = SOH_model(idx);
+
+        % compute errors
+        err = SOH_pred - SOH_exp;
+        rmse = sqrt(mean(err.^2));
+        mae  = mean(abs(err));
+        fprintf('%s: %s -> RMSE = %.2f%%, MAE = %.2f%%\n', c.name, fname, rmse, mae);
+    end
+
+    % plot model curve
+    plot(FEC, SOH_model, 'k-', 'LineWidth',1.5, 'DisplayName','Model');
+    legendEntries{end+1} = 'Model';
+
+    % finalize plot
+    xlabel('Full Equivalent Cycles');
+    ylabel('SOH (%)');
+    title(sprintf('Empirical Model vs. %s Data', c.name));
+    grid on;
+    legend(legendEntries,'Location','best');
+end
+
+
+%% NMC validation (weird)
+clear; clc; close all;
+
+% —– 1) Load the experimental data —–
+T = readtable('C:\Users\49401\Desktop\IDEAS\FAST\Battery_validation\esoh\aging_param_cell_09.csv');
+cycles = T.N;              % cycle numbers
+Cap   = T.Cap;            % measured capacity [Ah]
+SOH_exp = Cap./Cap(1)*100; % experimental SOH [%]
+
+% —– 2) Define your model parameters (NMC) —–
+beta    = 0.001673;
+kT      = 21.6745;
+kDoD    = 0.022;
+kCch    = 0.2553;
+kCdis   = 0.1571;
+kmSOC   = -0.0212;
+alpha   = 0.915;
+Tref    = 293.15;    % [K]
+mSOCref = 42;      % 42% reference
+% test conditions from Case #1
+temp_act = 45 + 273.15;  % [K]
+DOD      = 100;          % full 0–100% DoD
+Cch      = 2;          % C/5
+Cdis     = 2;          % C/5
+mSOC     = 50;         % assume midpoint ~50%
+
+% —– 3) Compute model prediction at each experimental cycle —–
+SOH_pred = zeros(size(cycles));
+for ii = 1:numel(cycles)
+    FEC = cycles(ii);
+    ageing = exp( kT*((temp_act-Tref)/temp_act) ...
+                 + kDoD*DOD + kCch*Cch + kCdis*Cdis );
+    mterm  = 1 + kmSOC*mSOC*(1 - (mSOC/(2*mSOCref)));
+    SOH_pred(ii) = 100 - beta * ageing * mterm * FEC^alpha;
+    % finalize plot
+    xlabel('Full Equivalent Cycles');
+    ylabel('SOH (%)');
+    grid on;
+end
+
+% —– 4) Plot & compute error —–
+figure; hold on;
+plot(cycles, SOH_exp, 'o-', 'LineWidth',1.2, 'DisplayName','Experiment');
+plot(cycles, SOH_pred,'s--','LineWidth',1.2,'DisplayName','Model');
+xlabel('Full Equivalent Cycles'); ylabel('SOH (%)');
+legend('Location','best'); grid on;
+title('Validation of CyclAging vs. Case #1 Data');
+hold off
+% RMSE
+rmse = sqrt(mean((SOH_pred - SOH_exp).^2));
+fprintf('RMSE = %.2f %% SOH\n', rmse);
