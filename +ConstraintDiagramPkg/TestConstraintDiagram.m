@@ -2,7 +2,7 @@ function [] = TestConstraintDiagram()
 %
 % [] = TestConstraintDiagram()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 15 aug 2025
+% last updated: 21 aug 2025
 %
 % create a constraint diagram for an Airbus A320neo, replicating the one
 % previously made in AEROSP 481 as a GSI.
@@ -122,66 +122,11 @@ Aircraft.Specs.Propulsion.T_W.SLS = 0.3059;
 % number of engines
 Aircraft.Specs.Propulsion.NumEngines = 2;
 
-% ----------------------------------------------------------
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                            %
-% extra parameters that are  %
-% likely not needed          %
-%                            %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% % crewmembers
-% TLAR.Crew.Pilot = 8;%2;
-% TLAR.Crew.Cabin = 0;%4;
-% 
-% % passengers (payload)
-% TLAR.Payload.First = 0;% 24;
-% TLAR.Payload.Coach = 0;%126;
-% 
-% % approximate weight of passengers and bags given in metabook (lbm)
-% TLAR.Payload.PaxWeight = 180;
-% TLAR.Payload.BagWeight =  60;
-
-% % cargo to be carried (lbm)
-% TLAR.Payload.Cargo = 430000;%0;
-
-% Aircraft.valus.rhoWing =    10  ; % lb / ft^2
-% % assume skin-friction coefficient
-% Aircraft.Specs.Aero.CF = 0.0026;
-% % assume airline and route factors
-% Cost.Params.AF =  0.80; % an "average" airline
-% Cost.Params.RF =  5.25; % for domestic routes
-% 
-% % assume a block time for max range flight (about cross-country)
-% Cost.Params.BlockTime = 5.75;%6; % hr
-% 
-% EIS = TLAR.EIS;
-% 
-% % cost of jet-grade fuel
-% Cost.Params.Fuel  =  3.22 * CostPkg.ComputeCEF(2023, EIS); % $ / gal
-% 
-% % unit price of oil per gallon (base year 2022)
-% Cost.Params.Oil   = 84.95 * CostPkg.ComputeCEF(2022, EIS); % $ / gal
-% 
-% % cost of labor (base year 2021)
-% Cost.Params.Labor = 34.31 * CostPkg.ComputeCEF(2021, EIS); % $ / hr
-
-% % assume engine thrust and weight (same as GE F138%Trent XWB-97 engine)
-% Prop.UnitThrust = 59000;%27000; % lb
-% 
-% % assume a SFC same as GE F138%CFM56-5B4 engine (1/s)
-% Prop.SFC = 1.6e-04;%1.667e-04;
-% % Wght.Engin = 9790; % lb
-
-% % assume a loiter time (min)
-% Aircraft.Specs.Performance.Loiter = 45;
-
 
 %% RUN THE CONSTRAINT ANALYSIS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% create a T/W-W/S diagram
+% create a constraint diagram
 ConstraintDiagramPkg.ConstraintDiagram(Aircraft);
 
 
