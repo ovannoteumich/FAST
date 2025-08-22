@@ -501,12 +501,16 @@ else
     if ~isfield(Aircraft.Settings,"Analysis")
         Aircraft.Settings.Analysis.MaxIter = NaN;
         Aircraft.Settings.Analysis.Type = NaN;
+        Aircraft.Settings.Analysis.PowerOpt = NaN;
     else
         if ~isfield(Aircraft.Settings.Analysis,"MaxIter")
             Aircraft.Settings.Analysis.MaxIter = NaN;
         end
         if ~isfield(Aircraft.Settings.Analysis,"Type")
             Aircraft.Settings.Analysis.Type = NaN;
+        end
+          if ~isfield(Aircraft.Settings.Analysis,"PowerOpt")
+            Aircraft.Settings.Analysis.PowerOpt = NaN;
         end
     end
     if ~isfield(Aircraft.Settings,"Plotting")
@@ -531,6 +535,9 @@ else
     end
     if ~isfield(Aircraft.Settings, "Degradation")
         Aircraft.Settings.Degradation = NaN;
+    end
+    if ~isfield(Aircraft.Settings, "PrintOut")
+        Aircraft.Settings.PrintOut = NaN;
     end
 end
 

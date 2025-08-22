@@ -272,8 +272,11 @@ end
 
 % set the required power as the output power
 Pout(:, TrnSnkIdx) = PoutTest;
-
+Aircraft.Mission.History.SI.Power.Pout(SegBeg:SegEnd, :) = Pout;
+Aircraft = PropulsionPkg.RecomputeSplits(Aircraft, SegBeg, SegEnd);
+LamDwn = Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :);
 % loop through points to propagate power to the sources
+
 for ipnt = 1:npnt
         
     % evaluate the function handles for the current splits

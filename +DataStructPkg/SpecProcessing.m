@@ -366,10 +366,12 @@ DefaultSettings.OEW.MaxIter = 20;
 DefaultSettings.OEW.Tol = 1e-6;
 DefaultSettings.Analysis.MaxIter = 50;
 DefaultSettings.Analysis.Type = 1;       % 1 = on design. -1 = off design
+DefaultSettings.Analysis.PowerOpt = 0;
 DefaultSettings.Plotting = 0;            % 1 = plot 0 = no plots
 DefaultSettings.Table = 0;
 DefaultSettings.VisualizeAircraft = 0;
 DefaultSettings.Degradation = 0;         % 1 = W/ degradation.
+DefaultSettings.PrintOut = 1;
 
 
 % directory

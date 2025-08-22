@@ -15,7 +15,7 @@ Aircraft.Specs.Power.Battery.SerCells = 62;
 % initial battery SOC
 Aircraft.Specs.Power.Battery.BegSOC = 100;
 
-%AircraftOG = Main(Aircraft, @MissionProfilesPkg.A320);
+AircraftOG = Main(Aircraft, @MissionProfilesPkg.A320);
 Aircraft =AircraftOG;
 %Aircraft = ans;
 Aircraft.Settings.Analysis.Type = -1;

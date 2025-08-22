@@ -47,13 +47,13 @@ close all
 % call user-specified input aircraft
 Aircraft = InputAircraft;
 
-% if print outs enable clear command wondow
-if Aircraft.Settings.PrintOut == 1
-clc;
-end
-
 % call pre-specprocessing, it will fill in unspecified fields with NaNs if the user forgets one
 Aircraft = DataStructPkg.PreSpecProcessing(Aircraft);
+
+% if print outs enable clear command wondow
+if Aircraft.Settings.PrintOut == 1
+ clc;
+end
 
 % check that an analysis type was provided
 if (isnan(Aircraft.Settings.Analysis.Type))

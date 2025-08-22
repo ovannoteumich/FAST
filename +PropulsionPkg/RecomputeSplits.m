@@ -54,7 +54,7 @@ nsrc = length(Aircraft.Specs.Propulsion.PropArch.SrcType);
 
 % get the power available (equal to power output for "full throttle" case)
 Pav = Aircraft.Mission.History.SI.Power.Pav(SegBeg:SegEnd, :);
-
+Pout = Aircraft.Mission.History.SI.Power.Pout(SegBeg:SegEnd,:);
 % get the power splits
 LamUps = Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :);
 LamDwn = Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :);
@@ -66,7 +66,7 @@ idx = any(LamUps > 0, 2);
 nsplit = Aircraft.Settings.nargOperDwn;
 
 % get a temporary power split
-TmpSplit = LamDwn(1, :);
+TmpSplit = LamDwn;
 
 % get the original downstream matrix
 OperDwn = PropulsionPkg.EvalSplit(Aircraft.Specs.Propulsion.PropArch.OperDwn, TmpSplit);
@@ -104,10 +104,13 @@ for ipar = 1:npar
     end
     
     % get the total power output at any given time from those sources
-    Pout = sum(Pav(idx, [imain, isupp]), 2);
+    Power = sum(Pout(idx, [imain, isupp]), 2);
     
     % compute the downstream power split
-    LamDwn(idx, UseSplit) = Pav(idx, isupp) ./ Pout;
+    LamDwn(idx, UseSplit) = Pout(idx, isupp) ./ Power;
+
+    iNaN = isnan(LamDwn);
+    LamDwn(iNaN) = TmpSplit(iNaN);
             
 
 end

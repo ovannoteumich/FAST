@@ -238,7 +238,7 @@ while (iter < MaxIter)
         end
         
     else
-        if (Type>-2)
+        if (Type>0)
             % get the initial propulsion system weight
             Aircraft = PropulsionPkg.PropulsionSizing(Aircraft);
         end
