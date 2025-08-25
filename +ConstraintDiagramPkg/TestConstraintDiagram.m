@@ -61,6 +61,9 @@ Aircraft.Specs.Performance.ObstLen = UnitConversionPkg.ConvLength(1000, "ft", "m
 Aircraft.Specs.Performance.TempInc = 1.25;
 Aircraft.Specs.Performance.MaxCont = 1 / 0.94;
 
+% design specific excess power loss
+Aircraft.Specs.Performance.PsLoss = 0.7689;
+
 % ----------------------------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -125,6 +128,9 @@ Aircraft.Specs.Propulsion.NumEngines = 2;
 
 %% RUN THE CONSTRAINT ANALYSIS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% determine which constraints to use (0 = 14 CFR 25; 1 = novel)
+Aircraft.Settings.ConstraintType = 1;
 
 % create a constraint diagram
 ConstraintDiagramPkg.ConstraintDiagram(Aircraft);
