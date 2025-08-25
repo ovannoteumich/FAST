@@ -2,7 +2,7 @@ function [FAR] = Jet25_119(W_S, T_W, Aircraft)
 %
 % [FAR] = Jet25_119(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 15 aug 2025
+% last updated: 25 aug 2025
 %
 % derive the constraints for a balked landing climb with all engines
 % operative.
@@ -74,8 +74,26 @@ end
 % correction for standard temperature increase and landing weight
 CorrFactor = TempInc * 0.65;
 
-% climb gradient is >= 3.2% regardless of number of engines
-G = 0.032;
+% get the constraint type
+Type = Aircraft.Settings.ConstraintType;
+
+% find climb gradient
+if (Type == 0)
+    
+    % climb gradient is >= 3.2% regardless of number of engines
+    G = 0.032;
+    
+elseif (Type == 1)
+    
+    % compute the climb gradient from a sigmoid curve
+    G = ConstraintDiagramPkg.Sigmoid(Aircraft, 0, 0, 0, 3.2);
+    
+else
+    
+    % throw an error
+    error("ERROR - Jet25_119: invalid Type selected, must be 0 or 1.");
+    
+end
 
 % ratio of flight speed to stall speed is 1.3
 ks = 1.3;

@@ -2,7 +2,7 @@ function [FAR] = Jet25_121b(W_S, T_W, Aircraft)
 %
 % [FAR] = Jet25_121b(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 15 aug 2025
+% last updated: 25 aug 2025
 %
 % derive the constraints for the second segment climb.
 %
@@ -75,20 +75,38 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % correction for one-engine inoperative
-OEI = NumEng / (NumEng - 1);
+OEI = ConstraintDiagramPkg.OEIMultiplier(Aircraft);
 
 % correction for standard temperature increase and one engine inoperative
 CorrFactor = TempInc * OEI;
 
+% get the constraint type
+Type = Aircraft.Settings.ConstraintType;
+
 % find climb gradient
-if     (NumEng == 2)
-    G = 0.024;
+if (Type == 0)
     
-elseif (NumEng == 3)
-    G = 0.027;
+    % find the number of engines and define the climb gradient
+    if     (NumEng == 2)
+        G = 0.024;
+        
+    elseif (NumEng == 3)
+        G = 0.027;
+        
+    else % (NumEng == 4)
+        G = 0.030;
+        
+    end
+
+elseif (Type == 1)
     
-else % (NumEng == 4)
-    G = 0.030;
+    % compute the climb gradient from a sigmoid curve
+    G = ConstraintDiagramPkg.Sigmoid(Aircraft, 0.6159, -26.6467, 0.5551, 2.3979);
+    
+else
+    
+    % throw an error
+    error("ERROR - Jet25_121b: invalid Type selected, must be 0 or 1.");
     
 end
 
