@@ -2,7 +2,7 @@ function [FAR] = JetCeil(W_S, T_W, Aircraft)
 %
 % [FAR] = JetCeil(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 15 aug 2025
+% last updated: 27 aug 2025
 %
 % derive the constraints for service ceiling.
 %
@@ -76,17 +76,8 @@ end
 % compute density ratio of service ceiling to sea-level
 RhoRatio = RhoSrv / RhoSLS;
 
-% use climb gradient from enroute climb phase
-if     (NumEng == 2)
-    G = 0.012;
-    
-elseif (NumEng == 3)
-    G = 0.015;
-    
-else % (NumEng == 4)
-    G = 0.017;
-    
-end
+% use a small gradient
+G = 0.001;
 
 % return performance requirement as an inequality constraint
 FAR = (2 * sqrt(CD0 / pi / e / AR) + G) / RhoRatio ^ 0.6 - T_W;
