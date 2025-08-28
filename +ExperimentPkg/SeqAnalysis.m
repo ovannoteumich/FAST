@@ -1,3 +1,4 @@
+%{
 names = fieldnames(ACs);
 cost = 0;
 for i = 1:5
@@ -5,6 +6,7 @@ for i = 1:5
     Aircraft = ExperimentPkg.EnergyCost_perAirport(Aircraft, seq.ORIGIN(i));
     cost = cost + Aircraft.Mission.History.SI.Performance.Cost
 end
+%}
 %%
 load("Sequence.mat")
 seq = tables{8};

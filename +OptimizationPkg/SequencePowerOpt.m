@@ -70,7 +70,7 @@ options = optimoptions('fmincon','MaxIterations', 200 ,'Display','iter','Algorit
 options.OptimalityTolerance = 10^-6;
 
 % step size convergence
-options.StepTolerance = 10^-9;
+options.StepTolerance = 10^-8;
 
 % max function evaluations
 options.MaxFunctionEvaluations = 10^9;
@@ -144,13 +144,13 @@ for iflight =1:nflight
 end
 
 
-save("SeqOptAC_futDOC.mat", "OptimizedAircraft");
-save("opttable_futDOC.mat", "OptSeqTable");
+save("SeqOptAC_future.mat", "OptimizedAircraft");
+save("opttable_future.mat", "OptSeqTable");
     
 %% Nested Functions %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-    function [DOC,SOC, dh_dt]  = FlySequence(PC, Aircraft, Sequence)
+    function [fuele,SOC, dh_dt]  = FlySequence(PC, Aircraft, Sequence)
     % both onjective function values
     fburn = 0;
     DOC = 0;
