@@ -219,7 +219,7 @@ function [Failures] = CreateCutSets(ArchConns, Components, icomp, ntrigger, ninp
 %
 % [Failures] = CreateCutSets(Arch, Components, icomp, ntrigger, ninput)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 16 jun 2025
+% last updated: 28 aug 2025
 %
 % List out all components in the cut set for a system architecture. For
 % each function call, check whether an internal failure mode exists and if
@@ -351,6 +351,42 @@ if (ndwn > 0)
                     
                 end
                 
+                % append the current failures to the final ones
+                if (icomb == 1)
+                    
+                    % remember the current failures
+                    FinalFails = CurFails;
+                    
+                else
+                                        
+                    % get the size of each failure
+                    [nrow1, ncol1] = size(FinalFails);
+                    [nrow2, ncol2] = size(  CurFails);
+                    
+                    % check for the larger array
+                    if (ncol1 > ncol2)
+                        
+                        % add more empty columns to CurFails
+                        FinalFails = [FinalFails; CurFails, strings(nrow2, ncol1 - ncol2)];
+                        
+                    elseif (ncol1 < ncol2)
+                        
+                        % add more empty columns to FinalFails
+                        FinalFails = [FinalFails, strings(nrow1, ncol2 - ncol1); CurFails];
+                        
+                    else
+                        
+                        % they are the same size, just append arrays
+                        FinalFails = [FinalFails; CurFails];
+                        
+                    end                    
+                end
+                
+                % simplify with the law of absorption every 10 iterations
+                if (mod(icomb, 10) == 0 || (icomb == ncomb))
+                    FinalFails = LawOfAbsorption(FinalFails);
+                end
+                
                 % add one to the final index
                 Idx(end) = Idx(end) + 1;
                 
@@ -379,44 +415,6 @@ if (ndwn > 0)
                     dummy = dummy + 1;
                     
                 end
-            
-                % append the current failures to the final ones
-                if (icomb == 1)
-                    
-                    % remember the current failures
-                    FinalFails = CurFails;
-                    
-                else
-                    
-                    % get the size of each failure
-                    [nrow1, ncol1] = size(FinalFails);
-                    [nrow2, ncol2] = size(  CurFails);
-                    
-                    % check for the larger array
-                    if (ncol1 > ncol2)
-                        
-                        % add more empty columns to CurFails
-                        FinalFails = [FinalFails; CurFails, strings(nrow2, ncol1 - ncol2)];
-                        
-                    elseif (ncol1 < ncol2)
-                        
-                        % add more empty columns to FinalFails
-                        FinalFails = [FinalFails, strings(nrow1, ncol2 - ncol1); CurFails];
-                        
-                    else
-                        
-                        % they are the same size, just append arrays
-                        FinalFails = [FinalFails; CurFails];
-                        
-                    end                    
-                end
-                
-                % simplify with the idempotent law
-                FinalFails = IdempotentLaw(FinalFails);
-                
-                % simplify with the law of absorption
-                FinalFails = LawOfAbsorption(FinalFails);
-                
             end
         end            
     end
