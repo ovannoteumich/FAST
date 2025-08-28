@@ -2,7 +2,7 @@ function [Pfail, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 %
 % [Pfail, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 27 may 2025
+% last updated: 28 aug 2025
 %
 % Given an adjacency-like matrix, find the minimum cut sets that account
 % for internal failures and redundant primary events. then, using the
@@ -114,7 +114,7 @@ end
 
 %% PRE-PROCESSING %%
 %%%%%%%%%%%%%%%%%%%%
-    
+
 % check for connections
 ConnCheck = Arch > 0;
 
@@ -159,6 +159,9 @@ for icomp = 1:ncomp
     
 end
 
+% assign an ID to each failure mode
+Components.FailID = (1 : ncomp)';
+
 
 %% PERFORM A BOOLEAN ANALYSIS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -171,33 +174,35 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % recursively search the system architecture to extract all failure modes
-FailModes = CreateCutSets(ArchConns, Components, isnk, ntrigger, ninput);
+EnumModes = CreateCutSets(ArchConns, Components, isnk, ntrigger, ninput);
 
 % eliminate duplicate events in single failure mode (idempotent law)
-FailModes = IdempotentLaw(FailModes);
+EnumModes = IdempotentLaw(EnumModes);
 
 % eliminate duplicate events across failure modes (law of absorption)
-FailModes = LawOfAbsorption(FailModes);
+EnumModes = LawOfAbsorption(EnumModes);
 
 
 %% COMPUTE FAILURE RATE %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % get the size of the failure modes
-[nrow, ncol] = size(FailModes);
+[nrow, ncol] = size(EnumModes);
 
 % allocate memory for the failure rates (allocate ones for ease of
 % multiplying across rows in a later step)
-FailRates = ones(nrow, ncol);
+FailRates = ones(   nrow, ncol);
+FailModes = strings(nrow, ncol);
 
 % loop through each component and add in its failure rate
 for icomp = 1:ncomp
     
     % find the component in the failure modes
-    idx = find(strcmpi(FailModes, Components.Name(icomp)));
+    idx = EnumModes == icomp;
     
     % fill in the failure rate
     FailRates(idx) = Components.FailRate(icomp);
+    FailModes(idx) = Components.Name(    icomp);
     
 end
 
@@ -251,9 +256,9 @@ function [Failures] = CreateCutSets(ArchConns, Components, icomp, ntrigger, ninp
 %
 % OUTPUTS:
 %     Failures   - the matrix updated with all of the necessary failure
-%                  modes after recursively searching the system
+%                  mode IDs after recursively searching the system
 %                  architecture.
-%                  size/type/units: m-by-p / string / []
+%                  size/type/units: m-by-p / integer / []
 %
 
 
@@ -267,11 +272,11 @@ idwn = ArchConns{icomp};
 if (~strcmpi(Components.FailMode(icomp), "") == 1)
     
     % add the component failure
-    IntFails = Components.Name(icomp);
+    IntFails = Components.FailID(icomp);
     
     % flag the failure
     FailFlag = 1;
-
+    
 else
     
     % no failure
@@ -279,7 +284,7 @@ else
     
     % turn off the failure flag
     FailFlag = 0;
-
+    
 end
 
 
@@ -294,15 +299,15 @@ DwnFails = cell(1, ndwn);
 
 % loop through the downstream components
 for i = 1:ndwn
-        
+    
     % search recursively and remember the downstream failures
     DwnFails{i} = CreateCutSets(ArchConns, Components, idwn(i), ntrigger, ninput);
-
+    
 end
 
 % enumerate the downstream failures, if any exist
 if (ndwn > 0)
-        
+    
     if (ndwn == 1) % OR gate
         
         % the only failure is the downstream failure, it is an OR gate
@@ -312,7 +317,7 @@ if (ndwn > 0)
         
         % check for an AND gate (# of trigger events matches # of inputs)
         if (ntrigger(icomp) == ninput(icomp))
-        
+            
             % enumerate all failures in the AND gate
             FinalFails = AndGate(DwnFails, ndwn);
             
@@ -332,7 +337,7 @@ if (ndwn > 0)
             
             % loop through each set of combinations
             for icomb = 1:ncomb
-
+                
                 % get current failures
                 for itrigger = 1:mtrigger
                     NewDwn{itrigger} = DwnFails{Idx(itrigger)};
@@ -358,7 +363,7 @@ if (ndwn > 0)
                     FinalFails = CurFails;
                     
                 else
-                                        
+                    
                     % get the size of each failure
                     [nrow1, ncol1] = size(FinalFails);
                     [nrow2, ncol2] = size(  CurFails);
@@ -367,19 +372,19 @@ if (ndwn > 0)
                     if (ncol1 > ncol2)
                         
                         % add more empty columns to CurFails
-                        FinalFails = [FinalFails; CurFails, strings(nrow2, ncol1 - ncol2)];
+                        FinalFails = [FinalFails; CurFails, zeros(nrow2, ncol1 - ncol2)];
                         
                     elseif (ncol1 < ncol2)
                         
                         % add more empty columns to FinalFails
-                        FinalFails = [FinalFails, strings(nrow1, ncol2 - ncol1); CurFails];
+                        FinalFails = [FinalFails, zeros(nrow1, ncol2 - ncol1); CurFails];
                         
                     else
                         
                         % they are the same size, just append arrays
                         FinalFails = [FinalFails; CurFails];
                         
-                    end                    
+                    end
                 end
                 
                 % simplify with the law of absorption every 10 iterations
@@ -416,7 +421,7 @@ if (ndwn > 0)
                     
                 end
             end
-        end            
+        end
     end
     
     % get the size of the downstream failures
@@ -424,7 +429,7 @@ if (ndwn > 0)
     
     % add columns and append downstream failures
     if (FailFlag == 1)
-        Failures = [FinalFails; IntFails, strings(1, ncol - FailFlag)];
+        Failures = [FinalFails; IntFails, zeros(1, ncol - FailFlag)];
         
     else
         Failures = FinalFails;
@@ -449,7 +454,7 @@ function [FinalFails] = AndGate(DwnFails, ndwn)
 %
 % [FinalFails] = AndGate(DwnFails, ndwn)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 17 jun 2025
+% last updated: 28 aug 2025
 %
 % enumerate all failures from the downstream inputs, simplifying as pairs
 % of failures are enumerated to reduce the problem size.
@@ -466,7 +471,7 @@ function [FinalFails] = AndGate(DwnFails, ndwn)
 % OUTPUTS:
 %     FinalFails - array of all possible failures after enumeration and
 %                  simplification.
-%                  size/type/units: m-by-p / string / []
+%                  size/type/units: m-by-p / integer / []
 %
 
 % remove any downstream failures that are empty
@@ -547,7 +552,7 @@ function [EnumFails] = EnumerateFailures(FailList)
 %
 % [EnumFails] = EnumerateFailures(FailList)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 23 apr 2025
+% last updated: 28 aug 2025
 %
 % Given a set of failures from multiple AND gates, enumerate all possible
 % failures that could cause a system failure.
@@ -556,12 +561,12 @@ function [EnumFails] = EnumerateFailures(FailList)
 %     FailList  - an array of possible failures from each part of an AND
 %                 gate. all failures from a single part of the AND gate
 %                 must be in a column vector.
-%                 size/type/units: m-by-n / string / []
+%                 size/type/units: m-by-n / integer / []
 %
 % OUTPUTS:
 %     EnumFails - an array of enumerated failures that could cause the
 %                 system to fail.
-%                 size/type/units: p-ny-n / string / []
+%                 size/type/units: p-ny-n / integer / []
 %
 
 
@@ -588,7 +593,7 @@ mrow = prod(nrow);
 mcol =  sum(ncol);
 
 % allocate memory for the output array
-EnumFails = strings(mrow, mcol);
+EnumFails = zeros(mrow, mcol);
 
 
 %% ENUMERATE %%
@@ -608,7 +613,7 @@ for ielem = 1:nelem
     
     % number of times the repeated matrix repeats
     nrep2 = prod(nrow(1:ielem-1));
-            
+    
     % loop through all columns
     for icol = 1:ncol(ielem)
         
@@ -645,13 +650,13 @@ function [NewModes] = IdempotentLaw(FailModes, SplitCol)
 % INPUTS:
 %     FailModes - matrix of required failures for the system to fail. each
 %                 row represents a single failure mode.
-%                 size/type/units: m-by-n / string / []
+%                 size/type/units: m-by-n / integer / []
 %
 % OUTPUTS:
 %     NewModes  - updated matrix after the idempotent law is applied. the
 %                 number of columns returned may be reduced due to the
 %                 simplifications (i.e., p <= n).
-%                 size/type/units: m-by-p / string / []
+%                 size/type/units: m-by-p / integer / []
 %
 
 
@@ -686,13 +691,13 @@ for icomp = OutIdx % formerly 1:(ncomp-1)
     
     % remember the current column
     TempCol = FailModes(:, icomp);
-        
+    
     % loop through remaining columns
     for jcomp = InrIdx(icomp) % formerly (icomp+1):ncomp
         
         % compare elements in the columns
         FailModes(:, jcomp) = CompareCols(TempCol, FailModes(:, jcomp));
-
+        
     end
 end
 
@@ -701,16 +706,16 @@ end
 %%%%%%%%%%%%%%%%%%%%%
 
 % get the maximum number of components now used
-ncomp = max(sum(~strcmpi(FailModes, ""), 2));
+ncomp = max(sum(FailModes > 0, 2));
 
 % create a new array for returning values
-NewModes = strings(nmode, ncomp);
+NewModes = zeros(nmode, ncomp);
 
 % loop through each row
 for imode = 1:nmode
     
     % get the remaining components
-    CompsLeft = ~strcmpi(FailModes(imode, :), "");
+    CompsLeft = FailModes(imode, :) > 0;
     
     % get the number of components remaining
     ncomp = sum(CompsLeft);
@@ -731,29 +736,29 @@ function [Col2] = CompareCols(Col1, Col2)
 %
 % [Col2] = CompareCols(Col1, Col2)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 23 apr 2025
+% last updated: 28 aug 2025
 %
 % for the elements in Col2 that match those in Col1, set them to be an
-% empty string. this is a helper function for performing a fault tree
-% analysis in parallel.
+% zero. this is a helper function for performing a vectorized fault tree
+% analysis.
 %
 % INPUTS:
 %     Col1 - first  column to be compared.
-%            size/type/units: n-by-1 / string / []
+%            size/type/units: n-by-1 / integer / []
 %
 %     Col2 - second column to be compared.
-%            size/type/units: n-by-1 / string / []
+%            size/type/units: n-by-1 / integer / []
 %
 % OUTPUTS:
-%     Col2 - updated column with empty strings.
-%            size/type/units: n-by-1 / string / []
+%     Col2 - updated column with zeros in the elements that matched.
+%            size/type/units: n-by-1 / integer / []
 %
 
 % compare the two columns
-StrCmp = strcmpi(Col1, Col2);
+StrCmp = Col1 == Col2;
 
 % remove the ones that match
-Col2(StrCmp, :) = "";
+Col2(StrCmp) = 0;
 
 end
 
@@ -765,7 +770,7 @@ function [NewModes] = LawOfAbsorption(FailModes)
 %
 % [NewModes] = LawOfAbsorption(FailModes)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 28 apr 2025
+% last updated: 28 aug 2025
 %
 % use the law of absorbption to eliminate duplicate events across multiple
 % failure modes in a fault tree. the law of absorbption is a boolean
@@ -776,13 +781,13 @@ function [NewModes] = LawOfAbsorption(FailModes)
 % INPUTS:
 %     FailModes - matrix of required failures for the system to fail. each
 %                 row represents a single failure mode.
-%                 size/type/units: m-by-n / string / []
+%                 size/type/units: m-by-n / integer / []
 %
 % OUTPUTS:
 %     NewModes  - updated matrix after the law of absorbptiion is applied.
 %                 the number of rows and columns returned may be reduced
 %                 due to the simplifications (i.e., p <= m and q <= n).
-%                 size/type/units: p-by-q / string / []
+%                 size/type/units: p-by-q / integer / []
 %
 
 
@@ -790,7 +795,7 @@ function [NewModes] = LawOfAbsorption(FailModes)
 %%%%%%%%%%%%%%%%%%%%
 
 % find the maximum number of failure modes and components in a failure
-[nfail, ncomp] = size(FailModes);
+[~, ncomp] = size(FailModes);
 
 
 %% BOOLEAN ALGEBRA SIMPLIFICATION %%
@@ -798,9 +803,9 @@ function [NewModes] = LawOfAbsorption(FailModes)
 
 % use failure modes with icomp components to simplify more complex events
 for icomp = 1:ncomp
-   
+    
     % compute the sum of the rows ahead of time
-    RowSum = sum(~strcmpi(FailModes, ""), 2);
+    RowSum = sum(FailModes > 0, 2);
     
     % get the index of the failure modes with icomp components
     Baseline = find(RowSum == icomp);
@@ -818,40 +823,30 @@ for icomp = 1:ncomp
     
     % loop through all the failure modes
     for imode = 1:nmode
-       
+        
         % get the failure
         CurMode = FailModes(Baseline(imode), 1:icomp);
         
         % check if the current mode has any failure modes left
-        if (sum(strcmpi(CurMode, ""), 2) == icomp)
+        if (sum(CurMode == 0, 2) == icomp)
             continue;
         end
-                
+        
+        % look for common components
+        CheckCommon = sum(ismember(FailModes, CurMode), 2);
+        
+        % check for indices
+        idx = CheckCommon == icomp;
+        
         % get the current failure index
         CurIdx = Baseline(imode);
         
-        % loop through all failure modes
-        for ifail = 1:nfail
-            
-            % check if failure mode is used for comparison
-            if (ifail == CurIdx)
-                
-                % continue on
-                continue;
-                
-            end
-            
-            % look for common components
-            CheckCommon = matches(FailModes(ifail, :), CurMode);
-            
-            % check if the current failure is within other failures
-            if (sum(CheckCommon) == icomp)
-            
-                % a failure mode is shared - eliminate the current one
-                FailModes(ifail, :) = "";
-            
-            end                
-        end
+        % ignore the present index
+        idx(CurIdx) = 0;
+        
+        % a failure mode is shared - eliminate the current one
+        FailModes(idx, :) = 0;
+        
     end
 end
 
@@ -860,10 +855,10 @@ end
 %%%%%%%%%%%%%%%%%%%%%
 
 % check if any of the rows are empty
-KeepRow = any(~strcmpi(FailModes, ""), 2);
+KeepRow = any(FailModes > 0, 2);
 
 % check if any of the cols are empty
-KeepCol = any(~strcmpi(FailModes, ""), 1);
+KeepCol = any(FailModes > 0, 1);
 
 % use only the columns with failure modes in them
 NewModes = FailModes(KeepRow, KeepCol);
