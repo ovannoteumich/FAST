@@ -1,19 +1,28 @@
-
+names = fieldnames(ACs);
+cost = 0;
+for i = 1:5
+    Aircraft = ACs.(names{i});
+    Aircraft = ExperimentPkg.EnergyCost_perAirport(Aircraft, seq.ORIGIN(i));
+    cost = cost + Aircraft.Mission.History.SI.Performance.Cost
+end
+%%
+load("Sequence.mat")
+seq = tables{8};
 load("SeqOptAC_fuele.mat")
 Case1 = OptimizedAircraft;
 disp("Case 1")
 case1 = AnalyzeAC(Case1, seq);
-load("SeqOptAC_cost.mat")
+load("SeqOptAC_future.mat")
 Case2 = OptimizedAircraft;
-disp("Case 2")
+disp("Case 5")
 case2 = AnalyzeAC(Case2, seq);
-load("SeqOptAC_futDOC.mat")
+load("SeqOptAC_cost.mat")
 Case3 = OptimizedAircraft;
-disp("Case 3")
+disp("Case 6")
 case3 = AnalyzeAC(Case3, seq);
-load("Conv.mat")
-Case4 = ACs;
-disp("Case 4")
+load("SeqOptAC_futDOC.mat")
+Case4 = OptimizedAircraft;
+disp("Case 7")
 case4 = AnalyzeAC(Case4, seq);
 
 
@@ -47,7 +56,8 @@ plot(case3.Time, case3.GTPC, 'LineWidth', 1.5);
 plot(case4.Time, case4.GTPC, 'LineWidth', 1.5); 
 ylabel("GT PC (%)");
 %legend("Cost", "Fuel kg", "Fuel E")
-legend("Case 5", "Case 6", "Case 3", "Case 4", 'FontSize', font);
+legend("Case 1", "Case 5", "Case 6", "Case 7", 'FontSize', font);
+%legend("Case 1", "Case 5", 'FontSize', font);
 set(ax2, "FontSize", font);
 
 % Create the third subplot
@@ -56,6 +66,7 @@ hold on;
 plot(case1.Time, case1.EMPC, 'LineWidth', 1.5);
 plot(case2.Time, case2.EMPC, 'LineWidth', 1.5);
 plot(case3.Time, case3.EMPC, 'LineWidth', 1.5);
+plot(case4.Time, case4.EMPC, 'LineWidth', 1.5);
 ylabel("EM PC (%)");
 %legend("Case 1", "Case 2", "Case 3", 'FontSize', font);
 set(ax3, "FontSize", font);
@@ -66,6 +77,8 @@ hold on;
 plot(case1.Time, case1.SOC, 'LineWidth', 1.5);
 plot(case2.Time, case2.SOC, 'LineWidth', 1.5);
 plot(case3.Time, case3.SOC, 'LineWidth', 1.5);
+plot(case4.Time, case4.SOC, 'LineWidth', 1.5);
+ylim([20 100])
 ylabel("SOC (%)");
 xlabel("Time (hr)");
 %legend("Case 1", "Case 2", "Case 3", 'FontSize', font);
@@ -73,7 +86,7 @@ set(ax4, "FontSize", font);
 
 % Link the x-axes of all subplots explicitly
 linkaxes([ax1, ax2, ax3, ax4], 'x');
-
+%{
 figure;
 hold on;
 plot(case1.Time, case1.FuelE, 'LineWidth', 1.5);
@@ -81,7 +94,8 @@ plot(case2.Time, case2.FuelE, 'LineWidth', 1.5);
 plot(case3.Time, case3.FuelE, 'LineWidth', 1.5);
 ylabel("Fuele");
 xlabel("Time (hr)");
-legend("Case 1", "Case 2", "Case 3", 'FontSize', font);
+%legend("Case 1", "Case 2", "Case 3", 'FontSize', font);
+legend("Case 1", "Case 5", "Case 6", "Case 7", 'FontSize', font);
 set(ax4, "FontSize", font);
 
 figure;
@@ -103,31 +117,7 @@ ylabel("BattE");
 xlabel("Time (hr)");
 legend("Case 1", "Case 2", "Case 3", 'FontSize', font);
 set(ax4, "FontSize", font);
-
-%%
-%{
-% plot fburn
-subplot(3,2,2)
-plot(case1.Time, case1.diff, LineWidth=1.5)
-hold on
-plot(case2.Time, case2.diff, LineWidth=1.5)
-plot(case3.Time, case3.diff, LineWidth=1.5)
-yline(0,"--k")
-ylabel("Fuel Burn % Difference wrt Case 4")
-legend("Case 1", "Case 2", "Case 3")
-set(gca, "FontSize", font)
-
-% plot batt E
-subplot(3,2,5)
-hold on
-plot(case1.Time, case1.BattE, LineWidth=1.5)
-plot(case2.Time, case2.BattE, LineWidth=1.5)
-plot(case3.Time, case3.BattE, LineWidth=1.5)
-ylabel("Battery Energy Used (kWh)")
-legend("Case 1", "Case 2", "Case 3")
-set(gca, "FontSize", font)
 %}
-%%
 function [result] = AnalyzeAC(air, seq)
 AC = fieldnames(air);
 n = length(AC);
