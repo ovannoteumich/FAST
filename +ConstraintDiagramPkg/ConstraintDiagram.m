@@ -3,10 +3,10 @@ function [] = ConstraintDiagram(Aircraft)
 % ConstraintDiagram.m
 % written by Paul Mokotoff, prmoko@umich.edu
 % adapted from code used in AEROSP 481 as a GSI
-% last updated: 13 aug 2025
+% last updated: 28 aug 2025
 %
 % create a constraint diagram (T/W-W/S for turbofans or P/W-W/S for
-% turboprops/pistons).
+% turboprops/pistons) according to 14 CFR 23/25.
 %
 % INPUTS:
 %     Aircraft - data structure of the aircraft to be analyzed.
@@ -23,6 +23,9 @@ function [] = ConstraintDiagram(Aircraft)
 % get the aircraft class
 aclass = Aircraft.Specs.TLAR.Class;
 
+% get the certification basis
+CFRPart = Aircraft.Specs.TLAR.CFRPart;
+
 % assume a wing-loading and thrust/power-loading to start
 if      (strcmpi(aclass, "Turbofan" ) == 1)
     
@@ -37,16 +40,16 @@ if      (strcmpi(aclass, "Turbofan" ) == 1)
     
 elseif ((strcmpi(aclass, "Turboprop") == 1) || ...
         (strcmpi(aclass, "Piston"   ) == 1) )
-    
-    % get a power-loading to center the vertical axis about
-    VertCent = Aircraft.Specs.Power.P_W.SLS;
+        
+    % get the power-weight ratio and convert to W/kg from kW/kg
+    VertCent = Aircraft.Specs.Power.P_W.SLS .* 1000;
     
     % create a vertical range
     Vrange = linspace(max( 10, VertCent - 150), min(1000, VertCent + 150), 500);
     
     % axis label should be p/w
     VertLabel = "Power-Weight Ratio (W/kg)";
-    
+            
 else
     
     % throw error
@@ -70,15 +73,16 @@ Hrange = linspace(max( 0, HoriCent - 1000), max(1000, HoriCent + 1000), 500);
 %% ESTABLISH CONSTRAINTS WITH FARS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% FARs are based on the aircraft class
-if     (strcmpi(aclass, "Turbofan" ) == 1)
+% select the appropriate FARs
+if (CFRPart == 25)
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %                            %
-    % use FAR part 25 for all    %
-    % turbofan aircraft          %
-    %                            %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % check for turboprop or piston aircraft
+    if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
+        
+        % convert from W/kg to W/N, and then to N/N
+        Vgrid = Vgrid ./ 9.81 .* 0.0167;
+                
+    end
     
     % takeoff field length
     g01 = ConstraintDiagramPkg.JetTOFL(Hgrid, Vgrid, Aircraft);
@@ -143,16 +147,15 @@ if     (strcmpi(aclass, "Turbofan" ) == 1)
     % there are 10 total constraints
     ncon = 10;
     
-elseif ((strcmpi(aclass, "Turboprop") == 1) || ...
-        (strcmpi(aclass, "Piston"   ) == 1) )
+    % check for turboprop or piston aircraft
+    if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
+        
+        % convert from N/N to W/N, and then to W/kg
+        Vgrid = Vgrid ./ 0.0167 .* 9.81;
+                
+    end
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %                            %
-    % use FAR part 23 for all    %
-    % turboprop and piston       %
-    % aircraft                   %
-    %                            %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+elseif (CFRPart == 23)
             
     % takeoff climb
     g04 = ConstraintDiagramPkg.PropTkoClb(Hgrid, Vgrid, Aircraft);
