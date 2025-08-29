@@ -1,5 +1,7 @@
 function [Aircraft] = LamFill(Aircraft)
 %
+% written by Emma Cassidy, emmasmit@umich.edu
+% last updated 8/28/2025
 % 
 % Fill in lambda UPs and DWNs splits in mission history for each
 % transmitter
@@ -91,8 +93,8 @@ else
     
     Aircraft.Specs.Power.LamUps = LamUps;
     Aircraft.Specs.Power.LamDwn = LamDwn;
-    Aircraft.Mission.History.SI.Power.LamUps = LamUps;
-    Aircraft.Mission.History.SI.Power.LamSwn = LamDwn;
+    Aircraft.Mission.History.SI.Power.LamUps(:,1:ntrans) = LamUps.Miss;
+    Aircraft.Mission.History.SI.Power.LamDwn(:,1:ntrans) = LamDwn.Miss;
 
 
 end

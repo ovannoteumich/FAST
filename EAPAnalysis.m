@@ -88,6 +88,9 @@ else
     
 end
 
+% fill in power splits
+Aircraft = PropulsionPkg.LamFill(Aircraft);
+
 % ----------------------------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

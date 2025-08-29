@@ -43,5 +43,9 @@ Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;
 
+% settings
+Aircraft.Settings.PowerStrat = 0;
+% 0 = prioritize downstream, go from fan back to energy sources
+
 Aircraft = Main(Aircraft, @MissionProfilesPkg.A320);
 %end
