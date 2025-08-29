@@ -224,7 +224,7 @@ function [Failures] = CreateCutSets(ArchConns, Components, icomp, ntrigger, ninp
 %
 % [Failures] = CreateCutSets(Arch, Components, icomp, ntrigger, ninput)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 28 aug 2025
+% last updated: 29 aug 2025
 %
 % List out all components in the cut set for a system architecture. For
 % each function call, check whether an internal failure mode exists and if
@@ -335,6 +335,9 @@ if (ndwn > 0)
             % cell array for downstream failures
             NewDwn = cell(1, mtrigger);
             
+            % switching value for running the law of absorbption
+            SwitchVal = 0.10;
+            
             % loop through each set of combinations
             for icomb = 1:ncomb
                 
@@ -387,9 +390,15 @@ if (ndwn > 0)
                     end
                 end
                 
-                % simplify with the law of absorption every 10 iterations
-                if (mod(icomb, 10) == 0 || (icomb == ncomb))
+                % simplify with the law of absorption every 10% of combos
+                if (icomb / ncomb >= SwitchVal)
+                    
+                    % simplify
                     FinalFails = LawOfAbsorption(FinalFails);
+                    
+                    % increase the switching value
+                    SwitchVal = SwitchVal + 0.10;
+                    
                 end
                 
                 % add one to the final index
