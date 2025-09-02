@@ -493,8 +493,8 @@ if (any(Fuel))
             
         else
             
-            % no thrust from a propeller is provided
-            TEng = zeros(iend - ibeg + 1, 1);
+            % there is no connection, skip the analysis
+            continue;
             
         end
         
