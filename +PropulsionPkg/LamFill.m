@@ -27,7 +27,9 @@ end
 % save altitude for use
 Alt = Aircraft.Mission.History.SI.Performance.Alt;
 nlen = height(Alt);
-ntrans = length(Aircraft.Specs.Propulsion.PropArch.TrnType);
+TrnType = Aircraft.Specs.Propulsion.PropArch.TrnType;
+TrnType(TrnType==2) = [];
+ntrans = length(TrnType);
 
 % get lambda splits over mission profile
 LamUps = Aircraft.Specs.Power.LamUps;
@@ -47,10 +49,8 @@ else
     LamDwn.Miss = zeros(nlen,ntrans);
 
     % get transient types
-    TrnType = Aircraft.Specs.Propulsion.PropArch.TrnType;
     iEM = find(TrnType == 0);
     iGT = find(TrnType == 1);
-    iFan =find(TrnType == 2);
 
     % collect mission profile information
     nsegs = length(Profile.Segs);
@@ -83,21 +83,19 @@ else
 
         dwn(iEM) = LamDwn.(lamseg);
         dwn(iGT) = dwn(iGT) - dwn(iEM);
-        dwn(iFan) = 0.5;
+        %dwn(iFan) = 0.5;
         
         % propagate through sgement points
         LamUps.Miss(Profile.SegBeg(i):Profile.SegEnd(i), :) = repmat(ups,npt,1);
         LamDwn.Miss(Profile.SegBeg(i):Profile.SegEnd(i), :) = repmat(dwn,npt,1);
 
     end
-    
+
+
+end
     Aircraft.Specs.Power.LamUps = LamUps;
     Aircraft.Specs.Power.LamDwn = LamDwn;
     Aircraft.Mission.History.SI.Power.LamUps(:,1:ntrans) = LamUps.Miss;
     Aircraft.Mission.History.SI.Power.LamDwn(:,1:ntrans) = LamDwn.Miss;
-
-
-end
-
 
 end

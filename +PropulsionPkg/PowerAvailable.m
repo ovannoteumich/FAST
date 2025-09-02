@@ -68,6 +68,8 @@ EtaUps = Aircraft.Specs.Propulsion.PropArch.EtaUps;
 % get the operational matrices
 OperUps = Aircraft.Specs.Propulsion.PropArch.OperUps;
 
+% get the power split type to prioritize
+
 % get the upstream power splits
 LamUps = Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :);
 
@@ -172,7 +174,8 @@ idx = (nsrc + 1) : ncomp;
 for ipnt = 1:npnt
     
     % evaluate the function handles for the current splits
-    Lambda = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
+    %Lambda = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :))
+    Lambda = PropulsionPkg.EvalSplit(OperUps, ones(1,6));
 
     % get the initial power available
     Pav(ipnt, :) = [zeros(1, nsrc), PowerAv(ipnt, :), zeros(1, nsnk)];

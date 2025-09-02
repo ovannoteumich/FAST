@@ -54,6 +54,8 @@ EtaEG = Specs.Power.Eta.EG;
 % get the number of engines
 NumEng = Aircraft.Specs.Propulsion.NumEngines;
 
+TrnType = Aircraft.Specs.Propulsion.PropArch.TrnType;
+
 % check the architecture type
 if     (strcmpi(ArchName, "C"  ) == 1)
     
@@ -174,21 +176,30 @@ elseif (strcmpi(ArchName, "PHE") == 1)
             zeros(     1, 1), zeros(     1, 1), zeros(     1, NumEng), zeros(     1, NumEng), zeros(     1, NumEng), zeros(     1, 1)] ;   % the sink does not connect to anything
         
     % upstream power splits
-    OperUps = @(lam) ...
+    %{
+    % OperUps = @(lam) ...
               [zeros(     1, 1), zeros(     1, 1), repmat(1 / NumEng,      1, NumEng),  zeros(                 1, NumEng), zeros(     1, NumEng)      , zeros(     1, 1); ... % fuel powers the gas-turbine engines
                zeros(     1, 1), zeros(     1, 1),  zeros(                 1, NumEng), repmat(1 / NumEng,      1, NumEng), zeros(     1, NumEng)      , zeros(     1, 1); ... % battery powers the electric motors
                zeros(NumEng, 1), zeros(NumEng, 1),  zeros(            NumEng, NumEng),  zeros(            NumEng, NumEng),   eye(NumEng, NumEng)      , zeros(NumEng, 1); ... % each gas-turbine engine spins a propeller/fan
                zeros(NumEng, 1), zeros(NumEng, 1),  zeros(            NumEng, NumEng),  zeros(            NumEng, NumEng),   eye(NumEng, NumEng) * lam, zeros(NumEng, 1); ... % each electric motor spins a propeller/fan
                zeros(NumEng, 1), zeros(NumEng, 1),  zeros(            NumEng, NumEng),  zeros(            NumEng, NumEng), zeros(NumEng, NumEng)      ,  ones(NumEng, 1); ... % all propellers/fans connect to the sink
                zeros(     1, 1), zeros(     1, 1),  zeros(                 1, NumEng),  zeros(                 1, NumEng), zeros(     1, NumEng)      , zeros(     1, 1)] ;   % the sink does not connect to anything
-           
+    %}
+   OperUps = @(lam) ...
+              [zeros(     1, 1), zeros(     1, 1), repmat(1 / NumEng,      1, NumEng),  zeros(                 1, NumEng), zeros(     1, NumEng)      , zeros(     1, 1); ... % fuel powers the gas-turbine engines
+               zeros(     1, 1), zeros(     1, 1),  zeros(                 1, NumEng), repmat(1 / NumEng,      1, NumEng), zeros(     1, NumEng)      , zeros(     1, 1); ... % battery powers the electric motors
+               zeros(NumEng, 1), zeros(NumEng, 1),  zeros(            NumEng, NumEng),  zeros(            NumEng, NumEng),   eye(NumEng, NumEng) .* lam(TrnType==1)', zeros(NumEng, 1); ... % each gas-turbine engine spins a propeller/fan
+               zeros(NumEng, 1), zeros(NumEng, 1),  zeros(            NumEng, NumEng),  zeros(            NumEng, NumEng),   eye(NumEng, NumEng) .* lam(TrnType==0)', zeros(NumEng, 1); ... % each electric motor spins a propeller/fan
+               zeros(NumEng, 1), zeros(NumEng, 1),  zeros(            NumEng, NumEng),  zeros(            NumEng, NumEng), zeros(NumEng, NumEng)      ,  ones(NumEng, 1); ... % all propellers/fans connect to the sink
+               zeros(     1, 1), zeros(     1, 1),  zeros(                 1, NumEng),  zeros(                 1, NumEng), zeros(     1, NumEng)      , zeros(     1, 1)] ;   % the sink does not connect to anything
+        
     % downstream power splits
     OperDwn = @(lam) ...
               [zeros(     1, 1), zeros(     1, 1), zeros(     1, NumEng)            , zeros(     1, NumEng)      , zeros(                  1, NumEng), zeros(     1, 1); ... % the fuel requires nothing
                zeros(     1, 1), zeros(     1, 1), zeros(     1, NumEng)            , zeros(     1, NumEng)      , zeros(                  1, NumEng), zeros(     1, 1); ... % the battery requires nothing
                ones(NumEng, 1), zeros(NumEng, 1), zeros(NumEng, NumEng)            , zeros(NumEng, NumEng)      , zeros(             NumEng, NumEng), zeros(NumEng, 1); ... % the gas-turbine engines are powered by the fuel
                zeros(NumEng, 1),  ones(NumEng, 1), zeros(NumEng, NumEng)            , zeros(NumEng, NumEng)      , zeros(             NumEng, NumEng), zeros(NumEng, 1); ... % the electric motors are powered by the battery
-               zeros(NumEng, 1), zeros(NumEng, 1),   eye(NumEng, NumEng) * (1 - lam),   eye(NumEng, NumEng) * lam, zeros(             NumEng, NumEng), zeros(NumEng, 1); ... % the propeller/fan power is split between the gas-turbine engines and electric motors
+               zeros(NumEng, 1), zeros(NumEng, 1),   eye(NumEng, NumEng)  .* lam(TrnType==1)',   eye(NumEng, NumEng) .* lam(TrnType==0)', zeros(             NumEng, NumEng), zeros(NumEng, 1); ... % the propeller/fan power is split between the gas-turbine engines and electric motors
                zeros(     1, 1), zeros(     1, 1), zeros(     1, NumEng)            , zeros(     1, NumEng)      , repmat(1 / NumEng,      1, NumEng), zeros(     1, 1)] ;   % the sink power is split evenly between the propellers/fans
            
     % check the aircraft class

@@ -15,7 +15,7 @@ Aircraft.Specs.Power.Battery.SerCells = 62;
 % initial battery SOC
 Aircraft.Specs.Power.Battery.BegSOC = 100;
 
-AircraftOG = Main(Aircraft, @MissionProfilesPkg.A320);
+%AircraftOG = Main(Aircraft, @MissionProfilesPkg.A320);
 Aircraft =AircraftOG;
 %Aircraft = ans;
 Aircraft.Settings.Analysis.Type = -1;
@@ -27,6 +27,8 @@ Aircraft.Specs.Power.P_W.EM = 10;
 Aircraft.Specs.Propulsion.SLSPower(:,[3,4]) = [200,200]*10*1000; % EM weight x spec pow x watt/kw
 Aircraft.Specs.Propulsion.SLSThrust(:,[3,4]) = Aircraft.Specs.Propulsion.SLSPower(:,[3,4])/Aircraft.Specs.Performance.Vels.Tko;
 
+Aircraft.Specs.Power.LamUps = [];
+Aircraft.Specs.Power.LamDwn = [];
 % upstream power splits
 Aircraft.Specs.Power.LamUps.SLS = 1;
 Aircraft.Specs.Power.LamUps.Tko = 1;
@@ -44,8 +46,8 @@ Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;
 
 % settings
-Aircraft.Settings.PowerStrat = 0;
-% 0 = prioritize downstream, go from fan back to energy sources
+Aircraft.Settings.PowerStrat = -1;
+% -1 = prioritize downstream, go from fan back to energy sources
 
 Aircraft = Main(Aircraft, @MissionProfilesPkg.A320);
 %end

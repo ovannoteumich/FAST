@@ -35,7 +35,7 @@ if     (narg < 1)
 elseif (narg < 2)
     
     % evaluate with 1 arguments
-    Split = SplitFun(SplitVal(1));
+    Split = SplitFun(SplitVal);
     
 elseif (narg < 3)
     

@@ -159,7 +159,8 @@ for imiss = 1:nmiss
             SegEnd = Mission.SegEnd(isegs);
 
             % power split versus altitude for mission
-            %Aircraft = DataStructPkg.PowerCode(Aircraft);
+            % fill in power splits
+            Aircraft = PropulsionPkg.LamFill(Aircraft);
             
             % define the function call
             FunName = strcat("MissionSegsPkg.Eval", SegName);

@@ -46,6 +46,7 @@ Arch = Aircraft.Specs.Propulsion.PropArch.Arch;
 
 % get the downstream operational matrix
 OperDwn = Aircraft.Specs.Propulsion.PropArch.OperDwn;
+OperUps = Aircraft.Specs.Propulsion.PropArch.OperUps;
 
 % get the downstream efficiency matrix
 EtaDwn = Aircraft.Specs.Propulsion.PropArch.EtaDwn;
@@ -99,6 +100,9 @@ SegEnd = Aircraft.Mission.Profile.SegEnd(SegsID);
 % mission ID
 MissID = Aircraft.Mission.Profile.MissID;
 
+% power split type
+LamType = Aircraft.Settings.PowerStrat;
+
 % ----------------------------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -115,6 +119,7 @@ Pav = Aircraft.Mission.History.SI.Power.Pav(SegBeg:SegEnd, :);
 
 % get the necessary splits
 LamDwn = Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :);
+LamUps = Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :);
 
 % aircraft weight
 Mass = Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd);
@@ -241,12 +246,20 @@ for ipnt = 1:npnt
         
     end
     
-    % evaluate the function handles for the current splits
-    SplitDwn = PropulsionPkg.EvalSplit(OperDwn, LamDwn(ipnt, :));
+    if LamType == -1
+        % evaluate the function handles for the current splits
+        SplitDwn = PropulsionPkg.EvalSplit(OperDwn, LamDwn(ipnt, :));
     
-    % propagate the power downstream to the transmitters
-    Preq(ipnt, TrnSnkIdx) = PropulsionPkg.PowerFlow(Preq(ipnt, TrnSnkIdx)', Arch(TrnSnkIdx, TrnSnkIdx)', SplitDwn(TrnSnkIdx, TrnSnkIdx), EtaDwn(TrnSnkIdx, TrnSnkIdx), -1)';
-
+        % propagate the power downstream to the transmitters
+        Preq(ipnt, TrnSnkIdx) = PropulsionPkg.PowerFlow(Preq(ipnt, TrnSnkIdx)', Arch(TrnSnkIdx, TrnSnkIdx)', SplitDwn(TrnSnkIdx, TrnSnkIdx), EtaDwn(TrnSnkIdx, TrnSnkIdx), -1)';
+    
+    elseif LamType == 1
+        % evaluate the function handles for the current splits
+        SplitUps = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
+    
+        % propagate the power downstream to the transmitters
+        Preq(ipnt, TrnSnkIdx) = PropulsionPkg.PowerFlow(Preq(ipnt, TrnSnkIdx)', Arch(TrnSnkIdx, TrnSnkIdx)', SplitUps(TrnSnkIdx, TrnSnkIdx), EtaDwn(TrnSnkIdx, TrnSnkIdx), 1);
+    end
 end
 
 % temporary power required array for iterating

@@ -51,10 +51,14 @@ npar = length(ParIndx);
 
 % get the number of sources and transmitters
 nsrc = length(Aircraft.Specs.Propulsion.PropArch.SrcType);
+TrnType = Aircraft.Specs.Propulsion.PropArch.TrnType;
+ntrn = length(TrnType);
 
 % get the power available (equal to power output for "full throttle" case)
+% do not include sources (sink is inluded)
 Pav = Aircraft.Mission.History.SI.Power.Pav(SegBeg:SegEnd, :);
-Pout = Aircraft.Mission.History.SI.Power.Pout(SegBeg:SegEnd,:);
+Pout = Aircraft.Mission.History.SI.Power.Pout(SegBeg:SegEnd, :);
+
 % get the power splits
 LamUps = Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :);
 LamDwn = Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :);
@@ -75,51 +79,29 @@ OperDwn = PropulsionPkg.EvalSplit(Aircraft.Specs.Propulsion.PropArch.OperDwn, Tm
 for ipar = 1:npar
     
     % get the index of the main connection
-    imain = ParIndx(ipar);
+    imain = ParIndx(ipar) + nsrc;
     
     % get the supplemental connection(s)
-    isupp = ParConns{imain};
-    
-    % account for the source indices
-    imain = imain + nsrc;
-    
-    % assume neither split contributes
-    UseSplit = false(1, nsplit);
-    
-    % find the downstream split contributing
-    for isplit = 1:nsplit
-        
-        % perturb a split
-        TmpSplit(isplit) = TmpSplit(isplit) + 0.01;
-        
-        % get the new matrix
-        OperNew = PropulsionPkg.EvalSplit(Aircraft.Specs.Propulsion.PropArch.OperDwn, TmpSplit);
-        
-        % check if the matrices are different
-        UseSplit(isplit) = OperDwn(isupp+nsrc, imain) ~= OperNew(isupp+nsrc, imain);
-        
-        % remove the perturbation
-        TmpSplit(isplit) = TmpSplit(isplit) - 0.01;
-        
-    end
-    
+    isupp = ParConns{ParIndx(ipar)};
+
     % get the total power output at any given time from those sources
-    Power = sum(Pout(idx, [imain, isupp]), 2);
+    Out = sum(Pout(idx, [imain, isupp]), 2);
     
     % compute the downstream power split
-    LamDwn(idx, UseSplit) = Pout(idx, isupp) ./ Power;
+    LamDwn(idx, [imain, isupp]-nsrc) = Pout(idx, [imain, isupp]) ./ Out;
 
-    iNaN = isnan(LamDwn);
-    LamDwn(iNaN) = TmpSplit(iNaN);
-            
+    % compute up stream power splits
+    LamUps(idx, [imain, isupp]-nsrc) = Pout(idx, [imain, isupp]) ./ Pav(idx, [imain, isupp]);
 
 end
 
 % if any are NaN, return 0 (assume it's from 0 power available)
 LamDwn(isnan(LamDwn)) = 0;
+LamUps(isnan(LamUps)) = 0;
 
 % remember the power split
 Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = LamDwn;
+Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :) = LamUps;
 
 % ----------------------------------------------------------
 
