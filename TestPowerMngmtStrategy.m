@@ -93,11 +93,11 @@ Slits_Up_E2 = E2.Mission.History.SI.Power.LamUps;
 
 %% ERJ190_FE Testing ; ERJ()
 % call main
-FE = Main(AircraftSpecsPkg.ERJ190_FE(), @MissionProfilesPkg.ERJ)
+FE_PAO = Main(AircraftSpecsPkg.ERJ190_FE(), @MissionProfilesPkg.ERJ)
 
 % collect variables of interest
-Weights_FE = FE.Specs.Weight;
-Slits_Up_FE = FE.Mission.History.SI.Power.LamUps;
+Weights_FE_PAO = FE.Specs.Weight;
+Slits_Up_FE_PAO = FE.Mission.History.SI.Power.LamUps;
 % DesignStrat_FE = FE.Specs.Propulsion.DesignStrategy;
 % NumStrat_FE = FE.Specs.Propulsion.NumStrats;
 
