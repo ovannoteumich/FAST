@@ -2,7 +2,7 @@ function [Aircraft] = PropulsionSizing(Aircraft)
 %
 % [Aircraft] = PropulsionSizing(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 15 aug 2025
+% last updated: 03 sep 2025
 %
 % Split the total thrust/power throughout the powertrain and determine the
 % total power needed to size each component.
@@ -158,6 +158,9 @@ if (any(TrnType > 0 & TrnType ~= 2))
 
         % run the regression - input must be a column vector
         Weng = RegressionPkg.NLGPR(TurbofanEngines,IO,target);
+
+        % if the target was 0 thrust, no engine is needed (return 0 weight)
+        Weng(target < 1.0e-06) = 0;
         
         % get all engine indices (no longer assume all are the same)
         ieng = find(Eng);
