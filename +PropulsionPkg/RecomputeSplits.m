@@ -2,7 +2,7 @@ function [Aircraft] = RecomputeSplits(Aircraft, SegBeg, SegEnd)
 %
 % [Aircraft] = RecomputeSplits(Aircraft, SegBeg, SegEnd)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 19 aug 2025
+% last updated: 03 sep 2025
 %
 % Re-compute the operational power splits for a "full throttle" setting
 % during the mission.
@@ -110,7 +110,7 @@ for ipar = 1:npar
             OperNew = PropulsionPkg.EvalSplit(Aircraft.Specs.Propulsion.PropArch.OperDwn, TmpSplit);
             
             % check if the matrices are different
-            if (OperDwn(iups, kdx) ~= OperNew(iups, kdx))
+            if (abs(OperDwn(iups, kdx) - OperNew(iups, kdx)) > 1.0e-06)
                 
                 % recompute the power split
                 LamDwn(idx, isplit) = Pav(idx, kdx) ./ Pout;
