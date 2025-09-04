@@ -367,13 +367,13 @@ if (any(Batt))
             BattDeplete = find(SOC(:, icol) < 20, 1);
             
             % update the battery/EM power and SOC
-            if ((~isempty(BattDeplete)) && (strcmpi(ArchType, "E") == 0) && (Aircraft.Settings.Analysis.Type <-1))
+            if ((~isempty(BattDeplete)) && (strcmpi(ArchType, "E") == 0) && (Aircraft.Settings.Analysis.Type <0))
                 
                 % no more power is provided from the electric motor or battery
                 Pout(BattDeplete:end, icol) = 0;
                 
                 % zero the splits
-                LamDwn(BattDeplete:end, :) = 0;
+                %LamDwn(BattDeplete:end, :) = 0;
                 
                 % change the SOC (prior index is last charge > 20%)
                 SOC(BattDeplete:end, icol) = SOC(BattDeplete - 1, icol);

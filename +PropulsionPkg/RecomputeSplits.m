@@ -67,7 +67,7 @@ for i = 1:2
     % compute up stream power splits
     LamUps(idx, i) = Pout(idx, i+nsrc) ./ Pav(idx, i+2);
     % compute up stream power splits
-    LamUps(idx, i+2) = Pout(idx, i+nsrc+2) ./ Pav(idx, i+2);
+    LamUps(idx, i+2) = Pout(idx, i+nsrc+2) ./ Pav(idx, i+nsrc+2);
 
 end
 
