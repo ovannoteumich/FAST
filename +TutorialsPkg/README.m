@@ -1,7 +1,7 @@
 function [] = README()
 %
 % Copyright 2024 The Regents of the University of Michigan,
-% The Integrated Design of Environmentally-friendly Aircraft Systems
+% The Integrated Design of Efficient Aircraft Systems
 % Laboratory
 % 
 % Tutorials Package (+TutorialsPkg)
@@ -22,7 +22,7 @@ function [] = README()
 %     Janki Patel
 %     Michael Tsai
 % 
-% README last updated: 31 oct 2024
+% README last updated: 4 sep 2025
 % 
 % -------------------------------------------------------------------------
 %
