@@ -95,7 +95,7 @@ else
 end
     Aircraft.Specs.Power.LamUps = LamUps;
     Aircraft.Specs.Power.LamDwn = LamDwn;
-    Aircraft.Mission.History.SI.Power.LamUps(:,1:ntrans) = LamUps.Miss;
-    Aircraft.Mission.History.SI.Power.LamDwn(:,1:ntrans) = LamDwn.Miss;
+    Aircraft.Mission.History.SI.Power.LamUps = LamUps.Miss;
+    Aircraft.Mission.History.SI.Power.LamDwn = LamDwn.Miss;
 
 end

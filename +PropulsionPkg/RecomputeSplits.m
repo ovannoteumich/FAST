@@ -79,6 +79,11 @@ LamUps(isnan(LamUps)) = 0;
 Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = LamDwn;
 Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :) = LamUps;
 
+Aircraft.Specs.Power.LamDwn.Miss(SegBeg:SegEnd, :) = LamDwn;
+Aircraft.Specs.Power.LamUps.Miss(SegBeg:SegEnd, :) =LamUps;
+
+
+
 % ----------------------------------------------------------
 
 end

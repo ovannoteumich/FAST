@@ -71,7 +71,7 @@ OperUps = Aircraft.Specs.Propulsion.PropArch.OperUps;
 % get the power split type to prioritize
 
 % get the upstream power splits
-LamUps = Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :);
+%LamUps = Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :);
 
 % get the number of components
 ncomp = length(Arch);
