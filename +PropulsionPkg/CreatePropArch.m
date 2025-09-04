@@ -54,7 +54,7 @@ EtaEG = Specs.Power.Eta.EG;
 % get the number of engines
 NumEng = Aircraft.Specs.Propulsion.NumEngines;
 
-TrnType = Aircraft.Specs.Propulsion.PropArch.TrnType;
+%TrnType = Aircraft.Specs.Propulsion.PropArch.TrnType;
 
 % check the architecture type
 if     (strcmpi(ArchName, "C"  ) == 1)
@@ -166,6 +166,7 @@ elseif (strcmpi(ArchName, "E"  ) == 1)
     TrnType = [zeros(1, NumEng), repmat(2, 1, NumEng)];
         
 elseif (strcmpi(ArchName, "PHE") == 1)
+    TrnType = [ones(1, NumEng), zeros(1, NumEng), repmat(2, 1, NumEng)];
     
     % architecture matrix
     Arch = [zeros(     1, 1), zeros(     1, 1),  ones(     1, NumEng), zeros(     1, NumEng), zeros(     1, NumEng), zeros(     1, 1); ... % fuel powers the gas-turbine engines

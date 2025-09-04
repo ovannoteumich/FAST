@@ -242,11 +242,11 @@ for ipnt = 1:npnt
         Preq(ipnt, :) = Inf;
         
         % no need to multiply matrices, so continue on
-        continue;
+        continue
         
-    end
     
-    if LamType == -1
+    
+    elseif LamType == -1
         % evaluate the function handles for the current splits
         SplitDwn = PropulsionPkg.EvalSplit(OperDwn, LamDwn(ipnt, :));
     

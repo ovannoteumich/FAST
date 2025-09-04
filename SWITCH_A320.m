@@ -4,6 +4,8 @@
 
 Aircraft = AircraftSpecsPkg.A320Neo;
 Aircraft.Specs.Propulsion.PropArch.Type = "PHE";
+Aircraft.Specs.Propulsion.PropArch.TrnType = [];
+Aircraft.Settings.PowerStrat = -1;
 
 % gravimetric specific energy of battery (kWh/kg), not used here
 Aircraft.Specs.Power.SpecEnergy.Batt = .25;

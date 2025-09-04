@@ -169,8 +169,8 @@ else
 end
 
 % remember the power splits
-Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamDwn.Crs, SegEnd - SegBeg + 1, 1);
-Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamUps.Crs, SegEnd - SegBeg + 1, 1);
+%Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamDwn.Crs, SegEnd - SegBeg + 1, 1);
+%Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamUps.Crs, SegEnd - SegBeg + 1, 1);
 
 
 % remember initial quantities in the mission history

@@ -127,8 +127,8 @@ else
 end
 
 % remember the power splits
-Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamDwn.Lnd, SegEnd - SegBeg + 1, 1);
-Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamUps.Lnd, SegEnd - SegBeg + 1, 1);
+%Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamDwn.Lnd, SegEnd - SegBeg + 1, 1);
+%Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamUps.Lnd, SegEnd - SegBeg + 1, 1);
 
 
 %% FLY THE LANDING SEGMENT %%

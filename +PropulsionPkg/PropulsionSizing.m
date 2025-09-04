@@ -51,8 +51,10 @@ P_Weg = Aircraft.Specs.Power.P_W.EG;
 % get the propulsion architecture
 Arch = Aircraft.Specs.Propulsion.PropArch.Arch;
 
+Aircraft = PropulsionPkg.LamFill(Aircraft);
+
 % get the design splits
-LamDwn = Aircraft.Specs.Power.LamDwn.SLS;
+LamDwn = Aircraft.Specs.Power.LamDwn.Miss(10,:);
 
 % get propulsion system efficiencies
 EtaDwn = Aircraft.Specs.Propulsion.PropArch.EtaDwn;

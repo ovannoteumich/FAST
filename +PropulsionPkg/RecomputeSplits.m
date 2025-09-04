@@ -32,22 +32,6 @@ function [Aircraft] = RecomputeSplits(Aircraft, SegBeg, SegEnd)
 %% PRE-PROCESSING %%
 %%%%%%%%%%%%%%%%%%%%
 
-% get the parallel connections
-ParConns = Aircraft.Specs.Propulsion.PropArch.ParConns;
-
-% identify any parallel connections
-ParIndx = find(cellfun(@(x) ~isempty(x), ParConns));
-
-% check if there are any parallel connections
-if (~any(ParIndx))
-    
-    % don't re-compute if there aren't any splits
-    return
-    
-end
-
-% get the number of parallel connections
-npar = length(ParIndx);
 
 % get the number of sources and transmitters
 nsrc = length(Aircraft.Specs.Propulsion.PropArch.SrcType);
@@ -69,29 +53,21 @@ idx = any(LamUps > 0, 2);
 % get the number of downstream splits
 nsplit = Aircraft.Settings.nargOperDwn;
 
-% get a temporary power split
-TmpSplit = LamDwn;
-
-% get the original downstream matrix
-OperDwn = PropulsionPkg.EvalSplit(Aircraft.Specs.Propulsion.PropArch.OperDwn, TmpSplit);
-
 % loop through each power split
-for ipar = 1:npar
-    
-    % get the index of the main connection
-    imain = ParIndx(ipar) + nsrc;
-    
-    % get the supplemental connection(s)
-    isupp = ParConns{ParIndx(ipar)};
+for i = 1:2
 
     % get the total power output at any given time from those sources
-    Out = sum(Pout(idx, [imain, isupp]), 2);
+    Out = sum(Pout(idx, [i+2, i+4]), 2);
     
     % compute the downstream power split
-    LamDwn(idx, [imain, isupp]-nsrc) = Pout(idx, [imain, isupp]) ./ Out;
+    LamDwn(idx, i) = Pout(idx, i+nsrc) ./ Out;
+    % compute the downstream power split
+    LamDwn(idx, i+2) = Pout(idx, i+2+nsrc) ./ Out;
 
     % compute up stream power splits
-    LamUps(idx, [imain, isupp]-nsrc) = Pout(idx, [imain, isupp]) ./ Pav(idx, [imain, isupp]);
+    LamUps(idx, i) = Pout(idx, i+nsrc) ./ Pav(idx, i+2);
+    % compute up stream power splits
+    LamUps(idx, i+2) = Pout(idx, i+nsrc+2) ./ Pav(idx, i+2);
 
 end
 
