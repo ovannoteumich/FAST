@@ -187,6 +187,17 @@ for ipnt = 1:npnt
     % get the initial power available
     Pav(ipnt, :) = [zeros(1, nsrc), PowerAv(ipnt, :), zeros(1, nsnk)];
     
+    % % evaluate the function handles for the current splits
+    Lambda = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
+    
+    % find all upstream transmitters (i.e., input at least one transmitter and
+    % maybe a source)
+        % try Lambda in place of Arch
+    UpTrn = find(sum(Lambda(itrn, itrn), 1) > 0);
+    
+    % assume no power available at the propellers yet (need to propagate)
+    PowerAv(:, UpTrn) = 0; %#ok<FNDSB>
+
     % propagate the power upstream
     Pav(ipnt, idx) = PropulsionPkg.PowerFlow(Pav(ipnt, idx)', Arch(idx, idx), Lambda(idx, idx), EtaUps(idx, idx), +1)';
     
