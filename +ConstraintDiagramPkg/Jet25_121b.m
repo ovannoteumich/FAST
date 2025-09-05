@@ -2,7 +2,7 @@ function [FAR] = Jet25_121b(W_S, T_W, Aircraft)
 %
 % [FAR] = Jet25_121b(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 25 aug 2025
+% last updated: 05 sep 2025
 %
 % derive the constraints for the second segment climb.
 %
@@ -33,42 +33,8 @@ AR      = Aircraft.Specs.Aero.AR;
 e       = Aircraft.Specs.Aero.e.Tko;
 TempInc = Aircraft.Specs.Performance.TempInc;
 NumEng  = Aircraft.Specs.Propulsion.NumEngines;
-
-% set tolerance
-EPS06 = 1.0e-06;
-
-% check for valid inputs
-if (W_S < EPS06)
-    error('ERROR - Jet25_121b: wing loading (W_S) must be greater than 0.');
-end
-
-if (CL < EPS06)
-    error('ERROR - Jet25_121b: lift coefficient at takeoff (CL) must be greater than 0.');
-end
-
-if (CD0 < EPS06)
-    error('ERROR - Jet25_121b: parasite drag coefficient at takeoff (CD0) must be greater than 0.');
-end
-
-if (AR < EPS06)
-    error('ERROR - Jet25_121b: aspect ratio (AR) must be greater than 0.');
-end
-
-if (e < EPS06)
-    error('ERROR - Jet25_121b: Oswald efficiency factor at takeoff (e) must be greater than 0.');
-end
-
-if (TempInc < EPS06)
-    error('ERROR - Jet25_121b: temperature correction factor (TempInc) must be greater than 0.');
-end
-
-if ((NumEng ~= 2) && (NumEng ~= 3) && (NumEng ~= 4))
-    error('ERROR - Jet25_121b: number of engines (NumEng) must be 2, 3, or 4.');
-end
-
-if ((NumEng - floor(NumEng)) > EPS06)
-    error('ERROR - Jet25_121b: number of engines (NumEng) must be an integer.');
-end
+ReqType = Aircraft.Specs.TLAR.ReqType;
+Vstall  = Aircraft.Specs.Performance.Vels.Stl;
 
 
 %% EVALUATE THE CONSTRAINT %%
@@ -114,7 +80,37 @@ end
 ks = 1.2;
 
 % return performance requirement as an inequality constraint
-FAR = CorrFactor * (ks ^ 2 * CD0 / CL + CL / ks ^ 2 / pi / AR / e + G) - T_W;
+if (ReqType == 0)
+    
+    % use Roskam's equation
+    FAR = CorrFactor * (ks ^ 2 * CD0 / CL + CL / ks ^ 2 / pi / AR / e + G) - T_W;
+    
+elseif (ReqType == 1)
+    
+    % convert wing loading to english units
+    W_S = W_S .* 9.81 .* UnitConversionPkg.ConvForce(1, "N", "lbf") ./ UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
+    
+    % compute the density at sea level (metric)
+    [~, ~, ~, ~, ~, RhoSLS] = MissionSegsPkg.ComputeFltCon(0, 0, "Mach", 0);
+    
+    % convert density to english units
+    RhoSLS = RhoSLS * UnitConversionPkg.ConvMass(1, "kg", "slug") / UnitConversionPkg.ConvLength(1, "m", "ft") ^ 3;
+        
+    % convert the stall speed to english units
+    Vstall = Vstall * UnitConversionPkg.ConvVel(1, "m/s", "ft/s");
+    
+    % compute the dynamic pressure
+    q = 0.5 .* RhoSLS .* (Vstall .* ks) .^ 2;
+    
+    % use Mattingly's equation
+    FAR = CorrFactor .* (q .* CD0 ./ W_S + W_S ./ q ./ (pi * AR * e) + G) - T_W;
+    
+else
+    
+    % throw error
+    error("ERROR - Jet25_121b: ReqType must be either 0 (Roskam) or 1 (Mattingly).");
+    
+end
 
 % ----------------------------------------------------------
 

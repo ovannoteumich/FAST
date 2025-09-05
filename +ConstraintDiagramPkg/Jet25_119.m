@@ -33,40 +33,9 @@ CD0       = Aircraft.Specs.Aero.CD0.Lnd;
 AR        = Aircraft.Specs.Aero.AR;
 e         = Aircraft.Specs.Aero.e.Lnd;
 TempInc   = Aircraft.Specs.Performance.TempInc;
-MaxCont   = Aircraft.Specs.Performance.MaxCont;
 WlandFact = Aircraft.Specs.Performance.Wland_MTOW;
-
-% set tolerance
-EPS06 = 1.0e-06;
-
-% check for valid inputs
-if (W_S < EPS06)
-    error('ERROR - Jet25_119: wing loading (W_S) must be greater than 0.');
-end
-
-if (CL < EPS06)
-    error('ERROR - Jet25_119: lift coefficient at landing (CL) must be greater than 0.');
-end
-
-if (CD0 < EPS06)
-    error('ERROR - Jet25_119: parasite drag coefficient at landing (CD0) must be greater than 0.');
-end
-
-if (AR < EPS06)
-    error('ERROR - Jet25_119: aspect ratio (AR) must be greater than 0.');
-end
-
-if (e < EPS06)
-    error('ERROR - Jet25_119: Oswald efficiency factor at landing (e) must be greater than 0.');
-end
-
-if (TempInc < EPS06)
-    error('ERROR - Jet25_119: temperature correction factor (TempInc) must be greater than 0.');
-end
-
-if (MaxCont < EPS06)
-    error('ERROR - Jet25_119: landing weight correction factor (MaxCont) must be greater than 0.');
-end
+ReqType   = Aircraft.Specs.TLAR.ReqType;
+Vstall    = Aircraft.Specs.Performance.Vels.Stl;
 
 
 %% EVALUATE THE CONSTRAINT %%
@@ -100,7 +69,37 @@ end
 ks = 1.3;
 
 % return performance requirement as an inequality constraint
-FAR = CorrFactor * (ks ^ 2 * CD0 / CL + CL / ks ^ 2 / pi / AR / e + G) - T_W;
+if (ReqType == 0)
+    
+    % use Roskam's equation
+    FAR = CorrFactor * (ks ^ 2 * CD0 / CL + CL / ks ^ 2 / pi / AR / e + G) - T_W;
+    
+elseif (ReqType == 1)
+    
+    % convert wing loading to english units
+    W_S = W_S .* 9.81 .* UnitConversionPkg.ConvForce(1, "N", "lbf") ./ UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
+    
+    % compute the density at sea level (metric)
+    [~, ~, ~, ~, ~, RhoSLS] = MissionSegsPkg.ComputeFltCon(0, 0, "Mach", 0);
+    
+    % convert density to english units
+    RhoSLS = RhoSLS * UnitConversionPkg.ConvMass(1, "kg", "slug") / UnitConversionPkg.ConvLength(1, "m", "ft") ^ 3;
+        
+    % convert the stall speed to english units
+    Vstall = Vstall * UnitConversionPkg.ConvVel(1, "m/s", "ft/s");
+    
+    % compute the dynamic pressure
+    q = 0.5 .* RhoSLS .* (Vstall .* ks) .^ 2;
+    
+    % use Mattingly's equation
+    FAR = CorrFactor .* (q .* CD0 ./ W_S + W_S ./ q ./ (pi * AR * e) + G) - T_W;
+    
+else
+    
+    % throw error
+    error("ERROR - Jet25_119: ReqType must be either 0 (Roskam) or 1 (Mattingly).");
+    
+end
 
 % ----------------------------------------------------------
 

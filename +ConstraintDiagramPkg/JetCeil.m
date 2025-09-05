@@ -2,7 +2,7 @@ function [FAR] = JetCeil(W_S, T_W, Aircraft)
 %
 % [FAR] = JetCeil(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 27 aug 2025
+% last updated: 05 sep 2025
 %
 % derive the constraints for service ceiling.
 %
@@ -30,48 +30,17 @@ function [FAR] = JetCeil(W_S, T_W, Aircraft)
 CD0     = Aircraft.Specs.Aero.CD0.Crs;
 AR      = Aircraft.Specs.Aero.AR;
 e       = Aircraft.Specs.Aero.e.Crs;
-ServCeil = Aircraft.Specs.Performance.Alts.Srv; % keep in SI units for ComputeFltCon
-NumEng  = Aircraft.Specs.Propulsion.NumEngines;
-
-% set tolerance
-EPS06 = 1.0e-06;
-
-% check for valid inputs
-if (W_S < EPS06)
-    error('ERROR - JetCeil: wing loading (W_S) must be greater than 0.');
-end
-
-if (CD0 < EPS06)
-    error('ERROR - JetCeil: parasite drag coefficient at cruise (CD0) must be greater than 0.');
-end
-
-if (AR < EPS06)
-    error('ERROR - JetCeil: aspect ratio (AR) must be greater than 0.');
-end
-
-if (e < EPS06)
-    error('ERROR - JetCeil: Oswald efficiency factor at cruise (e) must be greater than 0.');
-end
-
-if (ServCeil < -EPS06)
-    error('ERROR - JetCeil: service ceiling (ServCeil) must be greater than or equal to 0.');
-end
-
-if ((NumEng ~= 2) && (NumEng ~= 3) && (NumEng ~= 4))
-    error('ERROR - JetCeil: number of engines (NumEng) must be 2, 3, or 4.');
-end
-
-if ((NumEng - floor(NumEng)) > EPS06)
-    error('ERROR - JetCeil: number of engines (NumEng) must be an integer.');
-end
+zserv   = Aircraft.Specs.Performance.Alts.Srv; % keep in SI units for ComputeFltCon
+ReqType = Aircraft.Specs.TLAR.ReqType;
+CrsMach = Aircraft.Specs.Performance.Vels.Crs;
 
 
 %% EVALUATE THE CONSTRAINT %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % get densities at sea-level and service ceiling
-[~, ~, ~, ~, ~, RhoSLS] = MissionSegsPkg.ComputeFltCon(0       , 0, "Mach", 0);
-[~, ~, ~, ~, ~, RhoSrv] = MissionSegsPkg.ComputeFltCon(ServCeil, 0, "Mach", 0);
+[~, ~   , ~, ~, ~, RhoSLS] = MissionSegsPkg.ComputeFltCon(0    , 0, "Mach", CrsMach);
+[~, Vcrs, ~, ~, ~, RhoSrv] = MissionSegsPkg.ComputeFltCon(zserv, 0, "Mach", CrsMach);
 
 % compute density ratio of service ceiling to sea-level
 RhoRatio = RhoSrv / RhoSLS;
@@ -80,7 +49,34 @@ RhoRatio = RhoSrv / RhoSLS;
 G = 0.001;
 
 % return performance requirement as an inequality constraint
-FAR = (2 * sqrt(CD0 / pi / e / AR) + G) / RhoRatio ^ 0.6 - T_W;
+if (ReqType == 0)
+    
+    % use the metabook's equation
+    FAR = (2 * sqrt(CD0 / pi / e / AR) + G) / RhoRatio ^ 0.6 - T_W;
+    
+elseif (ReqType == 1)
+
+    % convert wing loading to english units
+    W_S = W_S .* 9.81 .* UnitConversionPkg.ConvForce(1, "N", "lbf") ./ UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
+        
+    % convert the density to english units
+    RhoSLS = RhoSLS * UnitConversionPkg.ConvMass(1, "kg", "slug") / UnitConversionPkg.ConvLength(1, "m", "ft") ^ 3;
+    
+    % convert the cruise speed to english units
+    Vcrs = Vcrs * UnitConversionPkg.ConvVel(1, "m/s", "ft/s");
+    
+    % compute the dynamic pressure
+    q = 0.5 .* RhoSLS .* Vcrs .^ 2;
+    
+    % use Mattingly's equation for service ceiling
+    FAR = 1 ./ RhoRatio ^ 0.6 .* (q .* CD0 ./ W_S + W_S ./ q ./ (pi * AR * e) + G) - T_W;
+    
+else
+    
+    % throw error
+    error("ERROR - JetCeil: ReqType must be either 0 (Roskam) or 1 (Mattingly).");
+    
+end
 
 % ----------------------------------------------------------
 
