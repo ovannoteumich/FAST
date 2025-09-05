@@ -2,7 +2,7 @@ function [FAR] = Jet25_119(W_S, T_W, Aircraft)
 %
 % [FAR] = Jet25_119(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 25 aug 2025
+% last updated: 05 sep 2025
 %
 % derive the constraints for a balked landing climb with all engines
 % operative.
@@ -28,12 +28,13 @@ function [FAR] = Jet25_119(W_S, T_W, Aircraft)
 %%%%%%%%%%%%%%%%%%%%
 
 % retrieve parameters from the aircraft structure
-CL      = Aircraft.Specs.Aero.CL.Lnd;
-CD0     = Aircraft.Specs.Aero.CD0.Lnd;
-AR      = Aircraft.Specs.Aero.AR;
-e       = Aircraft.Specs.Aero.e.Lnd;
-TempInc = Aircraft.Specs.Performance.TempInc;
-MaxCont = Aircraft.Specs.Performance.MaxCont;
+CL        = Aircraft.Specs.Aero.CL.Lnd;
+CD0       = Aircraft.Specs.Aero.CD0.Lnd;
+AR        = Aircraft.Specs.Aero.AR;
+e         = Aircraft.Specs.Aero.e.Lnd;
+TempInc   = Aircraft.Specs.Performance.TempInc;
+MaxCont   = Aircraft.Specs.Performance.MaxCont;
+WlandFact = Aircraft.Specs.Performance.Wland_MTOW;
 
 % set tolerance
 EPS06 = 1.0e-06;
@@ -72,7 +73,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % correction for standard temperature increase and landing weight
-CorrFactor = TempInc * 0.65;
+CorrFactor = TempInc * WlandFact;
 
 % get the constraint type
 Type = Aircraft.Settings.ConstraintType;
