@@ -2,7 +2,7 @@ function [] = Boeing777()
 %
 % [] = Boeing777()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 27 aug 2025
+% last updated: 05 sep 2025
 %
 % create a constraint diagram for a boeing 777, found in the aircraft
 % design metabook.
@@ -34,6 +34,9 @@ Aircraft.Specs.TLAR.EIS = 2006;
 % aircraft class
 Aircraft.Specs.TLAR.Class = "Turbofan";
 
+% CFR regulations to certify
+Aircraft.Specs.TLAR.CFRPart = 25;
+
 % ----------------------------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -63,6 +66,9 @@ Aircraft.Specs.Performance.MaxCont = 1 / 0.94;
 
 % design specific excess power loss ???
 Aircraft.Specs.Performance.PsLoss = 0.6238;
+
+% landing weight as a fraction of MTOW
+Aircraft.Specs.Performance.Wland_MTOW = 0.65;
 
 % ----------------------------------------------------------
 
