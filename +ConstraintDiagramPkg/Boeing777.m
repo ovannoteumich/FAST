@@ -15,7 +15,7 @@ function [] = Boeing777()
 %
 
 % initial cleanup
-clc, close all
+%clc, close all
 
 
 %% DEFINE THE AIRCRAFT'S PARAMETERS %%
@@ -52,6 +52,9 @@ Aircraft.Specs.Performance.Range = 16045;
 Aircraft.Specs.Performance.Alts.Crs = UnitConversionPkg.ConvLength(40000, "ft", "m"); % approx 4,000 ft less than A320 absolute ceiling
 Aircraft.Specs.Performance.Alts.Srv = UnitConversionPkg.ConvLength(42000, "ft", "m"); % approx 2,000 ft less than A320 absolute ceiling
 
+% stall speed
+Aircraft.Specs.Performance.Vels.Stl = sqrt(2 * 695.5 * 9.81 / 2 / 1.225);
+
 % cruise mach number
 Aircraft.Specs.Performance.Vels.Crs = 0.84;
 
@@ -69,6 +72,9 @@ Aircraft.Specs.Performance.PsLoss = 0.6238;
 
 % landing weight as a fraction of MTOW
 Aircraft.Specs.Performance.Wland_MTOW = 0.65;
+
+% requirement type (0 = Roskam; 1 = Mattingly)
+Aircraft.Specs.TLAR.ReqType = 1;
 
 % ----------------------------------------------------------
 
