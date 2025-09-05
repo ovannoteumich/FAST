@@ -79,6 +79,18 @@ end
 % required speed ratio is 1.2
 ks = 1.2;
 
+% assume a takeoff speed
+Vtko = convvel(135, "kts", "ft/s");
+Rho = 0.002377;
+
+qinf = 0.5 * Rho * Vtko ^ 2;
+
+% convert wing loading to english units
+W_S = W_S .* UnitConversionPkg.ConvMass(1, "kg", "lbm") ./ UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
+
+% compute the lift coefficient
+CL = W_S ./ qinf;
+
 % return performance requirement as an inequality constraint
 if (ReqType == 0)
     
