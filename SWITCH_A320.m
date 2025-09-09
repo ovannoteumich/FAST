@@ -2,6 +2,8 @@
 %
 % 
 
+%% test one-switch on design mission
+
 Aircraft = AircraftSpecsPkg.A320Neo;
 Aircraft.Specs.Propulsion.PropArch.Type = "PHE";
 Aircraft.Specs.Propulsion.PropArch.TrnType = [];
@@ -18,7 +20,7 @@ Aircraft.Specs.Power.Battery.SerCells = 62;
 Aircraft.Specs.Power.Battery.BegSOC = 100;
 
 %AircraftOG = Main(Aircraft, @MissionProfilesPkg.A320);
-Aircraft =AircraftOG;
+Aircraft =Aircraft2;
 %Aircraft = ans;
 Aircraft.Settings.Analysis.Type = -1;
 
@@ -49,7 +51,15 @@ Aircraft.Specs.Power.LamDwn.Lnd = 0;
 
 % settings
 Aircraft.Settings.PowerStrat = -1;
+Aircraft.Settings.PowerOpt = 0;
 % -1 = prioritize downstream, go from fan back to energy sources
 
 Aircraft = Main(Aircraft, @MissionProfilesPkg.A320);
 %end
+
+%% test 2 
+
+Aircraft2 = AircraftOG;
+Aircraft2.Specs.Performance.Range = UnitConversionPkg.ConvLength(800, "naut mi", "m");
+Aircraft2.Settings.Analysis.Type = -1;
+%Aircraft2 = Main(Aircraft2, @MissionProfilesPkg.A320);
