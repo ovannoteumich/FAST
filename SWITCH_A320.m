@@ -20,8 +20,8 @@ Aircraft.Specs.Power.Battery.SerCells = 62;
 % initial battery SOC
 Aircraft.Specs.Power.Battery.BegSOC = 100;
 
-AircraftOG = Main(Aircraft, @MissionProfilesPkg.A320);
-Aircraft = AircraftOG;
+%AircraftOG = Main(Aircraft, @MissionProfilesPkg.A320);
+Aircraft = Aircraft2;
 %Aircraft = ans;
 Aircraft.Specs.Performance.Range = UnitConversionPkg.ConvLength(800, "naut mi", "m");
 Aircraft.Settings.Analysis.Type = -1;
@@ -38,7 +38,7 @@ Aircraft.Specs.Power.LamUps = [];
 Aircraft.Specs.Power.LamDwn = [];
 % upstream power splits
 Aircraft.Specs.Power.LamUps.SLS = 1;
-Aircraft.Specs.Power.LamUps.Tko = 1;
+Aircraft.Specs.Power.LamUps.Tko = 0;
 Aircraft.Specs.Power.LamUps.Clb = 1;
 Aircraft.Specs.Power.LamUps.Crs = 0;
 Aircraft.Specs.Power.LamUps.Des = 0;
@@ -46,7 +46,7 @@ Aircraft.Specs.Power.LamUps.Lnd = 0;
 
 % downstream power splits
 Aircraft.Specs.Power.LamDwn.SLS = .15;
-Aircraft.Specs.Power.LamDwn.Tko = .15;
+Aircraft.Specs.Power.LamDwn.Tko = 0;
 Aircraft.Specs.Power.LamDwn.Clb = .15;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
@@ -61,7 +61,7 @@ Aircraft = Main(Aircraft, @MissionProfilesPkg.A320);
 %end
 
 %% test 2 
-%{
+
 Aircraft2 = AircraftOG;
 Aircraft2.Specs.Performance.Range = UnitConversionPkg.ConvLength(800, "naut mi", "m");
 Aircraft2.Settings.Analysis.Type = -1;
@@ -69,7 +69,7 @@ Aircraft2 = Main(Aircraft2, @MissionProfilesPkg.A320);
 
 %% test 2 
 
-
+%{
 Aircraft.Specs.Performance.Range = UnitConversionPkg.ConvLength(800, "naut mi", "m");
 Aircraft.Settings.Analysis.Type = -1;
 Aircraft.Settings.PowerStrat = 1;

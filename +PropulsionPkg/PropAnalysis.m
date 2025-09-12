@@ -288,6 +288,7 @@ exceeds = find(PoutTest - PavTest > 1.0e-06);
 % if any exceed the power available, return only the power available
 if (any(exceeds))
     PoutTest(exceeds) = PavTest(exceeds);
+    PoutTest(:,[3,4]) = 0;
 end
 
 % set the required power as the output power

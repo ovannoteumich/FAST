@@ -177,7 +177,7 @@ for ipnt = 1:npnt
     if Aircraft.Settings.PowerOpt == 1
         Lambda = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
     else
-        Lambda = PropulsionPkg.EvalSplit(OperUps, ones(1,4));
+        Lambda = PropulsionPkg.EvalSplit(OperUps, ones(1, 4));
     end
     
     % get the initial power available
