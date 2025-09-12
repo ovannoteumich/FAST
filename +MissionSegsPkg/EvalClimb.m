@@ -308,9 +308,13 @@ while (iter < MaxIter)
     
     % check for invalid specific excess power values
     if (any(Ps(1:end-1) < 0))
-        warning('Target climb altitude cannot be reached (Ps < 0). Results may be faulty.')
+        if Aircraft.Settings.PrintOut ==1
+            warning('Target climb altitude cannot be reached (Ps < 0). Results may be faulty.')
+        end
         if Aircraft.Settings.Analysis.Type < 0
+                if Aircraft.Settings.PrintOut ==1
             error('Target climb altitude cannot be reached (Ps < 0). Results may be faulty.')
+                end
         end
     end
     

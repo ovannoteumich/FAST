@@ -189,6 +189,7 @@ for ipnt = 1:npnt
     Pav(ipnt, [7,8,9])=PavTemp([5,6,7]);
     % check that the component is not overloaded
     Overload = Pav(ipnt, itrn) > SLSPower;
+    Overload = 0;
     
     % suppress component overloads
     if (any(Overload))

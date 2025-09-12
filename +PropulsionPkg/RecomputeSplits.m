@@ -64,12 +64,12 @@ for i = 1:2
     % compute the downstream power split
     LamDwn(idx, i+2) = Pout(idx, i+2+nsrc) ./ Out;
 
-
+    if Aircraft.Settings.PowerStrat == -1
     % compute up stream power splits
-    LamUps(idx, i) = Pout(idx, i+nsrc) ./ Pav(idx, i+2);
-    % compute up stream power splits
-    LamUps(idx, i+2) = Pout(idx, i+nsrc+2) ./ Pav(idx, i+nsrc+2);
-
+        LamUps(idx, i) = Pout(idx, i+nsrc) ./ Pav(idx, i+2);
+        % compute up stream power splits
+        LamUps(idx, i+2) = Pout(idx, i+nsrc+2) ./ Pav(idx, i+nsrc+2);
+    end
 
 end
 
@@ -79,11 +79,13 @@ LamUps(isnan(LamUps)) = 0;
 
 % remember the power split
 Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = LamDwn;
-Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :) = LamUps;
-
 Aircraft.Specs.Power.LamDwn.Miss(SegBeg:SegEnd, :) = LamDwn;
-Aircraft.Specs.Power.LamUps.Miss(SegBeg:SegEnd, :) =LamUps;
 
+
+if Aircraft.Settings.PowerOpt == 0
+    Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :) = LamUps;
+    Aircraft.Specs.Power.LamUps.Miss(SegBeg:SegEnd, :) = LamUps;
+end
 
 
 % ----------------------------------------------------------

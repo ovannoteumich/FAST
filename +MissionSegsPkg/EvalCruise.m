@@ -292,10 +292,10 @@ while (iter < MaxIter)
         
     % check for specific excess power values
     if (any(Ps(1:end-1) < 0))
-        
+        if Aircraft.Settings.PrintOut == 1
         % throw warning
         warning('Excess Power (Ps) < 0 for some segments in cruise.');
-        
+        end
     end
     
     % ------------------------------------------------------

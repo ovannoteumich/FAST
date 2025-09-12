@@ -50,6 +50,7 @@ OperUps = Aircraft.Specs.Propulsion.PropArch.OperUps;
 
 % get the downstream efficiency matrix
 EtaDwn = Aircraft.Specs.Propulsion.PropArch.EtaDwn;
+EtaUps = Aircraft.Specs.Propulsion.PropArch.EtaUps;
 
 % get the number of sources and transmitters
 nsrc = length(SrcType);
@@ -244,17 +245,30 @@ for ipnt = 1:npnt
         % no need to multiply matrices, so continue on
         continue
         
-    
-    
     elseif LamType == -1
         % evaluate the function handles for the current splits
         SplitDwn = PropulsionPkg.EvalSplit(OperDwn, LamDwn(ipnt, :));
     
         % propagate the power downstream to the transmitters
         Preq(ipnt, TrnSnkIdx) = PropulsionPkg.PowerFlow(Preq(ipnt, TrnSnkIdx)', Arch(TrnSnkIdx, TrnSnkIdx)', SplitDwn(TrnSnkIdx, TrnSnkIdx), EtaDwn(TrnSnkIdx, TrnSnkIdx), -1)';
+    
+    elseif LamType == 1
+        % evaluate the function handles for the current splits
+        %SplitUps = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
+    
+        % propagate the power downstream to the transmitters
+        %Preq(ipnt, TrnSnkIdx) = PropulsionPkg.PowerFlow(Preq(ipnt, TrnSnkIdx)', Arch(TrnSnkIdx, TrnSnkIdx)', SplitUps(TrnSnkIdx, TrnSnkIdx), EtaUps(TrnSnkIdx, TrnSnkIdx), 1);
+       
+        Preq(ipnt, [3,4]) = LamUps(ipnt,[1,2]) .* Pav(ipnt,[3,4]);
+        Preq(ipnt, [5,6]) = LamUps(ipnt,[3,4]) .* Pav(ipnt,[5,6]);
+        Preq(ipnt, [7,8])=(Preq(ipnt,[3,4])+Preq(ipnt,[5,6]))*.99;
     end
 end
 
+errPreq = find(Preq(:,7)+Preq(:,8)-Preq(:,9)>1e-6);
+if any(errPreq)
+    Preq(errPreq,9) = Preq(errPreq,7)+Preq(errPreq,8);
+end
 % temporary power required array for iterating
 TempReq = Preq;
 
@@ -360,7 +374,7 @@ if (any(Batt))
             BattDeplete = find(SOC(:, icol) < 20, 1);
             
             % update the battery/EM power and SOC
-            if ((~isempty(BattDeplete)) && (strcmpi(ArchType, "E") == 0) && (Aircraft.Settings.Analysis.Type <0))
+            if ((~isempty(BattDeplete)) && (strcmpi(ArchType, "E") == 0) && (Aircraft.Settings.Analysis.Type <0))&& Aircraft.Settings.PowerOpt == 0
                 
                 % no more power is provided from the electric motor or battery
                 Pout(BattDeplete:end, icol) = 0;
@@ -387,7 +401,7 @@ if (any(Batt))
         StopBatt = find(Eleft_ES(:, icol) < 0, 1);
         
         % transfer power to the engines if the battery is empty (if not sizing)
-        if (any(StopBatt) && (Aircraft.Settings.Analysis.Type < 0))
+        if (any(StopBatt) && (Aircraft.Settings.Analysis.Type < 0)) && Aircraft.Settings.PowerOpt == 0
             
             % stop the battery before it crosses 0 (maximum to avoid 0 index)
             StopBatt = max(1, StopBatt - 1);

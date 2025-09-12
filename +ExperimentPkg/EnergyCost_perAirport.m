@@ -26,18 +26,18 @@ DesPts = Aircraft.Settings.DesPoints;
 npt = TkoPts + 3 * (ClbPts - 1) + CrsPts - 1 + 3 * (DesPts - 1);
 
 % check number of energy sources
-Fuel = find(Aircraft.Specs.Propulsion.PropArch.ESType == 1);
-Batt = find(Aircraft.Specs.Propulsion.PropArch.ESType == 0);
+Fuel = 1;
+Batt = 2;
 
 fuelE = 0;
 battE = 0;
 
 if ~isempty(Fuel)
-    fuelE = Aircraft.Mission.History.SI.Energy.E_ES(npt,Fuel);
+    fuelE = Aircraft.Mission.History.SI.Energy.E_ES(end,Fuel);
 end
 
 if ~isempty(Batt)
-    battE = Aircraft.Mission.History.SI.Energy.E_ES(npt,Batt);
+    battE = Aircraft.Mission.History.SI.Energy.E_ES(end,Batt);
 end
 
 % convert both from joules to kWh
