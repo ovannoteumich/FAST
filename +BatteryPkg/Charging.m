@@ -1,4 +1,4 @@
-function [Voltage, Current, Pout, Capacity, SOC, C_rate] = Model(Aircraft, Preq, Time, SOCBeg, Parallel, Series)
+function [Voltage, Current, Pout, Capacity, SOC, C_rate] = Charging(Aircraft, Preq, Time, SOCBeg, Parallel, Series)
 %
 % [Voltage, Pout, Capacity, SOC] = Model(Preq, Time, SOCBeg, Parallel, Series)
 % originally written by Sasha Kryuchkov
@@ -92,8 +92,8 @@ Time = Time ./ 3600;
 %% BATTERY QUANTITIES FOR A LITHIUM ION CELL %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% nominal cell voltage [V]
-VoTemp = Aircraft.Specs.Battery.NomVolCell;
+% Max cell voltage [V]
+VoTemp = Aircraft.Specs.Battery.MaxExtVolCell; % 4.0880V
 
 % internal resistance [Ohm]
 ResistanceTemp = Aircraft.Specs.Battery.IntResist;
@@ -126,8 +126,8 @@ DischargeCurveSlope = 0.29732;
 PolarizedVoTemp = 0.0011;
 
 
-%% MODEL BATTERY (DIS)CHARGING %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% MODEL BATTERY CHARGING %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % get the SOC
 SOC      = repmat(SOCBeg, ntime, 1);
@@ -165,9 +165,6 @@ for itime = 1:ntime
     CurrBattPoly = [VoltageCellHot, VoltageCellCold, -TVreq_es_cell];
     
     % find the root
-    if any(isnan(CurrBattPoly))
-        CurrBattPoly = 0;
-    end
     CurrBatt = roots(CurrBattPoly);
     
     if (Preq >= 0)
@@ -234,10 +231,6 @@ for itime = 1:ntime
     
     % update the SOC
     SOC(itime+1) = SOC(itime) - 100 * DischargedCapacity / Q;
-
-    if ~isreal(SOC) && Aircraft.Settings.PowerOpt == 1
-        error("Complex SOC")
-    end
     
     % update the capacity
     Capacity(itime) = Q * SOC(itime) / 100 * Parallel;

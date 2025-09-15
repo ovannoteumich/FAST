@@ -45,7 +45,20 @@ end
 ebatt = Aircraft.Specs.Power.SpecEnergy.Batt;
 
 % energy consumed during flight
-Ebatt = Aircraft.Mission.History.SI.Energy.E_ES(:, Batt);
+Ebatt = Aircraft.Mission.History.SI.Energy.E_ES(:, Batt); 
+
+% energy remaining during flight
+Ebatt_re = Aircraft.Mission.History.SI.Energy.Eleft_ES(:, Batt); 
+
+energy =2;
+if energy==0
+        % return zero battery weight
+    Aircraft.Specs.Weight.Batt = 0;
+    
+    % exit the function
+    return
+    
+end
 
 
 %% RESIZE THE BATTERY %%
@@ -64,15 +77,15 @@ if (Aircraft.Settings.DetailedBatt == 1)
     %                            %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    % maximum extracted capacity and voltage
-    QMax = 2.6; % Ah
-    VMax = 3.6; % V
-    
+    % Max capacity and Nominal voltage
+    VNom = Aircraft.Specs.Battery.NomVolCell;
+    QMax = Aircraft.Specs.Battery.CapCell;
+
     % acceptable SOC threshold
-    MinSOC = 20;
+    MinSOC = Aircraft.Specs.Battery.MinSOC;
     
     % assume a maximum c-rate
-    MaxAllowCRate = 5;
+    MaxAllowCRate = Aircraft.Specs.Battery.MaxAllowCRate;
     
     % ------------------------------------------------------
     
@@ -97,6 +110,12 @@ if (Aircraft.Settings.DetailedBatt == 1)
     % power consumed during flight
     Pbatt = Aircraft.Mission.History.SI.Power.Pout(:, [Batt, false(1, ncomp-nsrc)]);
     
+
+    %Pbatt = Aircraft.Mission.History.SI.Power.P_ES(:, Batt);
+
+    % Current curing flight
+    Cbatt = Aircraft.Mission.History.SI.Power.Current(:, Batt);
+
     % ------------------------------------------------------
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -146,16 +165,18 @@ if (Aircraft.Settings.DetailedBatt == 1)
     % get the energy consumed by the battery during each segment
     dEbatt = diff(Ebatt);
     
-    % compute the C-rate (power in segment / energy consumed in segment)
-    C_rate = Pbatt(1:end-1) ./ dEbatt;
-    
-    % ignore all NaNs and Infs (set to 0)
+    % compute the C-rate (current in segment / total capacity of battery pack)
+    C_rate = Cbatt ./ (ExistBattCap); 
+
+
+    % ignore all NaNs (set to 0)
+
     C_rate(isnan(C_rate)) = 0;
     C_rate(isinf(C_rate)) = 0;
     
     % check if the C-rate is exceeded
     ExceedCRate = abs(C_rate) > MaxAllowCRate;
-    
+
     % resize the battery if the C-rate is exceeded
     if (any(ExceedCRate))
         
@@ -167,12 +188,23 @@ if (Aircraft.Settings.DetailedBatt == 1)
         
     else
         
-        NparCrate = 0;
+        C_rate_SOC = Cbatt ./ (NparSOC * QMax);
+
+        % check if the C-rate_SOC is exceeded
+        ExceedCRate_2 = abs(C_rate_SOC) > MaxAllowCRate;
+
+        if (any(ExceedCRate_2))
+            % get the maximum C-rate
+            MaxCrate_2 = max(abs(C_rate_SOC));
+            
+            % get the required number of cells in parallel
+            NparCrate = ceil(MaxCrate_2 / MaxAllowCRate) * NparSOC;
+        else
+            NparCrate = 0;
+        end
         
     end
-    
     % ------------------------------------------------------
-    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %                            %
     % get the new battery cell   %
@@ -190,8 +222,8 @@ if (Aircraft.Settings.DetailedBatt == 1)
 %     % compute the required capacity (from E-PASS, not used)
 %     Qreq = Npar * QMax;
     
-    % compute the mass of the battery (multiply by 3600 to convert from hr to seconds)
-    Wbatt = QMax * Npar * VMax * Nser * 3600 ./ ebatt;
+    % compute the mass of the battery (multiply by 3600 to convert from Wh to Joules)
+    Wbatt = QMax * Npar * VNom * Nser * 3600 ./ ebatt;
     
     % ------------------------------------------------------
     
@@ -208,7 +240,11 @@ if (Aircraft.Settings.DetailedBatt == 1)
 
     % remember the new cell arrangement
     Aircraft.Specs.Power.Battery.ParCells = Npar;
-    
+
+    % remember the battery c-rates updated
+    % Aircraft.Mission.History.SI.Power.C_rate = Cbatt ./ (QMax * Npar);
+
+
 end
 
 % ----------------------------------------------------------
