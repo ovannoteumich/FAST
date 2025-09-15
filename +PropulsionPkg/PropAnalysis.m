@@ -50,6 +50,9 @@ OperDwn = Aircraft.Specs.Propulsion.PropArch.OperDwn;
 % get the downstream efficiency matrix
 EtaDwn = Aircraft.Specs.Propulsion.PropArch.EtaDwn;
 
+% get which propellers are connected to the gas turbine engines
+WhichProp = Aircraft.Specs.Propulsion.PropArch.WhichProp;
+
 % get the number of sources and transmitters
 nsrc = length(SrcType);
 ntrn = length(TrnType);
@@ -482,11 +485,11 @@ if (any(Fuel))
         % get the column index (offset by number of sources)
         icol = HasEng(ieng) + nsrc;
         
-        % find the propeller that the engine is connected to
-        [~, iprop] = find(Arch(icol, :) & itrn);
-        
+        % check if it has a propeller
+        iprop = WhichProp(ieng);
+
         % check if the engine is connected to a propeller
-        if (~isempty(iprop))
+        if (iprop ~= 0)
             
             % get the thrust requirement from the propeller
             TEng = Tout(ibeg:iend, iprop);
