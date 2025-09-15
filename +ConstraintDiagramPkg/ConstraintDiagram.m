@@ -3,7 +3,7 @@ function [] = ConstraintDiagram(Aircraft)
 % ConstraintDiagram.m
 % written by Paul Mokotoff, prmoko@umich.edu
 % adapted from code used in AEROSP 481 as a GSI
-% last updated: 28 aug 2025
+% last updated: 15 sep 2025
 %
 % create a constraint diagram (T/W-W/S for turbofans or P/W-W/S for
 % turboprops/pistons) according to 14 CFR 23/25.
@@ -44,11 +44,38 @@ elseif ((strcmpi(aclass, "Turboprop") == 1) || ...
     % get the power-weight ratio and convert to W/kg from kW/kg
     VertCent = Aircraft.Specs.Power.P_W.SLS .* 1000;
     
-    % create a vertical range
-    Vrange = linspace(max( 10, VertCent - 150), min(1000, VertCent + 150), 500);
-    
-    % axis label should be p/w
-    VertLabel = "Power-Weight Ratio (W/kg)";
+    % check which requirements are being used
+    if (CFRPart == 25)
+        
+        % convert from W/kg to W/N
+        VertCent = VertCent / 9.81;
+        
+        % convert from W/N to N/W
+        VertCent = 1 / VertCent;
+                
+        % create a vertical range
+        Vrange = linspace(max(0.01, VertCent - 0.25), min(0.2, VertCent + 0.15), 500);
+        
+        % define the axis label
+        VertLabel = "Power Loading (N/W)";
+        
+        % re-invert to W/N and convert to N/N
+        Vrange = 1 ./ Vrange .* 0.0167;
+                        
+    elseif (CFRPart == 23)
+                
+        % create a vertical range
+        Vrange = linspace(max( 10, VertCent - 150), min(1000, VertCent + 150), 500);
+        
+        % axis label should be p/w
+        VertLabel = "Power-Weight Ratio (W/kg)";
+        
+    else
+        
+        % throw an error
+        error("ERROR - ConstraintDiagram: only 14 CFR Part 23 or 25 allowed, indicated by 23 or 25, respectively.");
+        
+    end
             
 else
     
@@ -75,14 +102,6 @@ Hrange = linspace(max( 0, HoriCent - 1000), max(1000, HoriCent + 1000), 500);
 
 % select the appropriate FARs
 if (CFRPart == 25)
-    
-    % check for turboprop or piston aircraft
-    if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
-        
-        % convert from W/kg to W/N, and then to N/N
-        Vgrid = Vgrid ./ 9.81 .* 0.0167;
-                
-    end
     
     % takeoff field length
     g01 = ConstraintDiagramPkg.JetTOFL(Hgrid, Vgrid, Aircraft);
@@ -150,11 +169,20 @@ if (CFRPart == 25)
     % check for turboprop or piston aircraft
     if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
         
-        % convert from N/N to W/N, and then to W/kg
-        Vgrid = Vgrid ./ 0.0167 .* 9.81;
+        % convert from N/N to W/N
+        Vrange = Vrange ./ 0.0167;
+        Vgrid  = Vgrid  ./ 0.0167;
+        
+        % invert to N/W
+        Vrange = 1 ./ Vrange;
+        Vgrid  = 1 ./ Vgrid ;
+        
+        % convert the horizontal grid and range to kN/m^2
+        Hgrid  = Hgrid  .* 9.81 ./ 1000;
+        Hrange = Hrange .* 9.81 ./ 1000;
                 
     end
-    
+        
 elseif (CFRPart == 23)
             
     % takeoff climb
@@ -230,8 +258,8 @@ for icon = 1:ncon
     FilledContour = contourf(Hgrid, Vgrid, eval(ConName), [0, Inf]);
     
     % get a position on the plot to leave text
-    TextPos(icon, 1) = FilledContour(1, 15 * icon);
-    TextPos(icon, 2) = FilledContour(2, 15 * icon);
+    TextPos(icon, 1) = FilledContour(1, 30 * icon);
+    TextPos(icon, 2) = FilledContour(2, 30 * icon);
    
 end
 
