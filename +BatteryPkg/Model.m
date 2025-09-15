@@ -234,6 +234,10 @@ for itime = 1:ntime
     
     % update the SOC
     SOC(itime+1) = SOC(itime) - 100 * DischargedCapacity / Q;
+
+    if ~isreal(SOC) && Aircraft.Settings.PowerOpt == 1
+        error("Complex SOC")
+    end
     
     % update the capacity
     Capacity(itime) = Q * SOC(itime) / 100 * Parallel;

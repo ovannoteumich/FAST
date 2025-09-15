@@ -254,11 +254,13 @@ for ipnt = 1:npnt
     
     elseif LamType == 1
         % evaluate the function handles for the current splits
-        %SplitUps = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
+        SplitUps = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
     
         % propagate the power downstream to the transmitters
         %Preq(ipnt, TrnSnkIdx) = PropulsionPkg.PowerFlow(Preq(ipnt, TrnSnkIdx)', Arch(TrnSnkIdx, TrnSnkIdx)', SplitUps(TrnSnkIdx, TrnSnkIdx), EtaUps(TrnSnkIdx, TrnSnkIdx), 1);
-       
+        
+        PavTemp = PropulsionPkg.PowerFlow(Preq(ipnt, TrnSnkIdx)', Arch(TrnSnkIdx, TrnSnkIdx), SplitUps(TrnSnkIdx, TrnSnkIdx), EtaUps(TrnSnkIdx, TrnSnkIdx), +1)';
+
         Preq(ipnt, [3,4]) = LamUps(ipnt,[1,2]) .* Pav(ipnt,[3,4]);
         Preq(ipnt, [5,6]) = LamUps(ipnt,[3,4]) .* Pav(ipnt,[5,6]);
         Preq(ipnt, [7,8])=(Preq(ipnt,[3,4])+Preq(ipnt,[5,6]))*.99;

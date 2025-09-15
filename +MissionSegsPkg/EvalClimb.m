@@ -313,7 +313,7 @@ while (iter < MaxIter)
         end
         if Aircraft.Settings.Analysis.Type < 0
                 if Aircraft.Settings.PrintOut ==1
-            error('Target climb altitude cannot be reached (Ps < 0). Results may be faulty.')
+                    error('Target climb altitude cannot be reached (Ps < 0). Results may be faulty.')
                 end
         end
     end
@@ -324,6 +324,9 @@ while (iter < MaxIter)
       
         % compute time to fly based on energy height
         dTime = dEnHt ./ Ps(1:end-1);
+        if any(dTime<0)
+            error
+        end
         
         % update the rate of climb (0 gets overwritten by next segment)
         dh_dt = [diff(Alt) ./ dTime; 0];
@@ -333,7 +336,7 @@ while (iter < MaxIter)
         irow = find(dh_dt - dh_dtMax > EPS06);
         
         % adjust points that exceed the maximum rate of climb
-        if (any(irow) && Aircraft.Settings.Analysis.PowerOpt ==0)
+        if (any(irow) && Aircraft.Settings.PowerOpt == 0)
             
             % limit the rate of climb
             dh_dt(irow) = dh_dtMax;
@@ -351,6 +354,9 @@ while (iter < MaxIter)
         
         % compute time to fly based on rate of climb
         dTime = diff(Alt) ./ dh_dt(1:end-1);
+        if any(dTime<0)
+            warning
+        end
 
         % compute the acceleration
         dV_dt = [diff(TAS) ./ dTime; 0];

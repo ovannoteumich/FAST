@@ -55,7 +55,7 @@ Aircraft.Settings.PowerStrat = 1;
 
 % no mission history table
 Aircraft.Settings.Table = 0;
-Aircraft.Specs.Weight.Batt = 3e3;
+%Aircraft.Specs.Weight.Batt = 3e3;
 
 % climb beg and end ctrl pt indeces
 % get the number of points in each segment
@@ -124,7 +124,7 @@ function [fburn, SOC, dh_dt] = FlyAircraft(PC, Aircraft)
         Aircraft = Main(Aircraft, @MissionProfilesPkg.A320);
         
         % fuel required for mission
-        fburn = Aircraft.Mission.History.SI.Weight.Fburn(82);
+        fburn = Aircraft.Mission.History.SI.Weight.Fburn(end);
         if fburn < 0 
             fburn = 10^3;
         end
