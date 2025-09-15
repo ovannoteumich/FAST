@@ -2,6 +2,7 @@ function [Aircraft] = PreSpecProcessing(Aircraft)
 %
 % [Aircraft] = PreSpecProcessing(Aircraft)
 % written by Max Arnson, marnson@umich.edu
+% last updated: 04 mar 2025
 % last updated: 20 jun 2025
 %
 % Instantiate any variables not specified in an aircraft data structure.
@@ -56,8 +57,11 @@ if ~ isfield(Aircraft,"Specs")
     Aircraft.Specs.Power.P_W.SLS = NaN;
     Aircraft.Specs.Power.P_W.EM = NaN;
     Aircraft.Specs.Power.P_W.EG = NaN;
+
     Aircraft.Specs.Power.LamDwn.SLS = NaN;
     Aircraft.Specs.Power.LamUps.SLS = NaN;
+
+   
     Aircraft.Specs.Power.LamDwn.Tko = NaN;
     Aircraft.Specs.Power.LamUps.Tko = NaN;
     Aircraft.Specs.Power.LamDwn.Clb = NaN;
@@ -71,6 +75,20 @@ if ~ isfield(Aircraft,"Specs")
     Aircraft.Specs.Power.Battery.ParCells = NaN;
     Aircraft.Specs.Power.Battery.SerCells =  NaN;
     Aircraft.Specs.Power.Battery.BegSOC = NaN;
+    Aircraft.Specs.Battery.NomVolCell = NaN;
+    Aircraft.Specs.Battery.MaxExtVolCell = NaN;
+    Aircraft.Specs.Battery.CapCell = NaN;
+    Aircraft.Specs.Battery.IntResist = NaN;
+    Aircraft.Specs.Battery.expVol = NaN;
+    Aircraft.Specs.Battery.expCap = NaN;
+    Aircraft.Specs.Battery.MinSOC = NaN;
+    Aircraft.Specs.Battery.MaxAllowCRate = NaN;
+    Aircraft.Specs.Battery.Chem = NaN;
+    Aircraft.Specs.Battery.GroundT = NaN;
+    Aircraft.Specs.Battery.Cpower = NaN;
+    Aircraft.Specs.Battery.FEC = NaN;
+    Aircraft.Specs.Battery.SOH = NaN;
+    Aircraft.Specs.Battery.OpTemp = NaN;
 
 
 else
@@ -232,7 +250,6 @@ else
 
 
     % Power
-
     if ~isfield(Aircraft.Specs,"Power")
         Aircraft.Specs.Power.SLS = NaN;
         Aircraft.Specs.Power.SpecEnergy.Fuel = NaN;
@@ -243,8 +260,10 @@ else
         Aircraft.Specs.Power.P_W.SLS = NaN;
         Aircraft.Specs.Power.P_W.EM = NaN;
         Aircraft.Specs.Power.P_W.EG = NaN;
+
         Aircraft.Specs.Power.LamDwn.SLS = NaN;
         Aircraft.Specs.Power.LamUps.SLS = NaN;
+
         Aircraft.Specs.Power.Battery.ParCells = NaN;
         Aircraft.Specs.Power.Battery.SerCells =  NaN;
         Aircraft.Specs.Power.Battery.BegSOC = NaN;
@@ -296,6 +315,7 @@ else
             end
         end
 
+
         if ~isfield(Aircraft.Specs.Power,"LamDwn")
             Aircraft.Specs.Power.LamDwn.SLS = NaN;
             Aircraft.Specs.Power.LamDwn.Tko = NaN;
@@ -346,11 +366,15 @@ else
             end
             if ~isfield(Aircraft.Specs.Power.LamUps,"Des")
                 Aircraft.Specs.Power.LamUps.Des = NaN;
+
+       
             end
             if ~isfield(Aircraft.Specs.Power.LamUps,"Lnd")
                 Aircraft.Specs.Power.LamUps.Lnd = NaN;
             end
         end
+
+   
         
         if ~isfield(Aircraft.Specs.Power,"Battery")
             Aircraft.Specs.Power.Battery.ParCells = NaN;
@@ -367,6 +391,69 @@ else
                 Aircraft.Specs.Power.Battery.BegSOC = NaN;
             end
         end
+
+        
+        % battery
+        if ~isfield(Aircraft.Specs, "Battery")
+            Aircraft.Specs.Battery.NomVolCell = NaN;
+            Aircraft.Specs.Battery.MaxExtVolCell = NaN;
+            Aircraft.Specs.Battery.CapCell = NaN;
+            Aircraft.Specs.Battery.IntResist = NaN;
+            Aircraft.Specs.Battery.expVol = NaN;
+            Aircraft.Specs.Battery.expCap = NaN;
+            Aircraft.Specs.Battery.MinSOC = NaN;
+            Aircraft.Specs.Battery.MaxAllowCRate = NaN;
+            Aircraft.Specs.Battery.Chem = NaN;
+            Aircraft.Specs.Battery.GroundT = NaN;
+            Aircraft.Specs.Battery.Cpower = NaN;
+            Aircraft.Specs.Battery.FEC = NaN;
+            Aircraft.Specs.Battery.SOH = NaN;
+            Aircraft.Specs.Battery.OpTemp = NaN;
+        else
+            if ~isfield(Aircraft.Specs.Battery, "NomVolCell")
+                Aircraft.Specs.Battery.NomVolCell = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Battery, "MaxExtVolCell")
+                Aircraft.Specs.Battery.MaxExtVolCell = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Battery, "CapCell")
+                Aircraft.Specs.Battery.CapCell = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Battery, "IntResist")
+                Aircraft.Specs.Battery.IntResist = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Battery, "expVol")
+                Aircraft.Specs.Battery.expVol = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Battery, "expCap")
+                Aircraft.Specs.Battery.expCap = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Battery, "MinSOC")
+                Aircraft.Specs.Battery.MinSOC = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Battery, "MaxAllowCRate")
+                Aircraft.Specs.Battery.MaxAllowCRate = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Battery, "Chem")
+                Aircraft.Specs.Battery.Chem = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Battery, "GroundT")
+                Aircraft.Specs.Battery.GroundT = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Battery, "Cpower")
+                Aircraft.Specs.Battery.Cpower = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Battery, "FEC")
+                Aircraft.Specs.Battery.FEC = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Battery, "SOH")
+                Aircraft.Specs.Battery.SOH = NaN;
+            end
+            if ~isfield(Aircraft.Specs.Battery, "OpTemp")
+                Aircraft.Specs.Battery.OpTemp = NaN;
+            end
+        end
+
     end
 end
 
@@ -386,6 +473,7 @@ if ~isfield(Aircraft,"Settings")
     Aircraft.Settings.VisualizeAircraft = NaN;
     Aircraft.Settings.Dir.Size = NaN;
     Aircraft.Settings.Dir.Oper = NaN;
+    Aircraft.Settings.Degradation = NaN;
 else
     if ~isfield(Aircraft.Settings,"TkoPoints")
         Aircraft.Settings.TkoPoints = NaN;
@@ -413,12 +501,16 @@ else
     if ~isfield(Aircraft.Settings,"Analysis")
         Aircraft.Settings.Analysis.MaxIter = NaN;
         Aircraft.Settings.Analysis.Type = NaN;
+        Aircraft.Settings.Analysis.PowerOpt = NaN;
     else
         if ~isfield(Aircraft.Settings.Analysis,"MaxIter")
             Aircraft.Settings.Analysis.MaxIter = NaN;
         end
         if ~isfield(Aircraft.Settings.Analysis,"Type")
             Aircraft.Settings.Analysis.Type = NaN;
+        end
+          if ~isfield(Aircraft.Settings.Analysis,"PowerOpt")
+            Aircraft.Settings.Analysis.PowerOpt = NaN;
         end
     end
     if ~isfield(Aircraft.Settings,"Plotting")
@@ -440,6 +532,12 @@ else
         if ~isfield(Aircraft.Settings.Dir,"Oper")
             Aircraft.Settings.Dir.Oper = NaN;
         end
+    end
+    if ~isfield(Aircraft.Settings, "Degradation")
+        Aircraft.Settings.Degradation = NaN;
+    end
+    if ~isfield(Aircraft.Settings, "PrintOut")
+        Aircraft.Settings.PrintOut = NaN;
     end
 end
 
