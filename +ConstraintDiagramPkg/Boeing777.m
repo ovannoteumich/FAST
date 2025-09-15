@@ -2,7 +2,7 @@ function [] = Boeing777()
 %
 % [] = Boeing777()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 05 sep 2025
+% last updated: 15 sep 2025
 %
 % create a constraint diagram for a boeing 777, found in the aircraft
 % design metabook.
@@ -15,7 +15,7 @@ function [] = Boeing777()
 %
 
 % initial cleanup
-%clc, close all
+clc, close all
 
 
 %% DEFINE THE AIRCRAFT'S PARAMETERS %%
