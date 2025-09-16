@@ -148,7 +148,7 @@ for itime = 1:ntime
     if (Preq >= 0)
         
         % compute the hot cell voltage
-        VoltageCellHot = -(PolarizedVoTemp ./ (SOC(itime) / 100) + ResistanceTemp);
+        VoltageCellHot = (PolarizedVoTemp ./ (SOC(itime) / 100) + ResistanceTemp);
         
     else
         
