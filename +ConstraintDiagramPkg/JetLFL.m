@@ -2,7 +2,7 @@ function [FAR] = JetLFL(W_S, T_W, Aircraft)
 %
 % [FAR] = JetLFL(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 05 sep 2025
+% last updated: 16 sep 2025
 %
 % derive the constraints for landing field length.
 %
@@ -26,6 +26,9 @@ function [FAR] = JetLFL(W_S, T_W, Aircraft)
 %% PRE-PROCESSING %%
 %%%%%%%%%%%%%%%%%%%%
 
+% get the requirement type
+ReqType = Aircraft.Specs.TLAR.ReqType;
+
 % retrieve parameters from the aircraft structure
 CL    = Aircraft.Specs.Aero.CL.Lnd;
 SLand = Aircraft.Specs.Performance.LFL;
@@ -43,14 +46,35 @@ RhoRwy = 0.95;
 %% EVALUATE THE CONSTRAINT %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% landing distance is 60% of total landing distance
-SLand = 0.6 * SLand - SObst;
-
 % convert wing loading to english units
 W_S = W_S .* UnitConversionPkg.ConvMass(1, "kg", "lbm") ./ UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
 
-% use Roskam's equation
-FAR = W_S - RhoRwy * CL * SLand / 80 / Wl_W0;
+if (ReqType == 0)
+    
+    % landing distance is 60% of total landing distance
+    SLand = 0.6 * SLand - SObst;
+        
+    % use metabooks's equation
+    FAR = W_S - RhoRwy * CL * SLand / 80 / Wl_W0;
+
+else
+    
+    % compute the approach speed (kts)
+    Vapp = sqrt(SLand / 0.3);
+    
+    % compute the stall speed (kts)
+    Vstall = Vapp / 1.3;
+    
+    % convert to ft/s
+    Vstall = Vstall * UnitConversionPkg.ConvVel(1, "kts", "ft/s");
+    
+    % compute the required wing loading
+    W_Sreq = 0.5 * 0.002377 * Vstall ^ 2 * CL / Wl_W0;
+    
+    % apply as a constraint
+    FAR = W_S - W_Sreq;
+    
+end
     
 % ----------------------------------------------------------
 
