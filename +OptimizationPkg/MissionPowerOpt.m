@@ -130,8 +130,8 @@ function [fburn, SOC, dh_dt] = FlyAircraft(PC, Aircraft)
         end
         % SOC for mission
         SOC = Aircraft.Mission.History.SI.Power.SOC(n1:64,2);
-        Aircraft = ExperimentPkg.EnergyCost_perAirport(Aircraft, "ATL", priceTable);
-        DOC = Aircraft.Mission.History.SI.Performance.Cost;
+        %Aircraft = ExperimentPkg.EnergyCost_perAirport(Aircraft, "ATL", priceTable);
+        %DOC = Aircraft.Mission.History.SI.Performance.Cost;
     catch 
         fburn = 1e10;
         % SOC for mission
