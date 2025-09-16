@@ -2,7 +2,7 @@ function [FAR] = JetCrs(W_S, T_W, Aircraft)
 %
 % [FAR] = JetCrs(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 05 sep 2025
+% last updated: 16 sep 2025
 %
 % derive the constraints for cruise performance.
 %
@@ -25,6 +25,9 @@ function [FAR] = JetCrs(W_S, T_W, Aircraft)
 
 %% PRE-PROCESSING %%
 %%%%%%%%%%%%%%%%%%%%
+
+% get the aircraft class
+aclass = Aircraft.Specs.TLAR.Class;
 
 % retrieve parameters from the aircraft structure
 CD0  = Aircraft.Specs.Aero.CD0.Crs;  % cruise CD0
@@ -55,6 +58,17 @@ RhoRatio = RhoCrs / RhoSLS;
     
 % convert wing loading to english units
 W_S = W_S .* UnitConversionPkg.ConvMass(1, "kg", "lbm") ./ UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
+
+% check for turboprop/piston aircraft
+if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
+    
+    % get the airspeed and convert to m/s
+    V = UnitConversionPkg.ConvVel(VInf, "ft/s", "m/s");
+    
+    % convert to T/W
+    T_W = 1 ./ (V .* T_W);
+    
+end
 
 % Roskam and Mattingly's equations match
 FAR = (q .* CD0 ./ W_S + W_S ./ q ./ pi ./ AR ./ e) ./ RhoRatio ^ 0.6 - T_W;

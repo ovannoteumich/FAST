@@ -1,10 +1,10 @@
-function [FAR] = JetTOFL(W_S, T_W, Aircraft)
+function [FAR] = JetApp(W_S, T_W, Aircraft)
 %
-% [FAR] = JetTOFL(W_S, T_W, Aircraft)
+% [FAR] = JetApp(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
 % last updated: 16 sep 2025
 %
-% derive the constraints for takeoff field length.
+% derive the constraints for approach speed.
 %
 % INPUTS:
 %     W_S      - grid of wing loading values.
@@ -26,44 +26,42 @@ function [FAR] = JetTOFL(W_S, T_W, Aircraft)
 %% PRE-PROCESSING %%
 %%%%%%%%%%%%%%%%%%%%
 
-% get the aircraft class
-aclass = Aircraft.Specs.TLAR.Class;
+% get the requirement type
+ReqType = Aircraft.Specs.TLAR.ReqType;
 
 % retrieve parameters from the aircraft structure
-CL          = Aircraft.Specs.Aero.CL.Tko;
-BalFieldLen = Aircraft.Specs.Performance.TOFL;
-Vstall      = Aircraft.Specs.Performance.Vels.Stl;
-
-% convert the balanced field length
-BalFieldLen = BalFieldLen * UnitConversionPkg.ConvLength(1, "m", "ft");
-
-% assume a 95% density ratio for a "hot day"
-RhoRwy = 0.95;
+CL    = Aircraft.Specs.Aero.CL.Lnd;
+Wl_W0 = Aircraft.Specs.Performance.Wland_MTOW;
+Vapp  = Aircraft.Specs.Performance.Vels.App;
 
 
 %% EVALUATE THE CONSTRAINT %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% compute the takeoff parameter, based on FAR 25
-Top25 = BalFieldLen / 37.5;
-    
 % convert wing loading to english units
 W_S = W_S .* UnitConversionPkg.ConvMass(1, "kg", "lbm") ./ UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
 
-% check for turboprop/piston aircraft
-if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
+if (ReqType == 0)
+            
+    % none needed
+    FAR = zeros(size(W_S));
+
+else
     
-    % get the airspeed and convert to m/s
-    V = UnitConversionPkg.ConvVel(Vstall * 1.2, "ft/s", "m/s");
+    % convert to ft/s
+    Vapp = UnitConversionPkg.ConvVel(Vapp, "m/s", "ft/s");
     
-    % convert to T/W
-    T_W = 1 ./ (V .* T_W);
+    % compute the stall speed
+    Vstall = Vapp / 1.3;
+    
+    % compute the required wing loading at sea level
+    W_Sreq = 0.5 * 0.002377 * Vstall ^ 2 * CL / Wl_W0;
+    
+    % apply as a constraint
+    FAR = W_S - W_Sreq;
     
 end
-
-% Roskam and Mattingly's equations match
-FAR = W_S ./ (RhoRwy * CL * Top25) - T_W;
-
+    
 % ----------------------------------------------------------
 
 end

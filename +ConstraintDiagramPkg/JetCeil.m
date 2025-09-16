@@ -2,7 +2,7 @@ function [FAR] = JetCeil(W_S, T_W, Aircraft)
 %
 % [FAR] = JetCeil(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 05 sep 2025
+% last updated: 16 sep 2025
 %
 % derive the constraints for service ceiling.
 %
@@ -25,6 +25,9 @@ function [FAR] = JetCeil(W_S, T_W, Aircraft)
 
 %% PRE-PROCESSING %%
 %%%%%%%%%%%%%%%%%%%%
+
+% get the aircraft class
+aclass = Aircraft.Specs.TLAR.Class;
 
 % retrieve parameters from the aircraft structure
 CD0     = Aircraft.Specs.Aero.CD0.Crs;
@@ -67,6 +70,17 @@ elseif (ReqType == 1)
     
     % compute the dynamic pressure
     q = 0.5 .* RhoSLS .* Vcrs .^ 2;
+    
+    % check for turboprop/piston aircraft
+    if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
+        
+        % get the airspeed and convert to m/s
+        V = UnitConversionPkg.ConvVel(Vcrs, "ft/s", "m/s");
+        
+        % convert to T/W
+        T_W = 1 ./ (V .* T_W);
+        
+    end
     
     % use Mattingly's equation for service ceiling
     FAR = 1 ./ RhoRatio ^ 0.6 .* (q .* CD0 ./ W_S + W_S ./ q ./ (pi * AR * e) + G) - T_W;
