@@ -3,7 +3,7 @@ function [] = ConstraintDiagram(Aircraft)
 % ConstraintDiagram.m
 % written by Paul Mokotoff, prmoko@umich.edu
 % adapted from code used in AEROSP 481 as a GSI
-% last updated: 15 sep 2025
+% last updated: 16 sep 2025
 %
 % create a constraint diagram (T/W-W/S for turbofans or P/W-W/S for
 % turboprops/pistons) according to 14 CFR 23/25.
@@ -58,9 +58,6 @@ elseif ((strcmpi(aclass, "Turboprop") == 1) || ...
         
         % define the axis label
         VertLabel = "Power Loading (N/W)";
-        
-        % re-invert to W/N and convert to N/N
-        Vrange = 1 ./ Vrange .* 0.0167;
                         
     elseif (CFRPart == 23)
                 
@@ -151,31 +148,29 @@ if (CFRPart == 25)
     % add a label
     L08 = "25.121d";
         
-    % service ceiling
-    g09 = ConstraintDiagramPkg.JetCeil(Hgrid, Vgrid, Aircraft);
-    
-    % add a label
-    L09 = "Srv. Ceil.";
+%     % service ceiling
+%     g09 = ConstraintDiagramPkg.JetCeil(Hgrid, Vgrid, Aircraft);
+%     
+%     % add a label
+%     L09 = "Srv. Ceil.";
     
     % cruise
-    g10 = ConstraintDiagramPkg.JetCrs(Hgrid, Vgrid, Aircraft);
+    g09 = ConstraintDiagramPkg.JetCrs(Hgrid, Vgrid, Aircraft);
     
     % add a label
-    L10 = "Cruise";
+    L09 = "Cruise";
+    
+    % approach speed
+    g10 = ConstraintDiagramPkg.JetApp(Hgrid, Vgrid, Aircraft);
+    
+    % add a label
+    L10 = "Approach";
     
     % there are 10 total constraints
     ncon = 10;
     
     % check for turboprop or piston aircraft
     if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
-        
-        % convert from N/N to W/N
-        Vrange = Vrange ./ 0.0167;
-        Vgrid  = Vgrid  ./ 0.0167;
-        
-        % invert to N/W
-        Vrange = 1 ./ Vrange;
-        Vgrid  = 1 ./ Vgrid ;
         
         % convert the horizontal grid and range to kN/m^2
         Hgrid  = Hgrid  .* 9.81 ./ 1000;
