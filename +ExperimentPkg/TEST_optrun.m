@@ -2,14 +2,14 @@ function [Aircraft] = TEST_optrun(Aircraft)
 %
 
 % gravimetric specific energy of battery (kWh/kg), not used here
-Aircraft.Specs.Power.SpecEnergy.Batt = .25;
+%Aircraft.Specs.Power.SpecEnergy.Batt = .25;
 
 % battery cells in series and parallel 
-Aircraft.Specs.Power.Battery.ParCells = 100;
-Aircraft.Specs.Power.Battery.SerCells = 62;
+%Aircraft.Specs.Power.Battery.ParCells = 100;
+%Aircraft.Specs.Power.Battery.SerCells = 62;
 
 % initial battery SOC
-Aircraft.Specs.Power.Battery.BegSOC = 100;
+%Aircraft.Specs.Power.Battery.BegSOC = 100;
 
 %%
 %{
