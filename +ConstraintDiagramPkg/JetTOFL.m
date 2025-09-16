@@ -32,7 +32,7 @@ aclass = Aircraft.Specs.TLAR.Class;
 % retrieve parameters from the aircraft structure
 CL          = Aircraft.Specs.Aero.CL.Tko;
 BalFieldLen = Aircraft.Specs.Performance.TOFL;
-Vtko        = Aircraft.Specs.Performance.Vels.Tko;
+Vstall      = Aircraft.Specs.Performance.Vels.Stl;
 
 % convert the balanced field length
 BalFieldLen = BalFieldLen * UnitConversionPkg.ConvLength(1, "m", "ft");
@@ -52,9 +52,9 @@ W_S = W_S .* UnitConversionPkg.ConvMass(1, "kg", "lbm") ./ UnitConversionPkg.Con
 
 % check for turboprop/piston aircraft
 if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
-    
+        
     % convert to T/W
-    T_W = 1 ./ (Vtko .* T_W);
+    T_W = 1 ./ (Vstall .* T_W);
     
 end
 
