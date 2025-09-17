@@ -320,7 +320,9 @@ while (iter < MaxIter)
         dh_dt = [diff(Alt) ./ dTime; 0];
         
         % find points that exceed the maximum rate of climb
+
         irow = find(dh_dt - dh_dtMax > EPS06);
+
         
         % adjust points that exceed the maximum rate of climb
         if (any(irow))
@@ -349,7 +351,7 @@ while (iter < MaxIter)
 
         % adjust points when the required acceleration can't be realized
         if (any(dV_dt - dV_dtMax > EPS06))
-            
+
             % assume maximum acceleration at all points
             dV_dt = dV_dtMax;
         

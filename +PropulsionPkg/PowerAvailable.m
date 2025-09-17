@@ -2,7 +2,7 @@ function [Aircraft] = PowerAvailable(Aircraft)
 %
 % [Aircraft] = PowerAvailable(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 17 dec 2024
+% last updated: 17 sep 2025
 %
 % For a given propulsion architecture, compute the power available.
 %
@@ -95,6 +95,7 @@ itrn = (1:ntrn) + nsrc;
 % find all upstream transmitters (i.e., input at least one transmitter and
 % maybe a source)
 UpTrn = find(sum(Arch(itrn, itrn), 1) > 0);
+
  
 % assume no power available at the propellers yet (need to propagate)
 PowerAv(:, UpTrn) = 0; %#ok<FNDSB>
@@ -151,6 +152,7 @@ end
 %% COMPUTE THE TOTAL POWER AVAILABLE %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
 % allocate memory for the power available
 Pav = zeros(npnt, ncomp);
 
@@ -185,6 +187,7 @@ TV = sum(Pav(:, nsrc+ntrn+1:end), 2);
 % remember the thrust and power available for the transmitters
 Aircraft.Mission.History.SI.Power.Pav(SegBeg:SegEnd, :) = Pav;
 Aircraft.Mission.History.SI.Power.Tav(SegBeg:SegEnd, :) = Tav;
+
 
 % remember the power available
 Aircraft.Mission.History.SI.Power.TV(SegBeg:SegEnd) = TV;

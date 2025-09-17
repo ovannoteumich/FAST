@@ -1,6 +1,6 @@
 # **Changelog**
 
-Copyright 2024 The Regents of the University of Michigan, The Integrated Design of Environmentally-friendly Aircraft Systems Laboratory
+Copyright 2024 The Regents of the University of Michigan, The Integrated Design of Efficient Aerospace Systems Laboratory
 
 Written by the IDEAS Lab at the University of Michigan:
 <https://ideas.engin.umich.edu>
@@ -12,46 +12,8 @@ Principal Authors:
 - Paul Mokotoff, <prmoko@umich.edu>
 - Max Arnson, <marnson@umich.edu>
 
-Last Updated: 13 Feb 2024
-
-## Version 1.0.0 - dd Mmm 2025
-
-### Added
-
-1. The README file now contains a list of papers to cite when using FAST for your own research.
-
-### Changed
-
-1. Developed a new approach to analyze the propulsion system performance.
-If you use a pre-defined propulsion architecture ("C", "E", "PHE", "SHE", "TE", or "PE"), the propulsion architecture does not need to be redefined.
-If you use a custom propulsion architecture ("O"), then the matrices need to be redefined using the following five matrices:
-
-    - ``Aircraft.Specs.Propulsion.PropArch.Arch``: architecture matrix (defines the     propulsion architecture)
-    
-    - ``Aircraft.Specs.Propulsion.PropArch.OperUps``: upstream operational matrix (for computing power available, still a function of the mission segment)
-    
-    - ``Aircraft.Specs.Propulsion.PropArch.OperDwn``: downstream operational matrix (for sizing and propulsion system analysis, still a function of the mission segment)
-    
-    - ``Aircraft.Specs.Propulsion.PropArch.EtaUps``: upstream efficiency matrix (accounts for losses while propagating power upstream)
-    
-    - ``Aircraft.Specs.Propulsion.PropArch.EtaDwn``: downstream efficiency matrix (accounts for losses while propagating power downstream)
-    
-    Additionally, the user must define which components are "sources" and "transmitters", using:
-
-    - ``Aircraft.Specs.Propulsion.PropArch.SrcType``: defines the types of sources used (fuel, battery, etc.)
-
-    - ``Aircraft.Specs.Propulsion.PropArch.TrnType``: defines the types of transmitters used (gas-turbine engine, electric motor, electric generator, propeller/fan, etc.)
-
-    Instead of defining the power splits using ``LamTS/TSPS/PSPS/PSES``, new variables are used:
-    
-    - ``Aircraft.Specs.Power.LamUps.SLS/Tko/Clb/Crs/Des/Lnd``: defines the power splits for the upstream operational matrix as a function of the segment
-
-    - ``Aircraft.Specs.Power.LamDwn.SLS/Tko/Clb/Crs/Des/Lnd``: defines the power splits for the downstream operational matrix as a function of the segment
-
-    Refer to the following paper to learn about the matrices:
-
-    > Mokotoff, P. and Cinar, G. (2025). Graph Theory-based propulsion system analysis. *Journal* V(I), pp-pp.
-
+Last Updated: 28 Mar 2025
+	
 ## Version 0.1.2 - 25 Jan 2025
 
 ### Changed
@@ -90,7 +52,8 @@ If you are using a turbofan aircraft, you must define the following constants in
     - ``Engine.Cffch``
     - ``Engine.HEcoeff``
 
-    The first four variables
+The first four variables are further described in [this paper](https://www.gokcincinar.com/publication/c-2025-scitech-pm/c-2025-SciTech-PM.pdf).
+The fifth variable is only necessary for hybrid electric configurations and is proportional to the ratio of thrust produced by a hybrid electric configuration relative to a conventional baseline aircraft.
 
 ### Fixed
 
