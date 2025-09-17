@@ -3,7 +3,7 @@ function [Aircraft] = OEWIteration(Aircraft)
 % [Aircraft] = OEWIteration(Aircraft)
 % written by Maxfield Arnson
 % modified by Paul Mokotoff, prmoko@umich.edu
-% last updated: 28 mar 2024
+% last updated: 25 mar 2025
 %
 % This function takes the aircraft specification structure and performs
 % regressions (using the regression package) based on the data in the
@@ -50,6 +50,8 @@ Wem   = Aircraft.Specs.Weight.EM     ;
 Wpax  = Aircraft.Specs.Weight.Payload;
 Wcrew = Aircraft.Specs.Weight.Crew   ;
 Weng  = Aircraft.Specs.Weight.Engines;
+Weap  = Aircraft.Specs.Weight.EAP    ;
+Wcab  = Aircraft.Specs.Weight.Cables ;
 
 % check for a calibration factor on OEW/airframe weight
 if (isfield(Aircraft.Specs.Weight, "WairfCF"))
@@ -69,7 +71,7 @@ end
 %%%%%%%%%%%%%%%%%%%
 
 % compute the airframe weight (remove propulsion system from OEW)
-WframeNew = Aircraft.Specs.Weight.OEW - Weng - Wem - Weg;
+WframeNew = Aircraft.Specs.Weight.OEW - Weng - Wem - Weg - Weap - Wcab;
 
 % If there is a bad initial guess such that OEW is negative, the code will
 % converge on a negative solution. This line prevents that and nugdes the
@@ -109,7 +111,7 @@ switch Class
             WframeOld = WframeNew;
             
             % compute MTOW
-            MTOW = WframeOld + Wfuel + Wbatt + Wpax + Wcrew + Wem + Weg + Weng;
+            MTOW = WframeOld + Wfuel + Wbatt + Wpax + Wcrew + Wem + Weg + Weng + Weap + Wcab;
             
             % get the necessary thrust and wing area
             T = MTOW * T_W * g;
@@ -124,11 +126,17 @@ switch Class
             % get the new engine weights
             WengNew = Aircraft.Specs.Weight.Engines;
             
-            % get the new eelectric motor weights
+            % get the new electric motor weights
             WemNew = Aircraft.Specs.Weight.EM;
+            
+            % get the new electric generator weights
+            WegNew = Aircraft.Specs.Weight.EG;
+            
+            % get the new cable weights
+            WcabNew = Aircraft.Specs.Weight.Cables;
                         
             % modify MTOW
-            MTOW = MTOW + WengNew - Weng + WemNew - Wem;
+            MTOW = MTOW + WengNew - Weng + WemNew - Wem + WegNew - Weg + WcabNew - Wcab;
                         
             % list the targets for the airframe weight estimation
             target = [S, T, EIS, MTOW];
@@ -152,9 +160,11 @@ switch Class
             % iterate
             iter = iter +1;
             
-            % remember the power source weights
+            % remember the new transmitter weights
             Weng = WengNew;
             Wem  =  WemNew;
+            Weg  =  WegNew;
+            Wcab = WcabNew;
             
         end
       
@@ -191,7 +201,7 @@ switch Class
             WframeOld = WframeNew;
             
             % compute MTOW
-            MTOW = WframeOld + Wfuel + Wbatt + Wpax + Wcrew + Wem + Weg + Weng;
+            MTOW = WframeOld + Wfuel + Wbatt + Wpax + Wcrew + Wem + Weg + Weng + Weap + Wcab;
             
             % get the necessary power and wing area
             P = MTOW * P_W;
@@ -206,11 +216,17 @@ switch Class
             % get the new engine weights
             WengNew = Aircraft.Specs.Weight.Engines;
             
-            % get the new eelectric motor weights
+            % get the new electric motor weights
             WemNew = Aircraft.Specs.Weight.EM;
             
+            % get the new electric generator weights
+            WegNew = Aircraft.Specs.Weight.EG;
+            
+            % get the new cable weights
+            WcabNew = Aircraft.Specs.Weight.Cables;
+            
             % modify MTOW
-            MTOW = MTOW + WengNew - Weng + WemNew - Wem;
+            MTOW = MTOW + WengNew - Weng + WemNew - Wem + WegNew - Weg + WcabNew - Wcab;
             
             % compute the new airframe weight
             WframeNew = polyval(Airframe_f_of_MTOW, MTOW);
@@ -227,6 +243,8 @@ switch Class
             % remember the new power source weights
             Weng = WengNew;
             Wem  =  WemNew;
+            Weg  =  WegNew;
+            Wcab = WcabNew;
             
         end
         
@@ -247,11 +265,13 @@ end
 %%%%%%%%%%%%%%%%%%%%%
 
 % compute the OEW
-OEW = WframeNew + WemNew + Weg + WengNew;
+OEW = WframeNew + WemNew + WegNew + WengNew + Weap + Wcab;
 
 % remember the new weights
 Aircraft.Specs.Weight.Engines  = WengNew  ;
 Aircraft.Specs.Weight.EM       = WemNew   ;
+Aircraft.Specs.Weight.EG       = WegNew   ;
+Aircraft.Specs.Weight.Cables   = WcabNew  ;
 Aircraft.Specs.Weight.Airframe = WframeNew;
 Aircraft.Specs.Weight.OEW      = OEW      ;
 Aircraft.Specs.Weight.MTOW     = MTOW     ;

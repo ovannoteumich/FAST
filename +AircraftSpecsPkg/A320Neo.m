@@ -3,7 +3,7 @@ function [Aircraft] = A320Neo()
 % [Aircraft] = A320Neo()
 % written by Max Arnson, marnson@umich.edu and Yi-Chih Wang,
 % ycwangd@umich.edu
-% last updated: 20 Sep 2024
+% last updated: 20 jun 2025
 % 
 % create a baseline model of the A320neo WV054. this version uses a 
 % conventional propulsion architecture.
@@ -123,7 +123,7 @@ Aircraft.Specs.Weight.Batt = NaN;
 % "SHE" = series hybrid electric
 % "TE"  = fully turboelectric
 % "PE"  = partially turboelectric
-Aircraft.Specs.Propulsion.Arch.Type = "C";
+Aircraft.Specs.Propulsion.PropArch.Type = "C";
 
 % **required** for configurations using gas-turbine engines
 % get the engine model
@@ -163,37 +163,21 @@ Aircraft.Specs.Power.P_W.SLS = NaN;
 Aircraft.Specs.Power.P_W.EM = NaN;
 Aircraft.Specs.Power.P_W.EG = NaN;
 
-% thrust splits (thrust / total thrust)
-Aircraft.Specs.Power.LamTS.Tko = 0;
-Aircraft.Specs.Power.LamTS.Clb = 0;
-Aircraft.Specs.Power.LamTS.Crs = 0;
-Aircraft.Specs.Power.LamTS.Des = 0;
-Aircraft.Specs.Power.LamTS.Lnd = 0;
-Aircraft.Specs.Power.LamTS.SLS = 0;
+% upstream power splits
+Aircraft.Specs.Power.LamUps.SLS = 0;
+Aircraft.Specs.Power.LamUps.Tko = 0;
+Aircraft.Specs.Power.LamUps.Clb = 0;
+Aircraft.Specs.Power.LamUps.Crs = 0;
+Aircraft.Specs.Power.LamUps.Des = 0;
+Aircraft.Specs.Power.LamUps.Lnd = 0;
 
-% power splits between power/thrust sources (electric power / total power)
-Aircraft.Specs.Power.LamTSPS.Tko = 0;
-Aircraft.Specs.Power.LamTSPS.Clb = 0;
-Aircraft.Specs.Power.LamTSPS.Crs = 0;
-Aircraft.Specs.Power.LamTSPS.Des = 0;
-Aircraft.Specs.Power.LamTSPS.Lnd = 0;
-Aircraft.Specs.Power.LamTSPS.SLS = 0;
-
-% power splits between power/power sources (electric power / total power)
-Aircraft.Specs.Power.LamPSPS.Tko = 0;
-Aircraft.Specs.Power.LamPSPS.Clb = 0;
-Aircraft.Specs.Power.LamPSPS.Crs = 0;
-Aircraft.Specs.Power.LamPSPS.Des = 0;
-Aircraft.Specs.Power.LamPSPS.Lnd = 0;
-Aircraft.Specs.Power.LamPSPS.SLS = 0;
-
-% power splits between energy/power sources (electric power / total power)
-Aircraft.Specs.Power.LamPSES.Tko = 0;
-Aircraft.Specs.Power.LamPSES.Clb = 0;
-Aircraft.Specs.Power.LamPSES.Crs = 0;
-Aircraft.Specs.Power.LamPSES.Des = 0;
-Aircraft.Specs.Power.LamPSES.Lnd = 0;
-Aircraft.Specs.Power.LamPSES.SLS = 0;
+% downstream power splits
+Aircraft.Specs.Power.LamDwn.SLS = 0;
+Aircraft.Specs.Power.LamDwn.Tko = 0;
+Aircraft.Specs.Power.LamDwn.Clb = 0;
+Aircraft.Specs.Power.LamDwn.Crs = 0;
+Aircraft.Specs.Power.LamDwn.Des = 0;
+Aircraft.Specs.Power.LamDwn.Lnd = 0;
 
 % battery cells in series and parallel 
 Aircraft.Specs.Power.Battery.ParCells = NaN;
@@ -235,7 +219,7 @@ Aircraft.Settings.Plotting = 0;
 Aircraft.Settings.Table = 0;
 
 % flag to visualize the aircraft while sizing
-Aircraft.Settings.VisualizeAircraft = 1;
+Aircraft.Settings.VisualizeAircraft = 0;
 
 % check if the aircraft should be visualized
 if (Aircraft.Settings.VisualizeAircraft == 1)
