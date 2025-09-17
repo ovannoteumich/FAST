@@ -1,4 +1,4 @@
-function [] = TestGNU()
+function [total_time] = TestGNU()
 % function [] = TestGNU()
 % Tests FAST's GNU Octave Compatibility
 % Max Arnson || marnson@umich.edu
@@ -11,11 +11,13 @@ function [] = TestGNU()
     engine sizing.
 
     Aircraft sizing runs are as follows:
-        
+
         Turbofan Class: Conventional and fully electric
         Turboprop Class: Conventional and parallel hybrid
 
 %}
+
+tic
 
 %% Search Database Call
 clear; clc; close all;
@@ -68,7 +70,7 @@ AC_In = AircraftSpecsPkg.CeRAS;
 AC_In.Settings.Plotting = 0;
 
 % size
-AC_Out = Main(AC_In,@MissionProfilesPkg.CeRAS);
+%AC_Out = Main(AC_In,@MissionProfilesPkg.CeRAS);
 
 %% Test an aircraft sizing: Turbofan, all electric
 clear; clc; close all;
@@ -79,7 +81,7 @@ AC_In.Settings.Plotting = 0;
 AC_In.Specs.Power.SpecEnergy.Batt = 3;
 
 % size
-AC_Out = Main(AC_In,@MissionProfilesPkg.A320);
+%AC_Out = Main(AC_In,@MissionProfilesPkg.A320);
 
 %% Test an aircraft sizing: Turboprop
 clear; clc; close all;
@@ -120,6 +122,12 @@ Eng_In.Visualize = 0;
 
 % size
 Eng_Out = EngineModelPkg.TurbopropNonlinearSizing(Eng_In);
+
+
+
+
+%% output time
+total_time = toc;
 
 end
 
