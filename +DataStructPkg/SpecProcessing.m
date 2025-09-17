@@ -583,8 +583,12 @@ if Settings.Analysis.Type > -2
 end
 
 %% Preset computationally expensive regression parameters
+% for the OEW iteration, regression is linear for props, no need for this
 
-% for the OEW iteration
+% Initialize to empty for prop case
+RegressionParams = struct();
+
+if TLAR.Class == "Turbofan"
 % list parts of the aircraft structure to use in the regression
 IOspace = {{"Specs", "Aero"      , "S"            }, ...
     {"Specs", "Propulsion", "Thrust", "SLS"}, ...
@@ -603,6 +607,7 @@ Prior = RegressionPkg.PriorCalculation(DataEngine,IOspace);
 EngWeights = 1;
 [RegressionParams.WEngine.DataMatrix,    RegressionParams.WEngine.HyperParams,     RegressionParams.WEngine.InverseTerm] =...
     RegressionPkg.RegProcessing(DataEngine,IOspace,Prior, EngWeights);
+end
 
 %% Prepare Output Structure
 Propulsion.Engine = Engine;
