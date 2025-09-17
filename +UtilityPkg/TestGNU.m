@@ -70,7 +70,7 @@ AC_In = AircraftSpecsPkg.CeRAS;
 AC_In.Settings.Plotting = 0;
 
 % size
-%AC_Out = Main(AC_In,@MissionProfilesPkg.CeRAS);
+AC_Out = Main(AC_In,@MissionProfilesPkg.CeRAS);
 
 %% Test an aircraft sizing: Turbofan, all electric
 clear; clc; close all;
@@ -81,7 +81,7 @@ AC_In.Settings.Plotting = 0;
 AC_In.Specs.Power.SpecEnergy.Batt = 3;
 
 % size
-%AC_Out = Main(AC_In,@MissionProfilesPkg.A320);
+AC_Out = Main(AC_In,@MissionProfilesPkg.A320);
 
 %% Test an aircraft sizing: Turboprop
 clear; clc; close all;
