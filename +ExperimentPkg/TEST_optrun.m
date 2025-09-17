@@ -33,6 +33,7 @@ Aircraft.Specs.Power.LamDwn.Lnd = 0;
 Aircraft.Specs.Weight.Batt = 3e3;
 %}
 pts = [10:27,37:45,55:63];
+Aircraft.Specs.Power.LamUps.Miss(82:91, [3,4])=0;
 %load('PC.mat')
     %Aircraft.Specs.Power.LamUps.Miss(pts, [1,3]) = PC;
     %Aircraft.Specs.Power.LamUps.Miss(pts, [2,4]) = PC;

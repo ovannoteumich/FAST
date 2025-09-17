@@ -72,6 +72,7 @@ n2= 64;
 pts = [10:27,37:45,55:63];
 % get starting point
 PC0 = Aircraft.Specs.Power.LamUps.Miss(pts, [1,3]);
+PC0 = ones(size(PC0)).*[1,0];
 b = size(PC0);
 lb = zeros(b)*-.001;
 ub = ones(b);

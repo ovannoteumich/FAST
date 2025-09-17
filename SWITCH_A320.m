@@ -10,7 +10,7 @@ Aircraft.Specs.Propulsion.PropArch.TrnType = [];
 Aircraft.Settings.PowerStrat = -1;
 
 % gravimetric specific energy of battery (kWh/kg), not used here
-Aircraft.Specs.Power.SpecEnergy.Batt = .25;
+Aircraft.Specs.Power.SpecEnergy.Batt = .5;
 Aircraft.Settings.PowerOpt = 0;
 
 % battery cells in series and parallel 
@@ -56,7 +56,7 @@ Aircraft.Specs.Power.LamUps.Lnd = 0;
 % downstream power splits
 Aircraft.Specs.Power.LamDwn.SLS = .1;
 Aircraft.Specs.Power.LamDwn.Tko = 0;
-Aircraft.Specs.Power.LamDwn.Clb = .12;
+Aircraft.Specs.Power.LamDwn.Clb = .1;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;
