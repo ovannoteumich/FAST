@@ -175,7 +175,7 @@ if (Aircraft.Settings.DetailedBatt == 1)
     C_rate(isinf(C_rate)) = 0;
     
     % check if the C-rate is exceeded
-    ExceedCRate = abs(C_rate) > MaxAllowCRate;
+    ExceedCRate = find(C_rate - MaxAllowCRate > .1);
 
     % resize the battery if the C-rate is exceeded
     if (any(ExceedCRate))
