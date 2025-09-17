@@ -191,6 +191,54 @@ Aircraft.Specs.Power.Battery.SerCells = NaN;
 % initial battery SOC
 Aircraft.Specs.Power.Battery.BegSOC = NaN;
 
+%% BATTERY SETTINGS %%
+%%%%%%%%%%%%%%%%%%%%%%
+
+% battery cells in series and parallel
+% (commented values used for electrified aircraft)
+%Aircraft.Specs.Battery.ParCells = NaN;%100;%100;
+%Aircraft.Specs.Battery.SerCells = NaN;%62;% 62;
+Aircraft.Specs.Power.Battery.ParCells = 100;%100;
+Aircraft.Specs.Power.Battery.SerCells = 62;% 62;
+
+% initial battery SOC (commented value used for electrified aircraft)
+%Aircraft.Specs.Power.Battery.BegSOC = 100;%100;
+Aircraft.Specs.Battery.BegSOC = 100;%100;
+
+% nominal cell voltage [V]
+Aircraft.Specs.Battery.NomVolCell = 3.6;
+
+% maxinum extracted voltage [V]
+Aircraft.Specs.Battery.MaxExtVolCell = 4.0880;
+
+% maxinum cell capacity [Ah]
+Aircraft.Specs.Battery.CapCell = 3;
+
+% internal resistance [Ohm]
+Aircraft.Specs.Battery.IntResist = 0.0199;
+
+% exponential voltage [V]
+Aircraft.Specs.Battery.expVol = 0.0986;
+
+% exponential capacity [(Ah)^-1]
+Aircraft.Specs.Battery.expCap = 30;
+
+% acceptable SOC threshold
+Aircraft.Specs.Battery.MinSOC = 20;
+
+% intitial SOC
+Aircraft.Specs.Battery.BegSOC = 100;
+
+% acceptable max c-rate during discharging
+Aircraft.Specs.Battery.MaxAllowCRate = 5;
+
+% charging rate 
+Aircraft.Specs.Battery.Charging = 500*1000;
+
+%%%% battery degradation effect analysis %%%
+Aircraft.Settings.Degradation = 0; % 1 = analysis with degradation effect; 0 = without degradation effect
+
+
 
 %% SETTINGS (LEAVE AS NaN FOR DEFAULTS) %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
