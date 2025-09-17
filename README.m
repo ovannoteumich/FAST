@@ -20,12 +20,15 @@ function [] = README()
 %
 % Additional Contributors:
 %     Huseyin Acar
+%     Yi-Chih (Arenas) Wang
+%     Miranda Stockhausen
+%     Emma Cassidy
 %     Nawa Khailany
 %     Janki Patel
 %     Michael Tsai
 %     Vaibhav Rau
 % 
-% README last updated: 25 Jan 2025
+% README last updated: 08 Sep 2025
 %
 % Learn More About FAST
 % For detailed information about FAST's features, visit our website: 
@@ -47,7 +50,7 @@ function [] = README()
 % In AIAA SciTech 2025 Forum (p. 2374).
 %
 % A copy of this paper may be found at the following link: 
-% https://www.gokcincinar.com/publication/c-2025-scitech-pm/c-2025-SciTech-PM.pdf
+% https://doi.org/10.2514/6.2025-2374
 %
 % Alternatively, you may use the information below when using BibTeX:
 %
@@ -56,7 +59,8 @@ function [] = README()
 %   author={Mokotoff, Paul and Arnson, Maxfield and Wang, Yi-Chih and Cinar, Gokcin},
 %   booktitle={AIAA SciTech 2025 Forum},
 %   pages={2374},
-%   year={2025}
+%   year={2025},
+%   doi={https://doi.org/10.2514/6.2025-2374}
 % }
 % 
 % -------------------------------------------------------------------------
@@ -278,10 +282,9 @@ function [] = README()
 %                 should refer to the examples in "CreatePropArch" and the
 %                 following paper:
 %
-%                     Cinar, G., Garcia, E., & Mavris, D. N. (2020). A
-%                     framework for electrified propulsion architecture and
-%                     operation analysis. Aircraft Engineering and
-%                     Aerospace Technology, 92(5), 675-684.
+%                     Mokotoff, P. and Cinar, G. (2025). Graph Theory-based
+%                     propulsion system analysis. Aerospace Science and
+%                     Technology, in press. https://doi.org/10.1016/j.ast.2025.110798
 %
 %         It is okay if some information is unknown about the aircraft. The
 %         user can either set the value to NaN or just not include it.
@@ -429,9 +432,7 @@ function [] = README()
 %         function, which is housed in the "PropulsionPkg" folder.
 % 
 %     (4) The "OptimizationPkg" is currently deprecated and only runs on
-%         previous versions of FAST. Updates to this package are expected
-%         to commence in Spring/Summer 2024 and be released by the end of
-%         2024.
+%         previous versions of FAST.
 %
 %     (5) Currently, we are in the process of switching to a new off-design
 %         engine model. As a result of that, some of the engines provided

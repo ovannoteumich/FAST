@@ -76,7 +76,7 @@ CompressorObject.States.Entry = CurState;
 Fan = false;
 CurPi = 1;
 i = 1;
-while CurPi < CPR
+while CurPi < CPR && i < 100
     if CPR/CurPi > sqrt(2)
         StagePR = sqrt(2);
     else

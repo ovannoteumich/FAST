@@ -2,7 +2,7 @@ function [Aircraft] = PropulsionSizing(Aircraft)
 %
 % [Aircraft] = PropulsionSizing(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 16 jan 2025
+% last updated: 08 Sep 2025
 %
 % Split the total thrust/power throughout the powertrain and determine the
 % total power needed to size each component.
@@ -38,10 +38,11 @@ TkoVel = Aircraft.Specs.Performance.Vels.Tko;
 % get the power source type
 TrnType = Aircraft.Specs.Propulsion.PropArch.TrnType;
 
-% find the engines and electric motors
+% find the appropriate transmitters
 Eng = TrnType == 1;
 EM  = TrnType == 0;
 EG  = TrnType == 3;
+Cab = TrnType == 4;
 
 % get the electric motor power-weight ratio
 P_Wem = Aircraft.Specs.Power.P_W.EM;
@@ -176,7 +177,7 @@ if (any(TrnType > 0 & TrnType ~= 2))
         Aircraft.Specs.Propulsion.SizedEngine = EngineModelPkg.TurbofanNonlinearSizing(Aircraft.Specs.Propulsion.Engine, Psupp(ieng));
         
         % turn off the sizing flags
-        Aircraft.Specs.Propulsion.Engine.Sizing = 0; % unnnecessary
+        Aircraft.Specs.Propulsion.Engine.Sizing = 0;
         Aircraft.Specs.Propulsion.SizedEngine.Specs.Sizing = 0;
         
     elseif ((strcmpi(aclass, "Turboprop") == 1) || ...
@@ -213,6 +214,46 @@ else
     % no engines need to be sized
     Weng = 0;
 
+end
+
+% check if the cable weight must be computed
+if (any(Cab))
+    
+    % check if the cables are included
+    if (isfield(Aircraft.Specs.Propulsion.PropArch, "CableConns"  ) && ...
+        isfield(Aircraft.Specs.Propulsion.PropArch, "CableLengths") )
+    
+        % get the cable lengths and connections
+        CabCon = Aircraft.Specs.Propulsion.PropArch.CableConns  ;
+        CabLen = Aircraft.Specs.Propulsion.PropArch.CableLengths;
+        
+        % get the number of connections from the cables
+        [ndwn, ~] = size(CabCon);
+        
+        % get the required power for the cables
+        Pcab = repmat(Pdwn(Cab)', ndwn, 1);
+        
+        % get the cable weight-power ratio
+        W_Pcab = Aircraft.Specs.Power.P_W.Cables;
+        
+        % compute the individual cable weights
+        Wcab = W_Pcab .* (Pcab ./ 1.0e+06) .* CabCon .* CabLen;
+        
+        % compute the weight of the cables
+        Aircraft.Specs.Weight.Cables = sum(Wcab, "all");
+        
+    else
+        
+        % assume no detailed cable model
+        Aircraft.Specs.Weight.Cables = 0;
+        
+    end
+    
+else
+    
+    % no cables are included
+    Aircraft.Specs.Weight.Cables = 0;
+        
 end
 
 % remember the weight of the engines
