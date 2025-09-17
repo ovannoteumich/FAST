@@ -319,7 +319,7 @@ prime = 1;
 
 iter = 0;
 
-while abs(prime) > 1e-4
+while abs(prime) > 1e-4 && iter < 10
 
     Ts = Tt*(1+(g-1)/2*M^2)^(-1);
     Ps = Pt*(1+(g-1)/2*M^2)^(-g/(g-1));

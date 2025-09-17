@@ -2,7 +2,7 @@ function [Split] = EvalSplit(SplitFun, SplitVal)
 %
 % [Split] = EvalSplit(SplitFun, SplitVal)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 08 mar 2024
+% last updated: 07 apr 2024
 %
 % Given a energy/power/thrust split (SplitFun), evaluate it for a given
 % value (SplitVal). This function currently works for up to 4 splits
@@ -51,6 +51,23 @@ elseif (narg < 5)
     
     % evaluate with 4 arguments
     Split = SplitFun(SplitVal(1), SplitVal(2), SplitVal(3), SplitVal(4));
+    
+elseif (narg < 17)
+    
+    % evaluate with 16 arguments
+    Split = SplitFun(SplitVal( 1), SplitVal( 2), SplitVal( 3), SplitVal( 4), ...
+                     SplitVal( 5), SplitVal( 6), SplitVal( 7), SplitVal( 8), ...
+                     SplitVal( 9), SplitVal(10), SplitVal(11), SplitVal(12), ...
+                     SplitVal(13), SplitVal(14), SplitVal(15), SplitVal(16)) ;
+                 
+elseif (narg < 18)
+    
+    % evaluate with 17 arguments
+    Split = SplitFun(SplitVal( 1), SplitVal( 2), SplitVal( 3), SplitVal( 4), ...
+                     SplitVal( 5), SplitVal( 6), SplitVal( 7), SplitVal( 8), ...
+                     SplitVal( 9), SplitVal(10), SplitVal(11), SplitVal(12), ...
+                     SplitVal(13), SplitVal(14), SplitVal(15), SplitVal(16), ...
+                     SplitVal(17)                                          ) ;
     
 else
     
