@@ -588,25 +588,27 @@ end
 % Initialize to empty for prop case
 RegressionParams = struct();
 
-if TLAR.Class == "Turbofan"
-% list parts of the aircraft structure to use in the regression
-IOspace = {{"Specs", "Aero"      , "S"            }, ...
-    {"Specs", "Propulsion", "Thrust", "SLS"}, ...
-    {"Specs", "TLAR"      , "EIS"          }, ...
-    {"Specs", "Weight"    , "MTOW"         }, ...
-    {"Specs", "Weight"    , "Airframe"     }}   ;
+switch TLAR.Class
 
-Prior = RegressionPkg.PriorCalculation(DataAC,IOspace);
-OEWWeights = [1 1 0.2 1];
-[RegressionParams.OEW.DataMatrix,    RegressionParams.OEW.HyperParams,     RegressionParams.OEW.InverseTerm] =...
-    RegressionPkg.RegProcessing(DataAC,IOspace,Prior, OEWWeights);
+    case "Turbofan"
+        % list parts of the aircraft structure to use in the regression
+        IOspace = {{"Specs", "Aero"      , "S"            }, ...
+            {"Specs", "Propulsion", "Thrust", "SLS"}, ...
+            {"Specs", "TLAR"      , "EIS"          }, ...
+            {"Specs", "Weight"    , "MTOW"         }, ...
+            {"Specs", "Weight"    , "Airframe"     }}   ;
 
-% for engine sizing
-IOspace = {{"Thrust_Max"},{"DryWeight"}};
-Prior = RegressionPkg.PriorCalculation(DataEngine,IOspace);
-EngWeights = 1;
-[RegressionParams.WEngine.DataMatrix,    RegressionParams.WEngine.HyperParams,     RegressionParams.WEngine.InverseTerm] =...
-    RegressionPkg.RegProcessing(DataEngine,IOspace,Prior, EngWeights);
+        Prior = RegressionPkg.PriorCalculation(DataAC,IOspace);
+        OEWWeights = [1 1 0.2 1];
+        [RegressionParams.OEW.DataMatrix,    RegressionParams.OEW.HyperParams,     RegressionParams.OEW.InverseTerm] =...
+            RegressionPkg.RegProcessing(DataAC,IOspace,Prior, OEWWeights);
+
+        % for engine sizing
+        IOspace = {{"Thrust_Max"},{"DryWeight"}};
+        Prior = RegressionPkg.PriorCalculation(DataEngine,IOspace);
+        EngWeights = 1;
+        [RegressionParams.WEngine.DataMatrix,    RegressionParams.WEngine.HyperParams,     RegressionParams.WEngine.InverseTerm] =...
+            RegressionPkg.RegProcessing(DataEngine,IOspace,Prior, EngWeights);
 end
 
 %% Prepare Output Structure
