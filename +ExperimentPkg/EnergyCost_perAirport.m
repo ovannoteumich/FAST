@@ -54,5 +54,5 @@ battCost = priceTable.ElectricityPricekWh(index)*battE;
 % total for full direct operating cost of flight
 DOC = fuelCost + battCost;
 
-Aircraft.Mission.History.SI.Performance.Cost = DOC*10000;
+Aircraft.Mission.History.SI.Performance.Cost = DOC;
 end

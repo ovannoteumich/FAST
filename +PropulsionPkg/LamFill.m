@@ -82,7 +82,9 @@ else
         % the rest of the ups will be determined later, assumes 1 for now
 
         dwn(iEM) = LamDwn.(lamseg);
-        dwn(iGT) = dwn(iGT) - dwn(iEM);
+        if ~isempty(iEM)
+            dwn(iGT) = dwn(iGT) - dwn(iEM);
+        end
         %dwn(iFan) = 0.5;
         
         % propagate through sgement points

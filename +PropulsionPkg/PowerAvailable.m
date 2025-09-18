@@ -177,7 +177,7 @@ for ipnt = 1:npnt
     if Aircraft.Settings.PowerOpt == 1
         Lambda = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
     else
-        Lambda = PropulsionPkg.EvalSplit(OperUps, ones(1, 4));
+        Lambda = PropulsionPkg.EvalSplit(OperUps, ones(1, ntrn-2));
     end
     
     % get the initial power available
@@ -186,10 +186,10 @@ for ipnt = 1:npnt
     % propagate the power upstream
     PavTemp = PropulsionPkg.PowerFlow(Pav(ipnt, idx)', Arch(idx, idx), Lambda(idx, idx), EtaUps(idx, idx), +1)';
 
-    Pav(ipnt, [7,8,9])=PavTemp([5,6,7]);
+    Pav(ipnt, end-2:end)=PavTemp(end-2:end);
     % check that the component is not overloaded
     Overload = Pav(ipnt, itrn) > SLSPower;
-    Overload = 0;
+    %Overload = 0;
     
     % suppress component overloads
     if (any(Overload))

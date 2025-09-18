@@ -474,6 +474,8 @@ if ~isfield(Aircraft,"Settings")
     Aircraft.Settings.Dir.Size = NaN;
     Aircraft.Settings.Dir.Oper = NaN;
     Aircraft.Settings.Degradation = NaN;
+    Aircraft.Settings.PowerOpt = NaN;
+    Aircraft.Settings.PowerStrat=NaN;
 else
     if ~isfield(Aircraft.Settings,"TkoPoints")
         Aircraft.Settings.TkoPoints = NaN;
@@ -501,16 +503,12 @@ else
     if ~isfield(Aircraft.Settings,"Analysis")
         Aircraft.Settings.Analysis.MaxIter = NaN;
         Aircraft.Settings.Analysis.Type = NaN;
-        Aircraft.Settings.Analysis.PowerOpt = NaN;
     else
         if ~isfield(Aircraft.Settings.Analysis,"MaxIter")
             Aircraft.Settings.Analysis.MaxIter = NaN;
         end
         if ~isfield(Aircraft.Settings.Analysis,"Type")
             Aircraft.Settings.Analysis.Type = NaN;
-        end
-          if ~isfield(Aircraft.Settings.Analysis,"PowerOpt")
-            Aircraft.Settings.Analysis.PowerOpt = NaN;
         end
     end
     if ~isfield(Aircraft.Settings,"Plotting")
@@ -538,6 +536,12 @@ else
     end
     if ~isfield(Aircraft.Settings, "PrintOut")
         Aircraft.Settings.PrintOut = NaN;
+    end
+     if ~isfield(Aircraft.Settings, "PowerOpt")
+        Aircraft.Settings.PowerOpt = NaN;
+     end
+     if ~isfield(Aircraft.Settings, "PowerStrat")
+        Aircraft.Settings.PowerStrat = NaN;
     end
 end
 

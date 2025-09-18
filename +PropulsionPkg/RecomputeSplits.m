@@ -64,12 +64,12 @@ for i = 1:2
     % compute the downstream power split
     LamDwn(idx, i+2) = Pout(idx, i+2+nsrc) ./ Out;
 
-    if Aircraft.Settings.PowerStrat == -1
-    % compute up stream power splits
+    %if Aircraft.Settings.PowerStrat == -1
+        % compute up stream power splits
         LamUps(idx, i) = Pout(idx, i+nsrc) ./ Pav(idx, i+2);
         % compute up stream power splits
         LamUps(idx, i+2) = Pout(idx, i+nsrc+2) ./ Pav(idx, i+nsrc+2);
-    end
+    %end
 
 end
 
