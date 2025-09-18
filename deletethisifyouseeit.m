@@ -25,15 +25,46 @@
 % 
 % AC_Out.Specs.Weight
 % 
-%% AEA
+% %% AEA
+% 
+% clear; clc; close all;
+% 
+% tic
+% AC_In = AircraftSpecsPkg.AEA;
+% AC_In.Settings.Plotting = 0;
+% 
+% AC_Out = Main(AC_In,@MissionProfilesPkg.AEAProfile)
+% toc
+% 
+% AC_Out.Specs.Weight
+
 
 clear; clc; close all;
 
 tic
-AC_In = AircraftSpecsPkg.AEA;
+AC_In = AircraftSpecsPkg.LM100J_Conventional;
 AC_In.Settings.Plotting = 0;
 
-AC_Out = Main(AC_In,@MissionProfilesPkg.AEAProfile)
+AC_Out = Main(AC_In,@MissionProfilesPkg.LM100J)
 toc
 
 AC_Out.Specs.Weight
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
