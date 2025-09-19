@@ -95,142 +95,40 @@ Hrange = linspace(max( 0, HoriCent - 1000), max(1000, HoriCent + 1000), 500);
 % create a grid of values
 [Hgrid, Vgrid] = meshgrid(Hrange, Vrange);
 
+% get the grid size
+[nrow, ncol] = size(Hgrid);
+
 
 %% ESTABLISH CONSTRAINTS WITH FARS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% select the appropriate FARs
-if (CFRPart == 25)
+% get the constraints
+Cons = Aircraft.Specs.Performance.ConstraintFuns;
+Labs = Aircraft.Specs.Performance.ConstraintLabs;
+
+% get the number of constraints
+ncon = length(Cons);
+
+% memory for constraints
+g = zeros(nrow, ncol, ncon);
+
+% evaluate the constraints
+for icon = 1:ncon
     
-    % takeoff field length
-    g11 = ConstraintDiagramPkg.JetTOFL(Hgrid, Vgrid, Aircraft);
+    % get the function name
+    ConFun = sprintf("ConstraintDiagramPkg.%s", Cons(icon));
     
-    % add a label
-    L11 = "TOFL";
+    % evaluate the constraint
+    g(:, :, icon) = feval(ConFun, Hgrid, Vgrid, Aircraft);
     
-    % landing field length
-    g02 = ConstraintDiagramPkg.JetLFL(Hgrid, Vgrid, Aircraft);
+end
+
+% check for turboprop or piston aircraft using 14 CFR 25
+if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston")) && (CFRPart == 25)
     
-    % add a label
-    L02 = "LFL";
-    
-    % takeoff climb: FAR 25.111
-    g03 = ConstraintDiagramPkg.Jet25_111(Hgrid, Vgrid, Aircraft);
-    
-    % add a label
-    L03 = "25.111";
-    
-    % balked landing climb (AEO): FAR 25.119
-    g04 = ConstraintDiagramPkg.Jet25_119(Hgrid, Vgrid, Aircraft);
-    
-    % add a label
-    L04 = "25.119";
-    
-    % transition climb: FAR 25.121(a)
-    g01 = ConstraintDiagramPkg.Jet25_121a(Hgrid, Vgrid, Aircraft);
-    
-    % add a label
-    L01 = "25.121a";
-    
-    % second segment climb: FAR 25.121(b)
-    g12 = ConstraintDiagramPkg.Jet25_121b(Hgrid, Vgrid, Aircraft);
-    
-    % add a label
-    L12 = "25.121b";
-    
-    % enroute climb: FAR 25.121(c)
-    g07 = ConstraintDiagramPkg.Jet25_121c(Hgrid, Vgrid, Aircraft);
-    
-    % add a label
-    L07 = "25.121c";
-        
-    % balked landing climb (OEI): FAR 25.121(d)
-    g08 = ConstraintDiagramPkg.Jet25_121d(Hgrid, Vgrid, Aircraft);
-    
-    % add a label
-    L08 = "25.121d";
-    
-    % cruise
-    g06 = ConstraintDiagramPkg.JetCrs(Hgrid, Vgrid, Aircraft);
-    
-    % add a label
-    L06 = "Cruise";
-    
-    % approach speed
-    g10 = ConstraintDiagramPkg.JetApp(Hgrid, Vgrid, Aircraft);
-    
-    % add a label
-    L10 = "Approach";
-    
-    % diversion
-    g05 = ConstraintDiagramPkg.JetDiv(Hgrid, Vgrid, Aircraft);
-    
-    % add a label
-    L05 = "Diversion";
-    
-    % takeoff climb, all engines operative
-    g09 = ConstraintDiagramPkg.JetAEOClimb(Hgrid, Vgrid, Aircraft);
-    
-    % add a label
-    L09 = "AEO Climb";
-    
-    % there are 12 total constraints
-    ncon = 12;
-    
-    % check for turboprop or piston aircraft
-    if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
-        
-        % convert the horizontal grid and range to kN/m^2
-        Hgrid  = Hgrid  .* 9.81 ./ 1000;
-        Hrange = Hrange .* 9.81 ./ 1000;
-                
-    end
-        
-elseif (CFRPart == 23)
-            
-    % takeoff climb
-    g04 = ConstraintDiagramPkg.PropTkoClb(Hgrid, Vgrid, Aircraft);
-    
-    % label the takeoff climb constraint
-    L04 = sprintf("Initial Climb");
-    
-    % balked landing
-    g02 = ConstraintDiagramPkg.PropLndClb(Hgrid, Vgrid, Aircraft);
-    
-    % label the landing climb constraint
-    L02 = sprintf("Balked Landing");
-    
-    % takeoff field length: FAR 23.2115
-    g03 = ConstraintDiagramPkg.PropTko(Hgrid, Vgrid, Aircraft);
-    
-    % label the takeoff field length constraint
-    L03 = sprintf("Takeoff Field Length");
-    
-    % landing field length: FAR 23.2130
-    g01 = ConstraintDiagramPkg.PropLnd(Hgrid, Vgrid, Aircraft);
-    
-    % label the landing field length constraint
-    L01 = sprintf("Landing\nField Length");
-    
-    % cruise
-    g05 = ConstraintDiagramPkg.PropCruise(Hgrid, Vgrid, Aircraft);
-    
-    % label the cruise constraint
-    L05 = sprintf("Cruise");
-    
-    % service ceiling
-    g06 = ConstraintDiagramPkg.PropCeil(Hgrid, Vgrid, Aircraft);
-    
-    % label the takeoff field length constraint
-    L06 = sprintf("Service Ceiling");
-    
-    % there are 6 total constraints
-    ncon = 6;
-    
-else
-    
-    % throw error
-    error("ERROR - ConstraintDiagram: invalid aircraft class.");
+    % convert the horizontal grid and range to kN/m^2
+    Hgrid  = Hgrid  .* 9.81 ./ 1000;
+    Hrange = Hrange .* 9.81 ./ 1000;
     
 end
 
@@ -254,11 +152,8 @@ TextPos = zeros(ncon, 2);
 % shade the infeasible region
 for icon = 1:ncon
     
-    % constraint name
-    ConName = sprintf("g%02d", icon);
-    
     % shade the infeasible region for the given constraint
-    FilledContour = contourf(Hgrid, Vgrid, eval(ConName), [0, Inf]);
+    FilledContour = contourf(Hgrid, Vgrid, g(:, :, icon), [0, Inf]);
     
     % get a position on the plot to leave text
     TextPos(icon, 1) = FilledContour(1, 40 * icon);
@@ -268,23 +163,17 @@ end
 
 % plot the constraint contours
 for icon = 1:ncon
-    
-    % constraint name
-    ConName = sprintf("g%02d", icon);
-    
+        
     % plot constraint contour
-    contour(Hgrid, Vgrid, eval(ConName), [0, 0], 'k-');
+    contour(Hgrid, Vgrid, g(:, :, icon), [0, 0], 'k-');
     
 end
 
 % add labels
 for icon = 1:ncon
     
-    % label name
-    LabName = sprintf("L%02d", icon);
-    
     % place the text
-    text(TextPos(icon, 1), TextPos(icon, 2), eval(LabName), "FontSize", 14);
+    text(TextPos(icon, 1), TextPos(icon, 2), Labs(icon), "FontSize", 14);
     
 end
 
