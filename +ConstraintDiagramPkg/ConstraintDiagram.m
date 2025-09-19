@@ -3,10 +3,12 @@ function [] = ConstraintDiagram(Aircraft)
 % ConstraintDiagram.m
 % written by Paul Mokotoff, prmoko@umich.edu
 % adapted from code used in AEROSP 481 as a GSI
-% last updated: 16 sep 2025
+% last updated: 19 sep 2025
 %
-% create a constraint diagram (T/W-W/S for turbofans or P/W-W/S for
-% turboprops/pistons) according to 14 CFR 23/25.
+% create a constraint diagram according to 14 CFR 23/25. for turbofans, a
+% T/W-W/S diagram is created using 14 CFR 25. for turboprops/piston, either
+% a W/P-W/S diagram is created using 14 CFR 25 or a P/W-W/S diagram is
+% created using 14 CFR 23.
 %
 % INPUTS:
 %     Aircraft - data structure of the aircraft to be analyzed.
@@ -54,7 +56,7 @@ elseif ((strcmpi(aclass, "Turboprop") == 1) || ...
         VertCent = 1 / VertCent;
                 
         % create a vertical range
-        Vrange = linspace(max(0.01, VertCent - 0.25), min(0.2, VertCent + 0.15), 500);
+        Vrange = linspace(max(0, VertCent - 0.25), min(0.2, VertCent + 0.15), 500);
         
         % define the axis label
         VertLabel = "Power Loading (N/W)";
@@ -101,10 +103,10 @@ Hrange = linspace(max( 0, HoriCent - 1000), max(1000, HoriCent + 1000), 500);
 if (CFRPart == 25)
     
     % takeoff field length
-    g01 = ConstraintDiagramPkg.JetTOFL(Hgrid, Vgrid, Aircraft);
+    g11 = ConstraintDiagramPkg.JetTOFL(Hgrid, Vgrid, Aircraft);
     
     % add a label
-    L01 = "TOFL";
+    L11 = "TOFL";
     
     % landing field length
     g02 = ConstraintDiagramPkg.JetLFL(Hgrid, Vgrid, Aircraft);
@@ -125,16 +127,16 @@ if (CFRPart == 25)
     L04 = "25.119";
     
     % transition climb: FAR 25.121(a)
-    g05 = ConstraintDiagramPkg.Jet25_121a(Hgrid, Vgrid, Aircraft);
+    g01 = ConstraintDiagramPkg.Jet25_121a(Hgrid, Vgrid, Aircraft);
     
     % add a label
-    L05 = "25.121a";
+    L01 = "25.121a";
     
     % second segment climb: FAR 25.121(b)
-    g06 = ConstraintDiagramPkg.Jet25_121b(Hgrid, Vgrid, Aircraft);
+    g12 = ConstraintDiagramPkg.Jet25_121b(Hgrid, Vgrid, Aircraft);
     
     % add a label
-    L06 = "25.121b";
+    L12 = "25.121b";
     
     % enroute climb: FAR 25.121(c)
     g07 = ConstraintDiagramPkg.Jet25_121c(Hgrid, Vgrid, Aircraft);
@@ -147,18 +149,12 @@ if (CFRPart == 25)
     
     % add a label
     L08 = "25.121d";
-        
-%     % service ceiling
-%     g09 = ConstraintDiagramPkg.JetCeil(Hgrid, Vgrid, Aircraft);
-%     
-%     % add a label
-%     L09 = "Srv. Ceil.";
     
     % cruise
-    g09 = ConstraintDiagramPkg.JetCrs(Hgrid, Vgrid, Aircraft);
+    g06 = ConstraintDiagramPkg.JetCrs(Hgrid, Vgrid, Aircraft);
     
     % add a label
-    L09 = "Cruise";
+    L06 = "Cruise";
     
     % approach speed
     g10 = ConstraintDiagramPkg.JetApp(Hgrid, Vgrid, Aircraft);
@@ -166,8 +162,20 @@ if (CFRPart == 25)
     % add a label
     L10 = "Approach";
     
-    % there are 10 total constraints
-    ncon = 10;
+    % diversion
+    g05 = ConstraintDiagramPkg.JetDiv(Hgrid, Vgrid, Aircraft);
+    
+    % add a label
+    L05 = "Diversion";
+    
+    % takeoff climb, all engines operative
+    g09 = ConstraintDiagramPkg.JetAEOClimb(Hgrid, Vgrid, Aircraft);
+    
+    % add a label
+    L09 = "AEO Climb";
+    
+    % there are 12 total constraints
+    ncon = 12;
     
     % check for turboprop or piston aircraft
     if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
@@ -253,8 +261,8 @@ for icon = 1:ncon
     FilledContour = contourf(Hgrid, Vgrid, eval(ConName), [0, Inf]);
     
     % get a position on the plot to leave text
-    TextPos(icon, 1) = FilledContour(1, 30 * icon);
-    TextPos(icon, 2) = FilledContour(2, 30 * icon);
+    TextPos(icon, 1) = FilledContour(1, 40 * icon);
+    TextPos(icon, 2) = FilledContour(2, 40 * icon);
    
 end
 
