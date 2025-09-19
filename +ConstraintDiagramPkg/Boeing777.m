@@ -2,7 +2,7 @@ function [] = Boeing777()
 %
 % [] = Boeing777()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 15 sep 2025
+% last updated: 19 sep 2025
 %
 % create a constraint diagram for a boeing 777, found in the aircraft
 % design metabook.
@@ -75,6 +75,12 @@ Aircraft.Specs.Performance.Wland_MTOW = 0.65;
 
 % requirement type (0 = Roskam; 1 = Mattingly, 2 = de Vries et al.)
 Aircraft.Specs.TLAR.ReqType = 0;
+
+% constraints to use
+Aircraft.Specs.Performance.ConstraintFuns = ["Jet25_111"; "Jet25_119"; "Jet25_121a"; "Jet25_121b"; "Jet25_121c"; "Jet25_121d"; "JetCeil"; "JetCrs"; "JetLFL"; "JetTOFL"];
+
+% labels to use
+Aircraft.Specs.Performance.ConstraintLabs = ["25.111"; "25.119"; "25.121a"; "25.121b"; "25.121c"; "25.121d"; "Ceiling"; "Cruise"; "Landing"; "TOFL"];
 
 % ----------------------------------------------------------
 

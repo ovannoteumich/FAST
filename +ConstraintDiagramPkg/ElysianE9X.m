@@ -2,7 +2,7 @@ function [] = ElysianE9X()
 %
 % [] = ElysianE9X()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 15 sep 2025
+% last updated: 19 sep 2025
 %
 % create a constraint diagram for a battery electric aircraft
 % representative of the elysian E9.
@@ -36,6 +36,12 @@ Aircraft.Specs.TLAR.Class = "Turboprop";
 
 % aircraft regulations
 Aircraft.Specs.TLAR.CFRPart = 25;
+
+% regulations for certification
+Aircraft.Specs.Performance.ConstraintFuns = ["Jet25_119"; "Jet25_121a"; "Jet25_121b"; "Jet25_121c"; "Jet25_121d"; "JetAEOClimb"; "JetApp"; "JetCrs"; "JetDiv"; "JetLFL"; "JetTOFL"];
+
+% labels for regulations
+Aircraft.Specs.Performance.ConstraintLabs = ["25.119"; "25.121a"; "25.121b"; "25.121c"; "25.121d"; "AEO Climb"; "Approach"; "Cruise"; "Diversion"; "Landing"; "TOFL"];
 
 % ----------------------------------------------------------
 
