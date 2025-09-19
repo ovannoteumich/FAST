@@ -2,7 +2,7 @@ function [FAR] = JetCrs(W_S, T_W, Aircraft)
 %
 % [FAR] = JetCrs(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 16 sep 2025
+% last updated: 19 sep 2025
 %
 % derive the constraints for cruise performance.
 %
@@ -35,6 +35,9 @@ AR   = Aircraft.Specs.Aero.AR;
 e    = Aircraft.Specs.Aero.e.Crs;
 Mcrs = Aircraft.Specs.Performance.Vels.Crs;
 zcrs = Aircraft.Specs.Performance.Alts.Crs; % keep in SI units for ComputeFltCon
+
+% get the requirement type
+ReqType = Aircraft.Specs.TLAR.ReqType;
 
 
 %% EVALUATE THE CONSTRAINT %%
@@ -70,8 +73,25 @@ if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
     
 end
 
-% Roskam and Mattingly's equations match
-FAR = (q .* CD0 ./ W_S + W_S ./ q ./ pi ./ AR ./ e) ./ RhoRatio ^ 0.6 - T_W;
+if (ReqType == 0 || ReqType == 1)
+
+    % Roskam and Mattingly's equations match
+    FAR = (q .* CD0 ./ W_S + W_S ./ q ./ pi ./ AR ./ e) ./ RhoRatio ^ 0.6 - T_W;
+    
+elseif (ReqType == 2)
+    
+    % compute the lift coefficient
+    CL = W_S ./ q;
+    
+    % use a different equation
+    FAR = q ./ W_S .* (CD0 + CL .^ 2 ./ (pi * AR * e)) ./ RhoRatio ^ 0.1 - T_W;
+    
+else
+    
+    % throw an error
+    error("ERROR - JetCrs: ReqType must be either 0 (Roskam), 1 (Mattingly), or 2 (de Vries et al.).");
+    
+end
     
 % ----------------------------------------------------------
 
