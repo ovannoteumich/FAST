@@ -2,7 +2,7 @@ function [FAR] = Jet25_121d(W_S, T_W, Aircraft)
 %
 % [FAR] = Jet25_121d(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 16 sep 2025
+% last updated: 19 sep 2025
 %
 % derive the constraints for landing climb with one engine inoperative.
 %
@@ -120,10 +120,44 @@ elseif (ReqType == 1)
     % use Mattingly's equation
     FAR = CorrFactor .* (q .* CD0 ./ W_S + W_S ./ q ./ (pi * AR * e) + G) - T_W;
     
+elseif (ReqType == 2)
+    
+    % convert wing loading to english units
+    W_S = W_S .* 9.81 .* UnitConversionPkg.ConvForce(1, "N", "lbf") ./ UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
+    
+    % compute the density at sea level (metric)
+    [~, ~, ~, ~, ~, RhoSLS] = MissionSegsPkg.ComputeFltCon(0, 0, "Mach", 0);
+    
+    % convert density to english units
+    RhoSLS = RhoSLS * UnitConversionPkg.ConvMass(1, "kg", "slug") / UnitConversionPkg.ConvLength(1, "m", "ft") ^ 3;
+    
+    % scale the lift coefficient based on the stall speed
+    CL = CL / ks ^ 2;
+    
+    % use the lift coefficient to compute the dynamic pressure
+    qinf = W_S ./ CL;
+    
+    % compute the flight speed
+    Vinf = sqrt(2 .* qinf ./ RhoSLS);
+    
+    % check for turboprop/piston aircraft
+    if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
+        
+        % get the airspeed and convert to m/s
+        V = UnitConversionPkg.ConvVel(Vinf, "ft/s", "m/s");
+        
+        % convert to T/W
+        T_W = 1 ./ (V .* T_W);
+        
+    end
+    
+    % compute the required thrust-weight ratio
+    FAR = qinf ./ W_S .* (CD0 + CL ^ 2 / (pi * AR * e)) + G - T_W;
+    
 else
     
     % throw error
-    error("ERROR - Jet25_121d: ReqType must be either 0 (Roskam) or 1 (Mattingly).");
+    error("ERROR - Jet25_121d: ReqType must be either 0 (Roskam), 1 (Mattingly), or 2 (de Vries et al.).");
     
 end
 
