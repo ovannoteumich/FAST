@@ -1,70 +1,46 @@
-
-%% A320
-% clear; clc; close all;
-% 
-% tic
-% AC_In = AircraftSpecsPkg.A320Neo;
-% AC_In.Settings.Plotting = 0;
-% 
-% AC_Out = Main(AC_In,@MissionProfilesPkg.A320)
-% toc
-% 
-% AC_Out.Specs.Weight
-% 
-% 
-% 
-% %% CeRAS
-% clear; clc; close all;
-% 
-% tic
-% AC_In = AircraftSpecsPkg.CeRAS;
-% AC_In.Settings.Plotting = 0;
-% 
-% AC_Out = Main(AC_In,@MissionProfilesPkg.CeRAS)
-% toc
-% 
-% AC_Out.Specs.Weight
-% 
-% %% AEA
-% 
-% clear; clc; close all;
-% 
-% tic
-% AC_In = AircraftSpecsPkg.AEA;
-% AC_In.Settings.Plotting = 0;
-% 
-% AC_Out = Main(AC_In,@MissionProfilesPkg.AEAProfile)
-% toc
-% 
-% AC_Out.Specs.Weight
-
-
 clear; clc; close all;
 
-tic
-AC_In = AircraftSpecsPkg.LM100J_Conventional;
-AC_In.Settings.Plotting = 0;
+load("DatabasePkg/IDEAS_DB.mat")
 
-AC_Out = Main(AC_In,@MissionProfilesPkg.LM100J)
-toc
+Target = cell(1,6);
+trials = logspace(1,6,6);
 
-AC_Out.Specs.Weight
+for ii = 1:length(trials)
 
+    Target{ii} = rand(trials(ii),4);
 
-
-
+end
 
 
+times = zeros(1,length(trials));
 
-
-
-
-
-
-
+for jj = 1:length(trials)
+tic 
+timetest(Target{jj},TurbofanAC)
+times(jj) = toc
+end
 
 
 
 
+
+
+function [] = timetest(Target,TurbofanAC)
+
+IOspace = {{"Specs", "Aero"      , "S"            }, ...
+    {"Specs", "Propulsion", "Thrust", "SLS"}, ...
+    {"Specs", "TLAR"      , "EIS"          }, ...
+    {"Specs", "Weight"    , "MTOW"         }, ...
+    {"Specs", "Weight"    , "Airframe"     }}   ;
+
+Prior = RegressionPkg.PriorCalculation(TurbofanAC,IOspace);
+OEWWeights = [1 1 0.2 1];
+[RegressionParams.OEW.DataMatrix,    RegressionParams.OEW.HyperParams,     RegressionParams.OEW.InverseTerm] =...
+    RegressionPkg.RegProcessing(TurbofanAC,IOspace,Prior, OEWWeights);
+
+
+WframeNew = RegressionPkg.NLGPR(TurbofanAC, IOspace, Target, 'Preprocessing',RegressionParams.OEW);
+
+end
 
 
