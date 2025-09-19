@@ -67,14 +67,14 @@ Aircraft.Specs.Performance.ObstLen = UnitConversionPkg.ConvLength( 1000, "ft", "
 Aircraft.Specs.Performance.TempInc = 1.25;
 Aircraft.Specs.Performance.MaxCont = 1 / 0.94;
 
-% design specific excess power loss ???
+% design specific excess power loss
 Aircraft.Specs.Performance.PsLoss = 0.6238;
 
 % landing weight as a fraction of MTOW
 Aircraft.Specs.Performance.Wland_MTOW = 0.65;
 
-% requirement type (0 = Roskam; 1 = Mattingly)
-Aircraft.Specs.TLAR.ReqType = 1;
+% requirement type (0 = Roskam; 1 = Mattingly, 2 = de Vries et al.)
+Aircraft.Specs.TLAR.ReqType = 0;
 
 % ----------------------------------------------------------
 
