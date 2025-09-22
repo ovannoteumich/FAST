@@ -285,10 +285,3 @@ DatabaseStruct.PropUnitsReference = PropUnitsReference;
 disp('Databases successfully initialized.')
 
 end
-
-
-
-
-
-
-

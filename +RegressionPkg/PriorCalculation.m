@@ -19,4 +19,3 @@ end
 
 Prior = mean(priordata);
 end
-

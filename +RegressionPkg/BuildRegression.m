@@ -1,4 +1,3 @@
-
 function [MuPost,Sig2Post] =...
 BuildRegression(DataMatrix,Prior,Target,HyperParams,InverseTerm)
 

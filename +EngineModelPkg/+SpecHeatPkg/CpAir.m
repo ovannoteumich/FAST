@@ -173,8 +173,4 @@ end
 % 
 % print(f, '../EAP/DB_Paper_Scripts/cpcurve','-dpdf')
 
-
-
-
 end
-

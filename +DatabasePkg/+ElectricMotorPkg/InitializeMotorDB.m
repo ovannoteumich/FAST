@@ -21,4 +21,3 @@ save(fullfile("+DatabasePkg", "+ElectricMotorPkg", "IDEAS_EM_DB.mat"),'ElectricM
 
 disp('Electric Motor Database has successfully been initialized.')
 end
-

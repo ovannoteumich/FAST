@@ -134,8 +134,6 @@ DefaultPerformance.Vels.MaxOp = NaN;
 
 %% Regressions and projections
 
-
-
 load(fullfile("+DatabasePkg", "IDEAS_DB.mat"))
 switch TLAR.Class
     case "Turbofan"
@@ -212,8 +210,6 @@ for i = 1:length(unknowns)
             RegressionPkg.NLGPR(DataAC,IO,target,'Weights',w);
     end
 end
-
-
 
 
 %% Variables that use regression values
@@ -345,7 +341,6 @@ DefaultSettings.Dir.Size = pwd;
 HomeFolder = fileparts(pwd);
 % replace EAP with EAP-CNAP to get the operations directory
 DefaultSettings.Dir.Oper = fullfile(HomeFolder, "EAP-CNAP");
-
 
 
 %% Default gravimetric Fuel energy
@@ -560,8 +555,6 @@ if ~isa(Geometry.Preset,"function_handle")
 end
 
 
-
-
 %% Convert Units
 
 if Settings.Analysis.Type ~= -2
@@ -571,7 +564,6 @@ if Settings.Analysis.Type ~= -2
     Power.SpecEnergy.Fuel = Power.SpecEnergy.Fuel*3.6e6;           % kWh/kg to J/kg
     Power.SpecEnergy.Batt = Power.SpecEnergy.Batt*3.6e6;           % kWh/kg to J/kg
 end
-
 
 
 %% Passenger and Crew Weights

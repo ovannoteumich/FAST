@@ -10,8 +10,6 @@ function [Aircraft] = CeRAS(Aircraft)
 %% IMPORT THE PERFORMANCE PARAMETERS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
 AltTko = 0;
 AltCrs33 = UnitConversionPkg.ConvLength(33000, "ft", "m");
 AltCrs35 = UnitConversionPkg.ConvLength(35000, "ft", "m");

@@ -390,15 +390,3 @@ Cargo_Containters = 175 * ceil(Pax * Cargo_Weight/950);
 WOp = Flight_Crew + Galley_Crew + Stewards + Unusable_Fuel +...
     Oil + Passenger_Service + Cargo_Containters; 
 end
-
-
-
-
-
-
-
-
-
-
-
-
