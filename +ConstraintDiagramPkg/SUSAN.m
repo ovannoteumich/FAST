@@ -2,7 +2,7 @@ function [] = SUSAN()
 %
 % [] = SUSAN()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 22 sep 2025
+% last updated: 23 sep 2025
 %
 % create a constraint diagram for NASA's SUSAN aircraft.
 %
@@ -48,8 +48,8 @@ Aircraft.Specs.TLAR.CFRPart = 25;
 Aircraft.Specs.Performance.Range = 16045;
 
 % altitudes
-Aircraft.Specs.Performance.Alts.Crs = UnitConversionPkg.ConvLength(40000, "ft", "m"); % approx 4,000 ft less than A320 absolute ceiling
-Aircraft.Specs.Performance.Alts.Srv = UnitConversionPkg.ConvLength(42000, "ft", "m"); % approx 2,000 ft less than A320 absolute ceiling
+Aircraft.Specs.Performance.Alts.Crs = UnitConversionPkg.ConvLength(40000, "ft", "m");
+Aircraft.Specs.Performance.Alts.Srv = UnitConversionPkg.ConvLength(42000, "ft", "m");
 
 % stall speed
 Aircraft.Specs.Performance.Vels.Stl = sqrt(2 * 634 * 9.81 / 2 / 1.225);
@@ -58,16 +58,16 @@ Aircraft.Specs.Performance.Vels.Stl = sqrt(2 * 634 * 9.81 / 2 / 1.225);
 Aircraft.Specs.Performance.Vels.Crs = 0.775;
 
 % runway lengths and obstacle clearances
-Aircraft.Specs.Performance.TOFL    = 2750; % (or 2000 or 2750 m)
-Aircraft.Specs.Performance.LFL     = 2750; % (or 2000 or 2750 m)
+Aircraft.Specs.Performance.TOFL    = 2750;
+Aircraft.Specs.Performance.LFL     = 2750;
 Aircraft.Specs.Performance.ObstLen = UnitConversionPkg.ConvLength(1000, "ft", "m");
 
 % multiplicative factors for OEI conditions
 Aircraft.Specs.Performance.TempInc = 1.25;
 Aircraft.Specs.Performance.MaxCont = 1 / 0.94;
 
-% design specific excess power loss --- FIX
-Aircraft.Specs.Performance.PsLoss = 0;
+% design specific excess power loss
+Aircraft.Specs.Performance.PsLoss = 0.7689; % mean for twin-engine aircraft
 
 % landing weight as a fraction of MTOW (computed from baseline)
 Aircraft.Specs.Performance.Wland_MTOW = 0.8411;
@@ -141,7 +141,7 @@ Aircraft.Specs.Propulsion.NumEngines = 2;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % determine which constraints to use (0 = 14 CFR 25; 1 = novel)
-Aircraft.Settings.ConstraintType = 0;
+Aircraft.Settings.ConstraintType = 1;
 
 % create a constraint diagram
 ConstraintDiagramPkg.ConstraintDiagram(Aircraft);
@@ -149,6 +149,5 @@ ConstraintDiagramPkg.ConstraintDiagram(Aircraft);
 % add the existing sizing point
 hold on
 scatter(Aircraft.Specs.Aero.W_S.SLS, Aircraft.Specs.Propulsion.T_W.SLS, 48, "o", "MarkerEdgeColor", "red", "MarkerFaceColor", "red");
-
 
 end
