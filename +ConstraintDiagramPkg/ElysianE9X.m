@@ -2,7 +2,7 @@ function [] = ElysianE9X()
 %
 % [] = ElysianE9X()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 19 sep 2025
+% last updated: 23 sep 2025
 %
 % create a constraint diagram for a battery electric aircraft
 % representative of the elysian E9.
@@ -103,20 +103,20 @@ Aircraft.Specs.Aero.W_S.SLS = 509.6840;
 Aircraft.Specs.Aero.S  = 76000 / 509.6840;
 Aircraft.Specs.Aero.AR = 12;
 
-% lift coefficients ??? crs
+% lift coefficients
 Aircraft.Specs.Aero.CL.Crs = 1.0;
 Aircraft.Specs.Aero.CL.Tko = 2.5;
 Aircraft.Specs.Aero.CL.Lnd = 3.1;
 
-% parasite drag coefficients ??? pred
+% parasite drag coefficients
 Aircraft.Specs.Aero.CD0.Tko = 0.0618;
 Aircraft.Specs.Aero.CD0.Crs = 0.0168;
-Aircraft.Specs.Aero.CD0.Lnd = 0.1168;
+Aircraft.Specs.Aero.CD0.Lnd = 0.1068;
 
-% Oswald efficiency factors ??? pred
+% Oswald efficiency factors
 Aircraft.Specs.Aero.e.Crs = 0.8039;
-Aircraft.Specs.Aero.e.Tko = 0.7565;
-Aircraft.Specs.Aero.e.Lnd = 0.7093;
+Aircraft.Specs.Aero.e.Tko = 0.7637;
+Aircraft.Specs.Aero.e.Lnd = 0.7235;
 
 % ----------------------------------------------------------
 
@@ -157,6 +157,5 @@ ConstraintDiagramPkg.ConstraintDiagram(Aircraft);
 % add the existing sizing point
 hold on
 scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 48, "o", "MarkerEdgeColor", "red", "MarkerFaceColor", "red");
-
 
 end
