@@ -3,7 +3,7 @@ function [Aircraft] = ERJ175LR()
 % [Aircraft] = ERJ175LR()
 % originally written for E175 by Nawa Khailany
 % modified to E175LR by Paul Mokotoff, prmoko@umich.edu
-% last updated: 23 apr 2024
+% last updated: 13 dec 2024
 % 
 % Create a baseline model of the ERJ 175, long-range version (also known as
 % an ERJ 170-200). This version uses a conventional propulsion
@@ -40,11 +40,11 @@ Aircraft.Specs.TLAR.MaxPax = 78;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % calibration factors for lift-drag ratios
-Aircraft.Specs.Aero.L_D.ClbCF = 1.005;
-Aircraft.Specs.Aero.L_D.CrsCF = 1.012;
+Aircraft.Specs.Aero.L_D.ClbCF = 1.002;
+Aircraft.Specs.Aero.L_D.CrsCF = 1.000;
 
 % fuel flow calibration factor
-Aircraft.Specs.Propulsion.MDotCF = 0.907;
+Aircraft.Specs.Propulsion.MDotCF = 1.029;
 
 % airframe weight calibration factor
 Aircraft.Specs.Weight.WairfCF = 1.018;
@@ -60,7 +60,7 @@ Aircraft.Specs.Performance.Vels.Tko = UnitConversionPkg.ConvVel(135, "kts", "m/s
 Aircraft.Specs.Performance.Vels.Crs = 0.78; % at 35,000 ft, Mach 0.78
 
 % takeoff altitude (m)
-Aircraft.Specs.Performance.Alts.Tko =     0;
+Aircraft.Specs.Performance.Alts.Tko = 0;
 
 % cruise altitude (m)
 Aircraft.Specs.Performance.Alts.Crs = UnitConversionPkg.ConvLength(35000, "ft", "m");
@@ -120,7 +120,7 @@ Aircraft.Specs.Weight.Batt = 0;
 %     (5) "PHE" = parallel hybrid electric
 %     (6) "SHE" = series hybrid electric
 %     (7) "O"   = other architecture (specified by the user)
-Aircraft.Specs.Propulsion.Arch.Type = "C";
+Aircraft.Specs.Propulsion.PropArch.Type = "C";
 
 % get the engine
 Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.CF34_8E5;
@@ -147,6 +147,22 @@ Aircraft.Specs.Power.SpecEnergy.Fuel = 12;
 % gravimetric specific energy of battery (kWh/kg), not used here
 Aircraft.Specs.Power.SpecEnergy.Batt = 0.25;
 
+% downstream power splits
+Aircraft.Specs.Power.LamDwn.SLS = 0;
+Aircraft.Specs.Power.LamDwn.Tko = 0;
+Aircraft.Specs.Power.LamDwn.Clb = 0;
+Aircraft.Specs.Power.LamDwn.Crs = 0;
+Aircraft.Specs.Power.LamDwn.Des = 0;
+Aircraft.Specs.Power.LamDwn.Lnd = 0;
+
+% upstream power splits
+Aircraft.Specs.Power.LamUps.SLS = 0;
+Aircraft.Specs.Power.LamUps.Tko = 0;
+Aircraft.Specs.Power.LamUps.Clb = 0;
+Aircraft.Specs.Power.LamUps.Crs = 0;
+Aircraft.Specs.Power.LamUps.Des = 0;
+Aircraft.Specs.Power.LamUps.Lnd = 0;
+
 % electric motor and generator efficiencies, not used here just in HEA one
 Aircraft.Specs.Power.Eta.EM = 0.96;
 Aircraft.Specs.Power.Eta.EG = 0.96;
@@ -158,38 +174,6 @@ Aircraft.Specs.Power.P_W.SLS = NaN;
 % leave as NaN if an electric motor or generator isn't in the powertrain
 Aircraft.Specs.Power.P_W.EM = 10;
 Aircraft.Specs.Power.P_W.EG = NaN;
-
-% thrust splits (thrust / total thrust)
-Aircraft.Specs.Power.LamTS.Tko = 0;
-Aircraft.Specs.Power.LamTS.Clb = 0;
-Aircraft.Specs.Power.LamTS.Crs = 0;
-Aircraft.Specs.Power.LamTS.Des = 0;
-Aircraft.Specs.Power.LamTS.Lnd = 0;
-Aircraft.Specs.Power.LamTS.SLS = 0;
-
-% power splits between power/thrust sources (electric power / total power)
-Aircraft.Specs.Power.LamTSPS.Tko = 0;
-Aircraft.Specs.Power.LamTSPS.Clb = 0;
-Aircraft.Specs.Power.LamTSPS.Crs = 0;
-Aircraft.Specs.Power.LamTSPS.Des = 0;
-Aircraft.Specs.Power.LamTSPS.Lnd = 0;
-Aircraft.Specs.Power.LamTSPS.SLS = 0;
-
-% power splits between power/power sources (electric power / total power)
-Aircraft.Specs.Power.LamPSPS.Tko = 0;
-Aircraft.Specs.Power.LamPSPS.Clb = 0;
-Aircraft.Specs.Power.LamPSPS.Crs = 0;
-Aircraft.Specs.Power.LamPSPS.Des = 0;
-Aircraft.Specs.Power.LamPSPS.Lnd = 0;
-Aircraft.Specs.Power.LamPSPS.SLS = 0;
-
-% power splits between energy/power sources (electric power / total power)
-Aircraft.Specs.Power.LamPSES.Tko = 0;
-Aircraft.Specs.Power.LamPSES.Clb = 0;
-Aircraft.Specs.Power.LamPSES.Crs = 0;
-Aircraft.Specs.Power.LamPSES.Des = 0;
-Aircraft.Specs.Power.LamPSES.Lnd = 0;
-Aircraft.Specs.Power.LamPSES.SLS = 0;
 
 % battery cells in series and parallel
 % (commented values used for electrified aircraft)

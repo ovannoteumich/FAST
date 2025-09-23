@@ -1,7 +1,7 @@
 function [] = README()
 %
 % Copyright 2024 The Regents of the University of Michigan,
-% The Integrated Design of Environmentally-friendly Aircraft Systems
+% The Integrated Design of Efficient Aerospace Systems
 % Laboratory
 % 
 % Future Aircraft Sizing Tool (FAST), a MATLAB-based aircraft sizing
@@ -20,11 +20,15 @@ function [] = README()
 %
 % Additional Contributors:
 %     Huseyin Acar
+%     Yi-Chih (Arenas) Wang
+%     Miranda Stockhausen
+%     Emma Cassidy
 %     Nawa Khailany
 %     Janki Patel
 %     Michael Tsai
+%     Vaibhav Rau
 % 
-% README last updated: 18 jun 2024
+% README last updated: 08 Sep 2025
 %
 % Learn More About FAST
 % For detailed information about FAST's features, visit our website: 
@@ -37,10 +41,42 @@ function [] = README()
 % To stay informed about upcoming papers, new releases, and news about
 % FAST, please sign up for our newsletter:
 % https://forms.gle/b8sPXKnRAfi5ZsARA
+%
+% Please cite us when using FAST
+%
+% If you are using FAST in your work, please cite the following paper: 
+% Mokotoff, P., Arnson, M., Wang, Y. C., & Cinar, G. (2025). FAST: A Future
+% Aircraft Sizing Tool for Conventional and Electrified Aircraft Design.
+% In AIAA SciTech 2025 Forum (p. 2374).
+%
+% A copy of this paper may be found at the following link: 
+% https://doi.org/10.2514/6.2025-2374
+%
+% Alternatively, you may use the information below when using BibTeX:
+%
+% @inproceedings{mokotoff2025fast,
+%   title={FAST: A Future Aircraft Sizing Tool for Conventional and Electrified Aircraft Design},
+%   author={Mokotoff, Paul and Arnson, Maxfield and Wang, Yi-Chih and Cinar, Gokcin},
+%   booktitle={AIAA SciTech 2025 Forum},
+%   pages={2374},
+%   year={2025},
+%   doi={https://doi.org/10.2514/6.2025-2374}
+% }
 % 
 % -------------------------------------------------------------------------
 %
-% (I) Additional Documentation
+% (I) Installation Instructions
+%
+% FAST can be cloned from its GitHub repository:
+% https://github.com/ideas-um/FAST
+%
+% and can be run directly in Matlab. As long as Matlab is installed on the
+% user's computer, FAST can be run directly after cloning from the online
+% repository.
+%
+% -------------------------------------------------------------------------
+%
+% (II) Additional Documentation
 %
 % For FAST's license, notices, and community contribution instructions,
 % refer to the following files, located in the main directory.
@@ -148,12 +184,17 @@ function [] = README()
 %                    This package contains code to run retrofit studies on
 %                    an aircraft by electrifying its powertrain and
 %                    replacing part of the payload with batteries.
+%
+%             (o) +TutorialsPkg
+%                     This package contains Matlab scripts to accompany all
+%                     the playlist of YouTube tutorial videos, which can be
+%                     accessed using this link: https://www.youtube.com/playlist?list=PLNbQSl1VumqhNHgNOq9oxm4_Toi4_7v3-
 % 
-%             (o) +UnitConversionPkg
+%             (p) +UnitConversionPkg
 %                    This package contains functions which perform unit
 %                    conversions for use in FAST.
 % 
-%             (p) +VisualizationPkg
+%             (q) +VisualizationPkg
 %                    This package contains information about visualizing
 %                    both the aicraft's outer mold line(as a wireframe) and
 %                    its propulsion architecture (in a schematic).
@@ -192,7 +233,7 @@ function [] = README()
 % 
 % -------------------------------------------------------------------------
 %
-% (II) FAST Overview:
+% (III) FAST Overview:
 %
 % FAST performs on- and off-design analysis of a user-prescribed aircraft
 % on a user-prescribed mission profile. In order to run this tool, call
@@ -241,10 +282,9 @@ function [] = README()
 %                 should refer to the examples in "CreatePropArch" and the
 %                 following paper:
 %
-%                     Cinar, G., Garcia, E., & Mavris, D. N. (2020). A
-%                     framework for electrified propulsion architecture and
-%                     operation analysis. Aircraft Engineering and
-%                     Aerospace Technology, 92(5), 675-684.
+%                     Mokotoff, P. and Cinar, G. (2025). Graph Theory-based
+%                     propulsion system analysis. Aerospace Science and
+%                     Technology, in press. https://doi.org/10.1016/j.ast.2025.110798
 %
 %         It is okay if some information is unknown about the aircraft. The
 %         user can either set the value to NaN or just not include it.
@@ -293,7 +333,7 @@ function [] = README()
 % -------------------------------------------------------------------------
 %
 %
-% (III) Requirements and Compatibility:
+% (IV) Requirements and Compatibility:
 %
 %     (1) The oldest Matlab version that this code has been successfully
 %         run on is R2019b.
@@ -304,7 +344,35 @@ function [] = README()
 % -------------------------------------------------------------------------
 %
 %
-% (IV) Notes:
+% (V) Reporting Bugs/Issues:
+%
+%     To report any bugs/issues, please use the GitHub Issues feature on
+%     the repository: https://github.com/ideas-um/FAST/issues. Upon
+%     reaching the website, use the "New issue" button to create the issue.
+%     Please provide a written description of the issue encountered along
+%     with any additional scripts/files being ran in FAST. It is important
+%     that any additional scripts/files are uploaded so the FAST developers
+%     and maintainers can replicate the issue encountered.
+%
+%     Additionally, you are welcome to fix any bugs encountered on your
+%     own. After the fix has been made, please submit a pull request and a
+%     FAST developer/maintainer will review your request.
+%
+%
+% -------------------------------------------------------------------------
+%
+%
+% (VI) Additional User Support:
+%
+%     Should additional support be needed (beyond reporting bugs or issues
+%     with the software), please email the point of contact at the
+%     beginning of this README file.
+%
+%
+% -------------------------------------------------------------------------
+%
+%
+% (VII) Notes:
 %
 %     (1) In the main sizing/performance analysis function, "EAPAnalysis",
 %         information about the weight of each component being sized is
@@ -333,7 +401,7 @@ function [] = README()
 % -------------------------------------------------------------------------
 %
 %
-% (V) Disclaimers:
+% (VIII) Disclaimers:
 %
 %     (1) When defining an aircraft in the "AircraftSpecsPkg" folder, many
 %         of the values will remain as NaN. For any values that remain as
@@ -364,9 +432,53 @@ function [] = README()
 %         function, which is housed in the "PropulsionPkg" folder.
 % 
 %     (4) The "OptimizationPkg" is currently deprecated and only runs on
-%         previous versions of FAST. Updates to this package are expected
-%         to commence in Spring/Summer 2024 and be released by the end of
-%         2024.
+%         previous versions of FAST.
+%
+%     (5) Currently, we are in the process of switching to a new off-design
+%         engine model. As a result of that, some of the engines provided
+%         in the "+EngineModelPkg\+EngineSpecsPkg" are not fully up to
+%         date. The engines that currently work are the LEAP-1A26,
+%         CF34-8E5, and any turboprop engine. If you want to use a turbofan
+%         engine not listed above, please refer to
+%         "+EngineModelPkg\SimpleOffDesign" for the necessary coefficients
+%         that need to be provided to use the fuel flow equation.
+%
+%         Additionally, due to this switch, please refrain from using the
+%         "+EngineModelPkg\TurbofanOffDesign" function or any functions
+%         that it calls within its routine.
+%
+%
+% -------------------------------------------------------------------------
+%
+%
+% (IX) Testing FAST:
+%
+% Multiple unit tests are shipped with FAST to ensure that the code is
+% operating correctly. In order to test FAST, run the following command:
+%
+%     TestFAST();
+%
+% If all of the tests run correctly, then FAST is up-to-date and can be
+% ran. If some of the tests fail, please submit an issue on GitHub using
+% the following link: https://github.com/ideas-um/FAST/issues.
+%
+%
+% -------------------------------------------------------------------------
+%
+%
+% (X) Acknowledgments:
+%
+% This work is sponsored by the NASA Aeronautics Research Mission
+% Directorate and the Electrified Powertrain Flight Demonstration (EPFD)
+% project, "Development of a Parametrically Driven Electrified Aircraft
+% Design and Optimization Tool". The IDEAS Lab would like to thank Ralph
+% Jansen, Andrew Meade, Karin Bozak, Amy Chicatelli, Noah Listgarten,
+% Dennis Rohn, and Gaudy Bezos-O'Connor from the NASA EPFD project for
+% supporting this work and providing valuable technical input and feedback
+% throughout the duration of the project.
+%
+% Glenn Engineering and Research Support Contract (GEARS)
+% Contract No. 80GRC020D0003
 %
 %
 % -------------------------------------------------------------------------

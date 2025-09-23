@@ -2,7 +2,7 @@ function [Aircraft] = EvalCruise(Aircraft)
 %
 % [Aircraft] = EvalCruise(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 07 mar 2024
+% last updated: 07 apr 2025
 %
 % Evaluate a cruise segment by iterating over the aircraft's mass. Climb/
 % descent and accelerations are allowed in the segment.
@@ -129,8 +129,8 @@ Time  = zeros(npoint, 1); % s
 Eleft_ES = zeros(npoint, 1);
 
 % get the energy source types
-Fuel = Aircraft.Specs.Propulsion.PropArch.ESType == 1;
-Batt = Aircraft.Specs.Propulsion.PropArch.ESType == 0;
+Fuel = Aircraft.Specs.Propulsion.PropArch.SrcType == 1;
+Batt = Aircraft.Specs.Propulsion.PropArch.SrcType == 0;
 
 % if not first segment, get accumulated quantities
 if (SegBeg > 1)
@@ -168,32 +168,9 @@ else
     
 end
 
-% assume thrust split comes from the aircraft specifications
-LamTS = repmat(Aircraft.Specs.Power.LamTS.Crs, npoint, 1);
-
-% assume energy/power/thrust splits come from the aircraft specifications
-LamTSPS = repmat(Aircraft.Specs.Power.LamTSPS.Crs, npoint, 1);
-LamPSPS = repmat(Aircraft.Specs.Power.LamPSPS.Crs, npoint, 1);
-LamPSES = repmat(Aircraft.Specs.Power.LamPSES.Crs, npoint, 1);
-
-% check if the power optimization structure is available
-if (isfield(Aircraft, "PowerOpt"))
-    
-    % check if the splits are available
-    if (isfield(Aircraft.PowerOpt, "Splits"))
-        
-        % get the thrust/power/energy splits
-        [LamTS, LamTSPS, LamPSPS, LamPSES] = OptimizationPkg.GetSplits( ...
-        Aircraft, SegBeg, SegEnd, LamTS, LamTSPS, LamPSPS, LamPSES);
-        
-    end
-end
-
-% remember the splits
-Aircraft.Mission.History.SI.Power.LamTS(  SegBeg:SegEnd, :) = LamTS  ;
-Aircraft.Mission.History.SI.Power.LamTSPS(SegBeg:SegEnd, :) = LamTSPS;
-Aircraft.Mission.History.SI.Power.LamPSPS(SegBeg:SegEnd, :) = LamPSPS;
-Aircraft.Mission.History.SI.Power.LamPSES(SegBeg:SegEnd, :) = LamPSES;
+% remember the power splits
+Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamDwn.Crs, SegEnd - SegBeg + 1, 1);
+Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamUps.Crs, SegEnd - SegBeg + 1, 1);
 
 % remember initial quantities in the mission history
 Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd) = Mass;
@@ -311,15 +288,9 @@ while (iter < MaxIter)
     
     % compute the specific excess power (ncases)
     Ps = (Pav - DV) ./ (Mass .* g);
-    
-    % check if any specific power values are < 0
-    irow = find(Ps < 0);
-    
-    % check for specific excess power values
-    if (any(irow))
         
-        % set negative specific power to 0
-        Ps(irow) = 0;
+    % check for specific excess power values
+    if (any(Ps(1:end-1) < 0))
         
         % throw warning
         warning('Excess Power (Ps) < 0 for some segments in cruise.');
@@ -365,7 +336,7 @@ while (iter < MaxIter)
     Aircraft.Mission.History.SI.Performance.Time(SegBeg:SegEnd) = Time;
     
     % perform the propulsion analysis
-    Aircraft = PropulsionPkg.PropAnalysisNew(Aircraft);
+    Aircraft = PropulsionPkg.PropAnalysis(Aircraft);
     
     % extract updated mass from the aircraft structure
     Mass = Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd);

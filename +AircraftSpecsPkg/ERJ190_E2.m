@@ -2,7 +2,7 @@ function [Aircraft] = ERJ190_E2()
 %
 % ERJ190_E2.m
 % written by Paul Mokotoff, prmoko@umich.edu
-% updated 09 jan 2024
+% updated 20 jun 2025
 %
 % define the embraer E190-E2 from "advanced 2030 single aisle aircraft
 % modeling" to be used for aircraft sizing/performance analysis.
@@ -128,7 +128,7 @@ Aircraft.Specs.Weight.EG = NaN;
 %     (5) "PHE" = parallel hybrid electric
 %     (6) "SHE" = series hybrid electric
 %     (7) "O"   = other architecture (specified by the user)
-Aircraft.Specs.Propulsion.Arch.Type = "C";
+Aircraft.Specs.Propulsion.PropArch.Type = "C";
 
 % Number of engines
 Aircraft.Specs.Propulsion.NumEngines = 2;
@@ -165,37 +165,21 @@ Aircraft.Specs.Power.Eta.EM = 0.96;
 % electric generator efficiency
 Aircraft.Specs.Power.Eta.EG = 0.96;
 
-% thrust splits (thrust / total thrust)
-Aircraft.Specs.Power.LamTS.Tko = 0;
-Aircraft.Specs.Power.LamTS.Clb = 0;
-Aircraft.Specs.Power.LamTS.Crs = 0;
-Aircraft.Specs.Power.LamTS.Des = 0;
-Aircraft.Specs.Power.LamTS.Lnd = 0;
-Aircraft.Specs.Power.LamTS.SLS = 0;
+% upstream power splits
+Aircraft.Specs.Power.LamUps.SLS = 0;
+Aircraft.Specs.Power.LamUps.Tko = 0;
+Aircraft.Specs.Power.LamUps.Clb = 0;
+Aircraft.Specs.Power.LamUps.Crs = 0;
+Aircraft.Specs.Power.LamUps.Des = 0;
+Aircraft.Specs.Power.LamUps.Lnd = 0;
 
-% power splits between power/thrust sources (electric power / total power)
-Aircraft.Specs.Power.LamTSPS.Tko = 0;
-Aircraft.Specs.Power.LamTSPS.Clb = 0;
-Aircraft.Specs.Power.LamTSPS.Crs = 0;
-Aircraft.Specs.Power.LamTSPS.Des = 0;
-Aircraft.Specs.Power.LamTSPS.Lnd = 0;
-Aircraft.Specs.Power.LamTSPS.SLS = 0;
-
-% power splits between power/power sources (electric power / total power)
-Aircraft.Specs.Power.LamPSPS.Tko = 0;
-Aircraft.Specs.Power.LamPSPS.Clb = 0;
-Aircraft.Specs.Power.LamPSPS.Crs = 0;
-Aircraft.Specs.Power.LamPSPS.Des = 0;
-Aircraft.Specs.Power.LamPSPS.Lnd = 0;
-Aircraft.Specs.Power.LamPSPS.SLS = 0;
-
-% power splits between energy/power sources (electric power / total power)
-Aircraft.Specs.Power.LamPSES.Tko = 0;
-Aircraft.Specs.Power.LamPSES.Clb = 0;
-Aircraft.Specs.Power.LamPSES.Crs = 0;
-Aircraft.Specs.Power.LamPSES.Des = 0;
-Aircraft.Specs.Power.LamPSES.Lnd = 0;
-Aircraft.Specs.Power.LamPSES.SLS = 0;
+% downstream power splits
+Aircraft.Specs.Power.LamDwn.SLS = 0;
+Aircraft.Specs.Power.LamDwn.Tko = 0;
+Aircraft.Specs.Power.LamDwn.Clb = 0;
+Aircraft.Specs.Power.LamDwn.Crs = 0;
+Aircraft.Specs.Power.LamDwn.Des = 0;
+Aircraft.Specs.Power.LamDwn.Lnd = 0;
 
 % aircraft power-weight ratio (kW/kg)
 Aircraft.Specs.Power.P_W.SLS = NaN;

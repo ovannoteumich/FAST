@@ -3,7 +3,7 @@ function [Aircraft] = EvalDescent(Aircraft)
 % [Aircraft] = EvalDescent(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
 % patterned after code written by Gokcin Cinar in E-PASS
-% last updated: 07 mar 2024
+% last updated: 05 mar 2025
 %
 % Evaluate a descent segment by iterating over the rate of climb and
 % instantaneous acceleration at each control point in the mission.
@@ -65,6 +65,9 @@ VelEnd = Aircraft.Mission.Profile.VelEnd(SegsID);
 % beginning and ending velocity types
 TypeBeg = Aircraft.Mission.Profile.TypeBeg(SegsID);
 TypeEnd = Aircraft.Mission.Profile.TypeEnd(SegsID);
+
+% rate of descent (if prescribed)
+dh_dtReq = Aircraft.Mission.Profile.ClbRate(SegsID);
 
 % ----------------------------------------------------------
 
@@ -130,11 +133,10 @@ Time  = zeros(npoint, 1); % s
 Eleft_ES = zeros(npoint, 1);
 
 % get the energy source types
-Fuel = Aircraft.Specs.Propulsion.PropArch.ESType == 1;
-Batt = Aircraft.Specs.Propulsion.PropArch.ESType == 0;
+Fuel = Aircraft.Specs.Propulsion.PropArch.SrcType == 1;
+Batt = Aircraft.Specs.Propulsion.PropArch.SrcType == 0;
 
-% guess a rate of descent and an instantaneous acceleration to iterate over
-dh_dt = zeros(npoint, 1);
+% initialize the acceleration
 dV_dt = zeros(npoint, 1);
 
 % remember prior rate of descent and acceleration for iterating
@@ -173,36 +175,8 @@ else
         % compute the battery energy remaining
         Eleft_ES(:, Batt) = Aircraft.Specs.Power.SpecEnergy.Batt * Aircraft.Specs.Weight.Batt;
         
-    end
-    
+    end 
 end
-
-% assume thrust split comes from the aircraft specifications
-LamTS = repmat(Aircraft.Specs.Power.LamTS.Des, npoint, 1);
-
-% assume energy/power/thrust splits come from the aircraft specifications
-LamTSPS = repmat(Aircraft.Specs.Power.LamTSPS.Des, npoint, 1);
-LamPSPS = repmat(Aircraft.Specs.Power.LamPSPS.Des, npoint, 1);
-LamPSES = repmat(Aircraft.Specs.Power.LamPSES.Des, npoint, 1);
-
-% check if the power optimization structure is available
-if (isfield(Aircraft, "PowerOpt"))
-    
-    % check if the splits are available
-    if (isfield(Aircraft.PowerOpt, "Splits"))
-        
-        % get the thrust/power/energy splits
-        [LamTS, LamTSPS, LamPSPS, LamPSES] = OptimizationPkg.GetSplits( ...
-        Aircraft, SegBeg, SegEnd, LamTS, LamTSPS, LamPSPS, LamPSES);
-        
-    end
-end
-
-% remember the splits
-Aircraft.Mission.History.SI.Power.LamTS(  SegBeg:SegEnd, :) = LamTS  ;
-Aircraft.Mission.History.SI.Power.LamTSPS(SegBeg:SegEnd, :) = LamTSPS;
-Aircraft.Mission.History.SI.Power.LamPSPS(SegBeg:SegEnd, :) = LamPSPS;
-Aircraft.Mission.History.SI.Power.LamPSES(SegBeg:SegEnd, :) = LamPSES;
 
 % update the mission history
 Aircraft.Mission.History.SI.Performance.TAS( SegBeg:SegEnd) = TAS ;
@@ -211,6 +185,10 @@ Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd) = Mass;
 % remember the fuel and battery energy remaining
 Aircraft.Mission.History.SI.Energy.Eleft_ES(SegBeg:SegEnd, :) = Eleft_ES;
 
+% remember the power splits
+Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamDwn.Des, SegEnd - SegBeg + 1, 1);
+Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamUps.Des, SegEnd - SegBeg + 1, 1);
+
 % ----------------------------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -218,6 +196,19 @@ Aircraft.Mission.History.SI.Energy.Eleft_ES(SegBeg:SegEnd, :) = Eleft_ES;
 % iterate                    %
 %                            %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% if rate of climb is prescribed, set it now
+if (~isnan(dh_dtReq))
+    
+    % get the required rate of climb
+    dh_dt = [repmat(dh_dtReq, npoint-1, 1); 0];
+        
+else
+    
+    % assume rate of climb of 0 to start (will be overwritten)
+    dh_dt = zeros(npoint, 1);
+    
+end
 
 % trajectory should converge within 10 iterations
 while (iter < MaxIter)
@@ -255,6 +246,9 @@ while (iter < MaxIter)
     % compute the power available
     Aircraft = PropulsionPkg.PowerAvailable(Aircraft);
     
+    % get the power available
+    Pav = Aircraft.Mission.History.SI.Power.TV(SegBeg:SegEnd);
+    
     % ------------------------------------------------------
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -275,34 +269,69 @@ while (iter < MaxIter)
     % calculate energy height
     EnHt = Alt + TAS .^ 2 ./ (2 * g);
     
+    % compute the energy height differential
+    dEnHt = diff(EnHt);
+    
     % compute power to overcome drag
     DV = D .* TAS;
     
-    % compute the specific excess power (idle engine while gliding)
-    Ps = -DV ./ (Mass .* g);
-
-    % compute time to fly (negate quotient for a dTime > 0)
-    dTime = diff(EnHt) ./ Ps(1:end-1);
-
-    % update the rate of climb
-    dh_dt = [diff(Alt) ./ dTime; 0];
+    % compute the specific excess power
+    Ps = (Pav - DV) ./ (Mass .* g);
     
-    % find points that exceed the maximum rate of climb
-    irow = find(dh_dt < RDMax);
-    
-    % adjust points that exceed the maximum rate of climb
-    if (any(irow))
+    % compute time to fly, depending if rate of climb is given
+    if (isnan(dh_dtReq))
         
-        % limit the rate of climb
-        dh_dt(irow) = RDMax;
+        % compute time to fly based on energy height
+        dTime = abs(dEnHt ./ Ps(1:end-1));
         
-        % recompute the time required to fly the segment
+        % update the rate of climb
+        dh_dt = [diff(Alt) ./ dTime; 0];
+        
+        % find points that exceed the maximum rate of descent
+        irow = find(dh_dt < RDMax);
+        
+        % adjust points that exceed the maximum rate of descent
+        if (any(irow))
+            
+            % limit the rate of climb
+            dh_dt(irow) = RDMax;
+            
+            % recompute the time required to fly the segment
+            dTime = diff(Alt) ./ dh_dt(1:end-1);
+            
+        end
+        
+        % compute the instantaneous acceleration
+        dV_dt = [diff(TAS) ./ dTime; 0];
+                
+    else
+        
+        % compute time to fly based on rate of climb
         dTime = diff(Alt) ./ dh_dt(1:end-1);
-                        
+
+        % compute the acceleration
+        dV_dt = [diff(TAS) ./ dTime; 0];
+        
+        % find the maximum realizable acceleration
+        dV_dtMax = (Ps - dh_dt) .* g ./ TAS;
+
+        % adjust points when the required acceleration can't be realized
+        if (any(dV_dt > dV_dtMax))
+            
+            % assume maximum acceleration at all points
+            dV_dt = dV_dtMax;
+        
+            % update velocity profile (assume maximum acceleration at all)
+            TAS(2:end) = TAS(1) + cumsum(dV_dt(1:end-1) .* dTime);
+        
+            % avoid overspeeding
+            TAS(TAS > TASEnd) = TASEnd;
+            
+            % re-compute the acceleration
+            dV_dt = [diff(TAS) ./ dTime; 0];
+            
+        end
     end
-    
-    % compute the instantaneous acceleration
-    dV_dt = [diff(TAS) ./ dTime; 0];
     
     % cumulative time flown
     Time(2:end) = Time(1) + cumsum(dTime);
@@ -351,7 +380,7 @@ while (iter < MaxIter)
     Aircraft.Mission.History.SI.Performance.Time(SegBeg:SegEnd) = Time;
     
     % perform the propulsion analysis
-    Aircraft = PropulsionPkg.PropAnalysisNew(Aircraft);
+    Aircraft = PropulsionPkg.PropAnalysis(Aircraft);
     
     % extract updated mass from aircraft structure
     Mass = Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd);
