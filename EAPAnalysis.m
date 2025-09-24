@@ -367,7 +367,7 @@ Cpower = Aircraft.Specs.Battery.Cpower;
 FECs = Aircraft.Specs.Battery.FEC(end);
 
 if Type ~= 1 % Battery degradation only makes sense in off-design 
-    if Aircraft.Settings.Degradation == 1
+    if Aircraft.Specs.Battery.Degradation == 1
         [SOH, FEC, Aircraft] = BatteryPkg.CyclAging(Aircraft, BattChem, FECs, GroundTime, Cpower);
         Aircraft.Specs.Battery.FEC(end+1,1) = FEC;
         Aircraft.Specs.Battery.SOH(end+1,1) = SOH;

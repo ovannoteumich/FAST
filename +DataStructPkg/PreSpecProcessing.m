@@ -409,6 +409,7 @@ else
             Aircraft.Specs.Battery.FEC = NaN;
             Aircraft.Specs.Battery.SOH = NaN;
             Aircraft.Specs.Battery.OpTemp = NaN;
+            Aircraft.Specs.Battery.Degradation = NaN;
         else
             if ~isfield(Aircraft.Specs.Battery, "NomVolCell")
                 Aircraft.Specs.Battery.NomVolCell = NaN;
@@ -452,6 +453,9 @@ else
             if ~isfield(Aircraft.Specs.Battery, "OpTemp")
                 Aircraft.Specs.Battery.OpTemp = NaN;
             end
+            if ~isfield(Aircraft.Specs.Battery, "Degradation")
+                Aircraft.Specs.Battery.Degradation = NaN;
+            end
         end
 
     end
@@ -473,7 +477,6 @@ if ~isfield(Aircraft,"Settings")
     Aircraft.Settings.VisualizeAircraft = NaN;
     Aircraft.Settings.Dir.Size = NaN;
     Aircraft.Settings.Dir.Oper = NaN;
-    Aircraft.Settings.Degradation = NaN;
 else
     if ~isfield(Aircraft.Settings,"TkoPoints")
         Aircraft.Settings.TkoPoints = NaN;

@@ -148,17 +148,17 @@ Aircraft.Specs.Power.SpecEnergy.Fuel = 12;
 Aircraft.Specs.Power.SpecEnergy.Batt = 0.25;
 
 % downstream power splits
-Aircraft.Specs.Power.LamDwn.SLS = 0;
-Aircraft.Specs.Power.LamDwn.Tko = 0;
-Aircraft.Specs.Power.LamDwn.Clb = 0;
+Aircraft.Specs.Power.LamDwn.SLS = 0.1;
+Aircraft.Specs.Power.LamDwn.Tko = 0.1;
+Aircraft.Specs.Power.LamDwn.Clb = 0.05;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;
 
 % upstream power splits
-Aircraft.Specs.Power.LamUps.SLS = 0;
-Aircraft.Specs.Power.LamUps.Tko = 0;
-Aircraft.Specs.Power.LamUps.Clb = 0;
+Aircraft.Specs.Power.LamUps.SLS = 1;
+Aircraft.Specs.Power.LamUps.Tko = 1;
+Aircraft.Specs.Power.LamUps.Clb = 1;
 Aircraft.Specs.Power.LamUps.Crs = 0;
 Aircraft.Specs.Power.LamUps.Des = 0;
 Aircraft.Specs.Power.LamUps.Lnd = 0;
@@ -216,9 +216,9 @@ Aircraft.Specs.Battery.MaxAllowCRate = 5;
 Aircraft.Specs.Battery.Charging = 500*1000;
 
 %%%% battery degradation effect analysis %%%
-Aircraft.Settings.Degradation = 0; % 1 = analysis with degradation effect; 0 = without degradation effect
+Aircraft.Specs.Battery.Degradation = 0; % 1 = analysis with degradation effect; 0 = without degradation effect
 
-if Aircraft.Settings.Degradation == 1
+if Aircraft.Specs.Battery.Degradation == 1
     
     % battery chemistry material (ONLY "NMC" or "LFP" FOR NOW)
     Aircraft.Specs.Battery.Chem = 1; % NMC: 1    LFP:2

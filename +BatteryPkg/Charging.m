@@ -108,7 +108,7 @@ A = Aircraft.Specs.Battery.expVol;
 B = Aircraft.Specs.Battery.expCap;
 
 % Determine maximum capacity [Ah] based on analysis type and degradation effect
-if Aircraft.Settings.Analysis.Type < 0 && Aircraft.Settings.Degradation == 1
+if Aircraft.Settings.Analysis.Type < 0 && Aircraft.Specs.Battery.Degradation == 1
 
     % Off-design analysis with battery degradation effect
     Q = Aircraft.Specs.Battery.CapCell * Aircraft.Specs.Battery.SOH(end) / 100;

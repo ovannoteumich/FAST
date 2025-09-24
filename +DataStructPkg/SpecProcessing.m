@@ -355,6 +355,7 @@ DefaultBattery.Cpower = -250e3; % 250kW in charging
 DefaultBattery.FEC = 0;
 DefaultBattery.SOH = 100;
 DefaultBattery.OpTemp = 35; % 35 [°C], aging model with change it to Kelvin
+DefaultBattery.Degradation = 0;
 
 
 %% Default Settings

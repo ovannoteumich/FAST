@@ -62,7 +62,7 @@ else
 end
 
 % Compute cell capacity (also if degradation is considered)
-if Aircraft.Settings.Analysis.Type < 0 && Aircraft.Settings.Degradation == 1
+if Aircraft.Settings.Analysis.Type < 0 && Aircraft.Specs.Battery.Degradation == 1
     Q_cell = Aircraft.Specs.Battery.CapCell * (Aircraft.Specs.Battery.SOH(end) / 100);
 else
     Q_cell = Aircraft.Specs.Battery.CapCell;
