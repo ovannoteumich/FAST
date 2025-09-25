@@ -2,7 +2,7 @@ function [] = SUSAN()
 %
 % [] = SUSAN()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 23 sep 2025
+% last updated: 25 sep 2025
 %
 % create a constraint diagram for NASA's SUSAN aircraft.
 %
@@ -27,9 +27,6 @@ clc, close all
 %                            %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% entry-into-service year
-Aircraft.Specs.TLAR.EIS = 2040;
-
 % aircraft class
 Aircraft.Specs.TLAR.Class = "Turbofan";
 
@@ -43,9 +40,6 @@ Aircraft.Specs.TLAR.CFRPart = 25;
 % performance parameters     %
 %                            %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% design range
-Aircraft.Specs.Performance.Range = 16045;
 
 % altitudes
 Aircraft.Specs.Performance.Alts.Crs = UnitConversionPkg.ConvLength(40000, "ft", "m");

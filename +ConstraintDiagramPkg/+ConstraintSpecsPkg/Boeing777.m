@@ -2,7 +2,7 @@ function [] = Boeing777()
 %
 % [] = Boeing777()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 19 sep 2025
+% last updated: 25 sep 2025
 %
 % create a constraint diagram for a boeing 777, found in the aircraft
 % design metabook.
@@ -28,9 +28,6 @@ clc, close all
 %                            %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% entry-into-service year
-Aircraft.Specs.TLAR.EIS = 2006;
-
 % aircraft class
 Aircraft.Specs.TLAR.Class = "Turbofan";
 
@@ -44,9 +41,6 @@ Aircraft.Specs.TLAR.CFRPart = 25;
 % performance parameters     %
 %                            %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% design range
-Aircraft.Specs.Performance.Range = 16045;
 
 % altitudes
 Aircraft.Specs.Performance.Alts.Crs = UnitConversionPkg.ConvLength(40000, "ft", "m"); % approx 4,000 ft less than A320 absolute ceiling
@@ -93,8 +87,7 @@ Aircraft.Specs.Performance.ConstraintLabs = ["25.111"; "25.119"; "25.121a"; "25.
 % wing loading
 Aircraft.Specs.Aero.W_S.SLS = 695.5;
 
-% wing properties
-Aircraft.Specs.Aero.S  = 347815 / 695.5;
+% aspect ratio
 Aircraft.Specs.Aero.AR = 9.8;
 
 % lift coefficients

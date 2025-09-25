@@ -2,7 +2,7 @@ function [] = ElysianE9X()
 %
 % [] = ElysianE9X()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 23 sep 2025
+% last updated: 25 sep 2025
 %
 % create a constraint diagram for a battery electric aircraft
 % representative of the elysian E9.
@@ -28,9 +28,6 @@ clc, close all
 %                            %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% entry-into-service year
-Aircraft.Specs.TLAR.EIS = 2035;
-
 % aircraft class
 Aircraft.Specs.TLAR.Class = "Turboprop";
 
@@ -50,9 +47,6 @@ Aircraft.Specs.Performance.ConstraintLabs = ["25.119"; "25.121a"; "25.121b"; "25
 % performance parameters     %
 %                            %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% design range
-Aircraft.Specs.Performance.Range = 1000;
 
 % altitudes
 Aircraft.Specs.Performance.Alts.Crs = 7600;
@@ -99,8 +93,7 @@ Aircraft.Specs.Performance.ExtraGrad = 0.08;
 % wing loading
 Aircraft.Specs.Aero.W_S.SLS = 509.6840;
 
-% wing properties
-Aircraft.Specs.Aero.S  = 76000 / 509.6840;
+% aspect ratio
 Aircraft.Specs.Aero.AR = 12;
 
 % lift coefficients
