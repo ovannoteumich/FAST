@@ -2,7 +2,7 @@ function [Aircraft] = AEAProfile(Aircraft)
 %
 % NotionalMission02.m
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 23 apr 2024
+% last updated: 26 Sep 2025
 %
 % Define a typical mission with a design and time-based reserve mission
 % (see below). Note that this mission is not very detailed and could impact

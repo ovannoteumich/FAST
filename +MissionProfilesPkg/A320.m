@@ -2,7 +2,7 @@ function [Aircraft] = A320(Aircraft)
 %
 % [Aircraft] = A320(Aircraft)
 % written by Max Arnson, marnson@umich.edu
-% last updated: 28 feb 2023
+% last updated: 26 Sep 2025
 %
 % define an A320(Neo) design mission
 % (see below).

@@ -2,7 +2,7 @@ function [Aircraft] = LM100J(Aircraft)
 %
 % [Aircraft] = LM100J(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 26 mar 2024
+% last updated: 26 Sep 2025
 %
 % Define the design mission for a LM100J with reserves. Obtained from
 % collaborators at NASA.

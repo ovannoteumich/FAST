@@ -1,7 +1,8 @@
 function [Aircraft] = CeRAS(Aircraft)
 %
 % [Aircraft] = CeRAS(Aircraft)
-% translated from Aviary phase_info by Max Arnson, May 2025
+% translated from Aviary phase_info by Max Arnson, 
+% last updated: 26 Sep 2025
 %
 % Parametric mission for a typical regional jet or narrowbody aircraft.
 % Phases: Pre-Mission (mass optimization), Climb, Cruise at 33k, Mid-Cruise Climb, Cruise at 35k, Descent.
@@ -13,16 +14,16 @@ function [Aircraft] = CeRAS(Aircraft)
 
 
 AltTko = 0;
-AltCrs33 = UnitConversionPkg.ConvLength(33000, "ft", "m");
-AltCrs35 = UnitConversionPkg.ConvLength(35000, "ft", "m");
+AltCrs33 = UnitConversionPkg.ConvLength(33000, 'ft', 'm');
+AltCrs35 = UnitConversionPkg.ConvLength(35000, 'ft', 'm');
 
 VelMach78 = 0.78; % unitless Mach for cruise phases
 
 %% MISSION TARGETS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Mission.Target.Valu = [UnitConversionPkg.ConvLength(2500*0.35, "naut mi", "m"); UnitConversionPkg.ConvLength(2500*0.65, "naut mi", "m")]; % Final cruise target range
-Mission.Target.Type = {"Dist";"Dist"};
+Mission.Target.Valu = [UnitConversionPkg.ConvLength(2500*0.35, 'naut mi', 'm'); UnitConversionPkg.ConvLength(2500*0.65, 'naut mi', 'm')]; % Final cruise target range
+Mission.Target.Type = {'Dist';'Dist'};
 
 %% MISSION SEGMENTS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
