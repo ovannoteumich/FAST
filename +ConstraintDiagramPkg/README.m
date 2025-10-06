@@ -7,7 +7,7 @@ function [] = README()
 % Constraint Diagram Package (+ConstraintDiagramPkg)
 %
 % Written by the IDEAS Lab at the University of Michigan. 
-% https - //ideas.engin.umich.edu
+% https://ideas.engin.umich.edu
 %
 % Principal Authors - 
 %     Paul Mokotoff, prmoko@umich.edu
@@ -26,7 +26,7 @@ function [] = README()
 %     Michael Tsai
 %     Vaibhav Rau
 % 
-% README last updated: 25 Sep 2025
+% README last updated: 06 Oct 2025
 % 
 % -------------------------------------------------------------------------
 %
