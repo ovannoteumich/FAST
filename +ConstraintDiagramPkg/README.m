@@ -9,14 +9,14 @@ function [] = README()
 % Written by the IDEAS Lab at the University of Michigan. 
 % https://ideas.engin.umich.edu
 %
-% Principal Authors - 
+% Principal Authors:
 %     Paul Mokotoff, prmoko@umich.edu
 %     Max Arnson, marnson@umich.edu
 %
-% Principal Investigator - 
+% Principal Investigator:
 %     Dr. Gokcin Cinar, cinar@umich.edu
 %
-% Additional Contributors - 
+% Additional Contributors:
 %     Huseyin Acar
 %     Yi-Chih (Arenas) Wang
 %     Miranda Stockhausen
