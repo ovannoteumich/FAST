@@ -2,14 +2,14 @@ function [Component] = ComponentDatabase(Name)
 %
 % [Component] = ComponentDatabase(Name)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 07 apr 2025
+% last updated: 06 oct 2025
 %
 % return an electrical component and its nominal failure rate according to
 % the following publication:
 %
 % Darmstadt, P. R., Catanese, R., Beiderman, A., Dones, F., Chen, E., 
 % Mistry, M. P., ... & Preator, R. (2019). Hazards analysis and failure
-% modes and effects criticality analysis (fmeca) of four concept vehicle
+% modes and effects criticality analysis (FMECA) of four concept vehicle
 % propulsion systems (No. NASA/CR-2019-220217).
 %
 % INPUTS:
@@ -17,8 +17,7 @@ function [Component] = ComponentDatabase(Name)
 %                 size/type/units: 1-by-1 / string / []
 %
 % OUTPUTS:
-%     Component - data structure with the component name and base failure
-%                 rate.
+%     Component - data structure with the component name and failure rate.
 %
 
 % select the component and obtain its failure rate
@@ -44,5 +43,7 @@ end
 % return a structure
 Component.Name     = Name ;
 Component.FailRate = FRate;
+
+% ----------------------------------------------------------
 
 end
