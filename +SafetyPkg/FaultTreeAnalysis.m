@@ -17,9 +17,8 @@ function [FRate, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 %                  system architecture and the following information about
 %                  it:
 %                      a) the component name, a string
-%                      b) the component type, a string
-%                      c) a column vector of failure rates
-%                      d) a column vector of failure modes corresponding to
+%                      b) a column vector of failure rates
+%                      c) a column vector of failure modes corresponding to
 %                         the failure rates
 %                  size/type/units: 1-by-1 / struct / []
 %
