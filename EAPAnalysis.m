@@ -344,41 +344,41 @@ while (iter < MaxIter)
 
     % % Stop iteration early if the last three iterations produce the same
     % % results within the error tolerance to end Zig-zag
-    % BattW_tol = 0.1;
-    % 
-    % % Find which elements in AircraftHistory are structures
-    % isStruct = cellfun(@isstruct, AircraftHistory);
-    % 
-    % % Extract only the elements that are structures
-    % AircraftHistory = AircraftHistory(isStruct);
-    % 
-    % if length(AircraftHistory) >= 5
-    % 
-    %     % Extract the battery weights from the last 5 iterations
-    %     battWeights = zeros(1,5);
-    %     for k = 0:4
-    %         battWeights(5-k) = AircraftHistory{iter-k}.Specs.Weight.Batt;
-    %     end
-    % 
-    %     % Check if any two of the last five iterations are essentially equal (within tolerance)
-    %     repeatedFound = false;
-    %     for i = 1:4
-    %         for j = i+1:5
-    %             if abs(battWeights(i) - battWeights(j)) < BattW_tol
-    %                 repeatedFound = true;
-    %                 break;
-    %             end
-    %         end
-    %         if repeatedFound
-    %             break;
-    %         end
-    %     end
-    % 
-    %     % If any pair is repeated within tolerance, stop iterating
-    %     if repeatedFound
-    %         break;
-    %     end
-    % end
+     BattW_tol = 0.1;
+     
+     % Find which elements in AircraftHistory are structures
+     isStruct = cellfun(@isstruct, AircraftHistory);
+     
+     % Extract only the elements that are structures
+     AircraftHistory = AircraftHistory(isStruct);
+     
+     if length(AircraftHistory) >= 5
+     
+         % Extract the battery weights from the last 5 iterations
+         battWeights = zeros(1,5);
+         for k = 0:4
+             battWeights(5-k) = AircraftHistory{iter-k}.Specs.Weight.Batt;
+         end
+     
+         % Check if any two of the last five iterations are essentially equal (within tolerance)
+         repeatedFound = false;
+         for i = 1:4
+             for j = i+1:5
+                 if abs(battWeights(i) - battWeights(j)) < BattW_tol
+                     repeatedFound = true;
+                     break;
+                 end
+             end
+             if repeatedFound
+                 break;
+             end
+         end
+     
+         % If any pair is repeated within tolerance, stop iterating
+        if repeatedFound
+            break;
+         end
+     end
 
 
     % iterate

@@ -11,9 +11,12 @@ function [Aircraft] = EnergyCost_perAirport(Aircraft, Origin, priceTable)
 %
 %--------------------------------------------------------------------------
 
-if nargin < 3
+if nargin < 2
+    Origin = "Avg";
     % load fuel/energy pricing table
-    priceTable = readtable('\+ExperimentPkg\Energy_CostbyAirport.xlsx');
+    priceTable = readtable('\+CostPkg\Energy_CostbyAirport.xlsx');
+elseif nargin < 3
+    priceTable = readtable('\+CostPkg\Energy_CostbyAirport.xlsx');
 end
 
 % get the number of points in each segment
@@ -23,7 +26,7 @@ CrsPts = Aircraft.Settings.CrsPoints;
 DesPts = Aircraft.Settings.DesPoints;
 
 % number of points in the main mission
-npt = TkoPts + 3 * (ClbPts - 1) + CrsPts - 1 + 3 * (DesPts - 1);
+npt = Aircraft.Mission.Profile.MainMissEnd;
 
 % check number of energy sources
 Fuel = 1;
@@ -54,5 +57,5 @@ battCost = priceTable.ElectricityPricekWh(index)*battE;
 % total for full direct operating cost of flight
 DOC = fuelCost + battCost;
 
-Aircraft.Mission.History.SI.Performance.Cost = DOC;
+Aircraft.Specs.Cost.FOC = DOC;
 end

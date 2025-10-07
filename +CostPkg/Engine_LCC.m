@@ -22,11 +22,23 @@ eis = 2025;
 range = 800; %nmi
 time = 2; %hrs
 
+% MRO break down (Flight Equivalent Cycles)
+SV1_FEC = 1e4; % intitial check, oiling, and repairs
+SV2_FEC = 2e4; % full engine teardown, LLPs replacements
+
 %% Engine Cost Values %%
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 % initial aquisition cost
-icost = 12e6;
+Initial_Cost = Aircraft.Specs.Cost.Engine;
+
+% flight energy costs
+JetFuelkwh_Cost = Aircraft.Specs.Cost.AvgFuel_kwh;
+Electkwh_Cost   = Aircraft.Specs.Cost.AvgFuel_kwh;
+
+% energy inflation rate
+r_JetFuel = 0.005;
+r_Elect   = 0.039;
 
 % base yar labor cost (per hour)
 labor_cost = 170;
@@ -34,13 +46,11 @@ labor_cost = 170;
 % labor cost increase rate (%)
 r_labor = 0.027;
 
-%% LLPs
 
-% cost
-LLPcost = 4.1e6;
+%% Initial Cost
 
-% interest rate per year
-rLLP = 0.06;
+%% MRO Comparison
 
-% number of flight cycles until replacement
-LLPcycle = 20000;
+
+
+end

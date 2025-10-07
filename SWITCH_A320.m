@@ -4,13 +4,13 @@
 
 %% test one-switch on design mission
 
-Aircraft = AircraftSpecsPkg.A320Neo;
+Aircraft = AircraftSpecsPkg.A320neo;
 Aircraft.Specs.Propulsion.PropArch.Type = "PHE";
 Aircraft.Specs.Propulsion.PropArch.TrnType = [];
 Aircraft.Settings.PowerStrat = -1;
 
 % gravimetric specific energy of battery (kWh/kg), not used here
-Aircraft.Specs.Power.SpecEnergy.Batt = .5;
+Aircraft.Specs.Power.SpecEnergy.Batt = .25;
 Aircraft.Settings.PowerOpt = 0;
 
 % battery cells in series and parallel 
@@ -47,16 +47,16 @@ Aircraft.Specs.Power.LamUps = [];
 Aircraft.Specs.Power.LamDwn = [];
 % upstream power splits
 Aircraft.Specs.Power.LamUps.SLS = 1;
-Aircraft.Specs.Power.LamUps.Tko = 0;
-Aircraft.Specs.Power.LamUps.Clb = 1;
+Aircraft.Specs.Power.LamUps.Tko = 1;
+Aircraft.Specs.Power.LamUps.Clb = 0;
 Aircraft.Specs.Power.LamUps.Crs = 0;
 Aircraft.Specs.Power.LamUps.Des = 0;
 Aircraft.Specs.Power.LamUps.Lnd = 0;
 
 % downstream power splits
-Aircraft.Specs.Power.LamDwn.SLS = .1;
-Aircraft.Specs.Power.LamDwn.Tko = 0;
-Aircraft.Specs.Power.LamDwn.Clb = .1;
+Aircraft.Specs.Power.LamDwn.SLS = .11;
+Aircraft.Specs.Power.LamDwn.Tko = .1;
+Aircraft.Specs.Power.LamDwn.Clb = 0;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;

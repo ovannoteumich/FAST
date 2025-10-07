@@ -1,6 +1,6 @@
-function [Aircraft] = A320Neo()
+function [Aircraft] = A320neo()
 %
-% [Aircraft] = A320Neo()
+% [Aircraft] = A320neo()
 % written by Max Arnson, marnson@umich.edu and Yi-Chih Wang,
 % ycwangd@umich.edu
 % emmasmit@umich.edu
@@ -49,11 +49,12 @@ Aircraft.Specs.Aero.L_D.ClbCF = 1;
 Aircraft.Specs.Aero.L_D.CrsCF = 1;
 
 % fuel flow calibration factor
+%Aircraft.Specs.Propulsion.MDotCF = 1.06;
 Aircraft.Specs.Propulsion.MDotCF = 1.06;
 
 % airframe weight calibration factor
-Aircraft.Specs.Weight.WairfCF = 1.02;
- 
+%Aircraft.Specs.Weight.WairfCF = 1.02;
+ Aircraft.Specs.Weight.WairfCF = 1.02;
 
 %% VEHICLE PERFORMANCE %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -91,6 +92,16 @@ Aircraft.Specs.Aero.L_D.Des = Aircraft.Specs.Aero.L_D.Clb;
 
 % wing loading (kg / m^2)
 Aircraft.Specs.Aero.W_S.SLS = 79000 / 126.5;
+
+% aspect ratio
+Aircraft.Specs.Aero.AR = 10.5;
+
+% drag coefficients
+Aircraft.Specs.Aero.CD0 = 0.02;
+Aircraft.Specs.Aero.dCD1 = .05; %flaps + gear down
+
+% oswald efficiency
+Aircraft.Specs.Aero.e = 0.82;
 
 
 %% WEIGHTS %%
@@ -238,7 +249,14 @@ Aircraft.Specs.Battery.Charging = 500*1000;
 %%%% battery degradation effect analysis %%%
 Aircraft.Settings.Degradation = 0; % 1 = analysis with degradation effect; 0 = without degradation effect
 
+%% Cost
 
+Aircraft.Specs.Cost.Engine = 12e6;
+
+%priceTable = readtable('\+CostPkg\Energy_CostbyAirport.xlsx');
+
+%Aircraft.Specs.Cost.AvgFuel_kwh = mean(priceTable.JetFuelPricekWh);
+%Aircraft.Specs.Cost.AvgElect_kwh = mean(priceTable.ElectricityPricekWh);
 
 %% SETTINGS (LEAVE AS NaN FOR DEFAULTS) %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

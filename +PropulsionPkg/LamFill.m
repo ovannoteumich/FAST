@@ -59,7 +59,7 @@ else
         
         Seg = Profile.Segs(i);
         % check segement type and get correct lambda chars
-        if Seg == 'Takeoff'
+        if (Seg == 'Takeoff') || (Seg == 'DetailedTakeoff')
             lamseg = 'Tko';
         elseif Seg == 'Climb'
             lamseg = 'Clb';

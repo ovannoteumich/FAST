@@ -35,6 +35,10 @@ if ~ isfield(Aircraft,"Specs")
     Aircraft.Specs.Aero.L_D.Crs = NaN;
     Aircraft.Specs.Aero.L_D.Des = NaN;
     Aircraft.Specs.Aero.W_S.SLS = NaN;
+    Aircraft.Specs.Aero.AR = NaN;
+    Aircraft.Specs.Aero.CD0 = NaN;
+    Aircraft.Specs.Aero.dCD1 = NaN;
+    Aircraft.Specs.Aero.e = NaN;
     Aircraft.Specs.Weight.MTOW = NaN;
     Aircraft.Specs.Weight.EG = NaN;
     Aircraft.Specs.Weight.EM = NaN;
@@ -156,6 +160,10 @@ else
         Aircraft.Specs.Aero.L_D.Crs = NaN;
         Aircraft.Specs.Aero.L_D.Des = NaN;
         Aircraft.Specs.Aero.W_S.SLS = NaN;
+        Aircraft.Specs.Aero.AR = NaN;
+        Aircraft.Specs.Aero.CD0 = NaN;
+        Aircraft.Specs.Aero.dCD1 = NaN;
+        Aircraft.Specs.Aero.e = NaN;
     else
         if ~isfield(Aircraft.Specs.Aero,"L_D")
             Aircraft.Specs.Aero.L_D.Clb = NaN;

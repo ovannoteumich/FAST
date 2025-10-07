@@ -55,7 +55,7 @@ Mission.Target.Type = ["Dist"; "Dist"; "Dist"; "Dist"; "Time"];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % define the segments
-Mission.Segs = ["Takeoff"; "Climb"; "Climb"; "Cruise";
+Mission.Segs = ["DetailedTakeoff"; "Climb"; "Climb"; "Cruise";
     "Climb"; "Cruise"; 
     "Climb"; "Cruise"; "Descent"; 
     "Climb"; "Cruise"; "Descent"; 
@@ -89,32 +89,33 @@ Mission.ClbRate = [ NaN; NaN; NaN; NaN;
     NaN; NaN; NaN];
 
 % define the starting/ending speeds
-Mission.VelBeg  = [ 0; 0.3; UnitConversionPkg.ConvVel(250,'kts','m/s'); 0.78;
+Mission.VelBeg  = [ 0; UnitConversionPkg.ConvVel(150,'kts','m/s'); UnitConversionPkg.ConvVel(250,'kts','m/s'); 0.78;
     0.78; 0.78;
     0.78; 0.78; 0.78;
     0.3; 0.3; 0.3;
     0.3; 0.3; 0.3];
 
-Mission.VelEnd  = [ 0.3; UnitConversionPkg.ConvVel(250,'kts','m/s'); 0.78; 0.78;
+Mission.VelEnd  = [UnitConversionPkg.ConvVel(150,'kts','m/s'); UnitConversionPkg.ConvVel(250,'kts','m/s'); 0.78; 0.78;
     0.78; 0.78;
     0.78; 0.78; 0.3;
     0.3; 0.3; 0.3;
     0.3; 0.3; 0];
 
 % define the speed types
-Mission.TypeBeg = [ "Mach"; "Mach"; "TAS"; "Mach";
+Mission.TypeBeg = [ "TAS"; "TAS"; "TAS"; "Mach";
     "Mach"; "Mach";
     "Mach"; "Mach"; "Mach";
     "Mach"; "Mach"; "Mach";
     "Mach"; "Mach"; "Mach"];
 
-Mission.TypeEnd = [ "Mach"; "TAS"; "Mach"; "Mach";
+Mission.TypeEnd = [ "TAS"; "TAS"; "Mach"; "Mach";
     "Mach"; "Mach";
     "Mach"; "Mach"; "Mach";
     "Mach"; "Mach"; "Mach";
     "Mach"; "Mach"; "Mach"];
 
-
+Mission.MainMissEnd = 82;
+Mission.TkoRoll = 1600; %m;
 %% REMEMBER THE MISSION PROFILE %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

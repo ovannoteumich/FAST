@@ -359,7 +359,7 @@ V        = zeros(npnt, nsrc);
 I        = zeros(npnt, nsrc);
 Q        = zeros(npnt, nsrc);
 dmdt     = zeros(npnt, nsrc);
-C_rate   = zeros(npnt, nsrc);
+C_rate   = zeros(npnt, 1);
 
 % check for a battery
 if (any(Batt))   
@@ -377,7 +377,7 @@ if (any(Batt))
         if (DetailedBatt == 1)
             
             % power available from the battery
-            [V(ibeg:iend, icol), I(ibeg:iend, icol), Pout(ibeg:iend, icol),  Q(ibeg+1:iend+1, icol), SOC(ibeg:iend+1, icol),C_rate(ibeg:iend, icol)] = BatteryPkg.Discharging(Aircraft,...
+            [V(ibeg:iend, icol), I(ibeg:iend, icol), Pout(ibeg:iend, icol),  Q(ibeg+1:iend+1, icol), SOC(ibeg:iend+1, icol),C_rate(ibeg:iend, 1)] = BatteryPkg.Discharging(Aircraft,...
              Pout(ibeg:iend, icol), dt, SOC(1, icol), ParCells, SerCells);
             
             % check if the SOC falls below 20%

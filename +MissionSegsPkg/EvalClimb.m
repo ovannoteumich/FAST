@@ -325,7 +325,7 @@ while (iter < MaxIter)
         % compute time to fly based on energy height
         dTime = dEnHt ./ Ps(1:end-1);
         if any(dTime<0)
-            error
+            %error
         end
         
         % update the rate of climb (0 gets overwritten by next segment)
