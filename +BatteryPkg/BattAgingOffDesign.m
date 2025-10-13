@@ -74,6 +74,7 @@ end
 % Perform first sizing and set off-design mode
 SizedERJ = Main(AircraftSpecs, MissionProfile);
 SizedERJ.Settings.Analysis.Type = -2;
+SizedERJ.Settings.Degradation = 1;
 
 % Preallocate arrays
 SOHs     = [];
@@ -88,6 +89,7 @@ MinV     = [];
 
 % First off-design run
 Off_SizedERJ = Main(SizedERJ, MissionProfile);
+Off_SizedERJ = BatteryPkg.GroundCharge(Off_SizedERJ, Off_SizedERJ.Specs.Battery.ChrgTime, Off_SizedERJ.Specs.Battery.Charging)
 cycle = 1;
 
 %% OFF-DESIGN CYCLE LOOP %%
@@ -102,6 +104,7 @@ while cycle <= MaxCycles
     active_mSOC = SOCs([true; diff(SOCs)~=0]);  % remove repeats
     mSOC(end+1,1)    = mean(active_mSOC);
     
+    Off_SizedERJ     = BatteryPkg.GroundCharge(Off_SizedERJ, Off_SizedERJ.Specs.Battery.ChrgTime, Off_SizedERJ.Specs.Battery.Charging);
     cr = Off_SizedERJ.Mission.History.SI.Power.ChargedAC.C_rate;
     c_rate(end+1,1)  = mean(cr(cr~=0));
     
