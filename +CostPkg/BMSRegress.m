@@ -23,8 +23,8 @@ fprintf('  a = %g,   b = %g', coeffs_nm(1), coeffs_nm(2));
 fprintf('\nLFP polynomial coefficients [a, b, c]:\n');
 fprintf('  a = %g,   b = %g,   c = %g\n', coeffs_lfp(1), coeffs_lfp(2), coeffs_lfp(3));
 
-fprintf('\nNi/Mn (NMC) BMS costs: %g\n', BMS_nm);
-fprintf('\nLFP BMS costs: %g\n', BMS_lfp);
+fprintf('NMC BMS costs: %g\n', BMS_nm);
+fprintf('LFP BMS costs: %g\n', BMS_lfp);
 
 
 %%
@@ -42,7 +42,7 @@ plot(year_grid, polyval(coeffs_nm, year_grid), 'r-', 'LineWidth', 1.8);
 hold off;
 xlabel('Year', 'FontSize', 11);
 ylabel('BMS % of Pack Cost', 'FontSize', 11);
-title('Ni/Mn (NMC) BMS % vs. Year', 'FontSize', 13);
+title('NMC BMS % vs. Year', 'FontSize', 13);
 legend({'Data (Ni/Mn)', '1^{nd}-degree fit'}, 'Location','NorthWest');
 xlim([2022 2036]); ylim([1.8 3.6]);
 
@@ -56,7 +56,7 @@ hold off;
 xlabel('Year', 'FontSize', 11);
 ylabel('BMS % of Pack Cost', 'FontSize', 11);
 title('LFP BMS % vs. Year', 'FontSize', 13);
-legend({'Data (LFP)', '3^{nd}-degree fit'}, 'Location','NorthWest');
+legend({'Data (LFP)', '2^{nd}-degree fit'}, 'Location','NorthWest');
 xlim([2022 2036]); ylim([1.8 3.6]);
 
 

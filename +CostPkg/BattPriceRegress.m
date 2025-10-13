@@ -27,18 +27,18 @@ year_grid = linspace(2023,2035,200);
 subplot(1,2,1); hold on; grid on;
 plot(years, cost_nm, 'bo', 'MarkerSize',8,'LineWidth',1.5);
 plot(year_grid, polyval(coef_nm_q,  year_grid), 'r-', 'LineWidth',1.6);
-plot(year_grid, polyval(coef_nm_l,  year_grid), 'k--','LineWidth',1.4);
+% plot(year_grid, polyval(coef_nm_l,  year_grid), 'r--','LineWidth',1.4);
 xlabel('Year'); ylabel('Cost ($/kWh)');
-title('Ni/Mn Pack Cost vs Year');
+title('NMC Pack Cost vs Year');
 legend('Data','1','2','Location','NorthEast');
 xlim([2022 2036]);
 
 % LFP
 subplot(1,2,2); hold on; grid on;
 plot(years, cost_lfp, 'bx', 'MarkerSize',8,'LineWidth',1.5);
-plot(year_grid, polyval(coef_lfp_q, year_grid), 'm-', 'LineWidth',1.6);
-plot(year_grid, polyval(coef_lfp_l, year_grid), 'k--','LineWidth',1.4);
+% plot(year_grid, polyval(coef_lfp_q, year_grid), 'm-', 'LineWidth',1.6);
+plot(year_grid, polyval(coef_lfp_l, year_grid), 'm--','LineWidth',1.4);
 xlabel('Year'); ylabel('Cost ($/kWh)');
 title('LFP Pack Cost vs Year');
-legend('Data','2','3','Location','NorthEast');
+legend('Data','3','3','Location','NorthEast');
 xlim([2022 2036]);
