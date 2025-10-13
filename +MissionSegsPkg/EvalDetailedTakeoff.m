@@ -167,7 +167,7 @@ end
 dCD0 = W_S * k_uc * MTOW ^ -0.215;
 %}
 % k1 and k3 estimations (hardcoded for now, incorporate geometry later)
-k1 = 1/(pi*Aircraft.Specs.Aero.e);
+k1 = 1/(pi*Aircraft.Specs.Aero.e * AR);
 k3 = -.15*k1;
 
 % G estimation (hardcoded for now, incorporate geometry later)
@@ -195,7 +195,7 @@ dTkoRoll = 1;
 
 
 % get the power available
-Pav = Aircraft.Mission.History.SI.Power.TV(SegBeg:SegEnd);
+Pav = 0;
 
 i = 0; 
 

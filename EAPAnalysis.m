@@ -180,10 +180,10 @@ if Type < 0
         Aircraft.Specs.Weight.Batt;
 end
 
-if Type > 0
+%if Type > 0
     % initialize the mission history
     Aircraft = DataStructPkg.InitMissionHistory(Aircraft);
-end
+%end
 
 % print initial size
 if Aircraft.Settings.PrintOut == 1

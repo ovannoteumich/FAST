@@ -20,14 +20,29 @@ Aircraft.Specs.Power.Battery.SerCells = 62;
 % initial battery SOC
 Aircraft.Specs.Power.Battery.BegSOC = 100;
 
+
+
 AircraftOG = Main(Aircraft, @MissionProfilesPkg.A320);
+
+%% test 4 
+
+Aircraft = AircraftOG;
+Aircraft.Specs.Performance.Range = UnitConversionPkg.ConvLength(800, "naut mi", "m");
+Aircraft.Settings.Analysis.Type = -1;
+
+Aircraft.Specs.Power.LamUps = rmfield(Aircraft.Specs.Power.LamUps, 'Miss');
+Aircraft.Specs.Power.LamDwn = rmfield(Aircraft.Specs.Power.LamDwn, 'Miss');
+Aircraft = Main(Aircraft, @MissionProfilesPkg.A320);
 
 %% test 2 
 
 Aircraft2 = AircraftOG;
 Aircraft2.Specs.Performance.Range = UnitConversionPkg.ConvLength(800, "naut mi", "m");
 Aircraft2.Settings.Analysis.Type = -1;
-Aircraft2 = Main(Aircraft2, @MissionProfilesPkg.A320);
+
+Aircraft2.Specs.Power.LamUps = rmfield(Aircraft2.Specs.Power.LamUps, 'Miss');
+Aircraft2.Specs.Power.LamDwn = rmfield(Aircraft2.Specs.Power.LamDwn, 'Miss');
+Aircraft2 = Main(Aircraft2, @MissionProfilesPkg.NarrowBodyMission);
 
 %%
 
@@ -66,7 +81,7 @@ Aircraft.Settings.PowerStrat = -1;
 Aircraft.Settings.PowerOpt = 0;
 % -1 = prioritize downstream, go from fan back to energy sources
 
-Aircraft = Main(Aircraft, @MissionProfilesPkg.A320);
+Aircraft = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
 %end
 
 

@@ -195,7 +195,7 @@ Aircraft.Mission.History.SI.Energy.Eleft_ES(SegBeg:SegEnd, :) = Eleft_ES;
 EnHt = Alt + TAS .^ 2 ./ (2 * g);
 
 % distance flown
-Dist = linspace(Dist(1), target, npoint)';
+Dist = linspace(Dist(1), target+Dist(1), npoint)';
 
 % distance flown over each segment
 dDist = diff(Dist);

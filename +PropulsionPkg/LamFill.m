@@ -13,6 +13,8 @@ function [Aircraft] = LamFill(Aircraft)
 % make altitude vector 
 Profile = Aircraft.Mission.Profile;
 
+Aircraft.Mission.History.SI.Performance.Alt = [];
+
 % loop through segments 
 for i = 1 : length(Profile.Segs)
 
@@ -69,6 +71,8 @@ else
             lamseg = 'Des';
         elseif Seg == 'Landing'
             lamseg = 'Lnd';
+        elseif Seg == 'Taxi'
+            lamseg == 'Tko';
         end
 
         % segement length

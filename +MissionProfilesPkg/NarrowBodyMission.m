@@ -1,4 +1,4 @@
-function [Aircraft] = A320(Aircraft)
+function [Aircraft] = NarrowBodyMission(Aircraft)
 %
 % [Aircraft] = A320(Aircraft)
 % written by Max Arnson, marnson@umich.edu
@@ -11,18 +11,17 @@ function [Aircraft] = A320(Aircraft)
 % mission 1: Range/3 nmi climb and cruise  
 % mission 2: Range/3 nmi climb and cruise
 % mission 3: Range/3 nmi climb and cruise and descent
-% mission 4: climb and divert, descend
-% mission 5: hold for 30 minutes
-%             |          |                   |              |
-%             |          | _________         |              |
-%             | _________|/         \        |              |
-%        _____|/         |           \       |              |
-%       /     |          |            \      |              |
-%      /      |          |             \     |  __________  |
-%     /       |          |              \    | /          \ |  
-%    /        |          |               \___|/            \|______
-% __/         |          |                   |              |      \__
-%      1            2                3               4            5
+% mission 4: hold for desginated time, then taxi
+%             |          |                   |
+%             |          | _________         |
+%             | _________|/         \        |
+%        _____|/         |           \       |
+%       /     |          |            \      | 
+%      /      |          |             \     |
+%     /       |          |              \    | 
+%    /        |          |               \___|_____
+% __/         |          |                   |     \__
+%      1            2                3            4
 %
 % INPUTS:
 %     Aircraft - aircraft structure (without a mission profile).
@@ -40,15 +39,18 @@ function [Aircraft] = A320(Aircraft)
 % get aircraft range
 Range = Aircraft.Specs.Performance.Range;
 
-% diversion distance
-Div =  UnitConversionPkg.ConvLength(200,'naut mi', 'm');
+% holding time in air
+holdT = 20;
+%taxiT = 20;
+%holdT = Aicraft.Specs.Perfromace.HoldTime;
+
 
 % define the targets (in m or min)
-Ranges = [Range/3; Range/3; Range/3; Div];
-Mission.Target.Valu = [Ranges; 30];
+Ranges = [Range/3; Range/3; Range/3];
+Mission.Target.Valu = [Ranges; holdT; NaN];
 
 % define the target types ("Dist" or "Time")
-Mission.Target.Type = ["Dist"; "Dist"; "Dist"; "Dist"; "Time"];
+Mission.Target.Type = ["Dist"; "Dist"; "Dist"; "Time"; NaN];
 
 
 %% DEFINE THE MISSION SEGMENTS %%
@@ -58,63 +60,56 @@ Mission.Target.Type = ["Dist"; "Dist"; "Dist"; "Dist"; "Time"];
 Mission.Segs = ["DetailedTakeoff"; "Climb"; "Climb"; "Cruise";
     "Climb"; "Cruise"; 
     "Climb"; "Cruise"; "Descent"; 
-    "Climb"; "Cruise"; "Descent"; 
-    "Cruise"; "Descent"; "Landing"];
+    %"Cruise"; "Descent"; "Landing"];
+    "Cruise"; "Descent"; "Landing"; "Taxi"];
 
 
 % define the mission id (segments in same mission must be consecutive)
 Mission.ID   = [ 1; 1; 1; 1;
     2; 2;
     3; 3; 3;
-    4; 4; 4;
-    5; 5; 5];
+    4; 4; 4; 5;];
 
 % define the starting/ending altitudes (in m)
 Mission.AltBeg = UnitConversionPkg.ConvLength([ 0; 0; 10000; 35000;
     35000; 37000;
     37000; 39000; 39000;
-    1500; 15000; 15000;
-    1500; 1500; 0],'ft','m');
+    1500; 1500; 0; 0;],'ft','m');
 
 Mission.AltEnd = UnitConversionPkg.ConvLength([ 0; 10000; 35000; 35000;
     37000; 37000;
     39000; 39000; 1500;
-    15000; 15000; 1500;
-    1500; 0; 0],'ft','m');
+    1500; 0; 0; 0;],'ft','m');
 
 % define the climb rate (in m/s)
 Mission.ClbRate = [ NaN; NaN; NaN; NaN;
     NaN; NaN;
     NaN; NaN; NaN;
-    NaN; NaN; NaN;
-    NaN; NaN; NaN];
+    NaN; NaN; NaN; NaN];
 
 % define the starting/ending speeds
 Mission.VelBeg  = [ 0; UnitConversionPkg.ConvVel(150,'kts','m/s'); UnitConversionPkg.ConvVel(250,'kts','m/s'); 0.78;
     0.78; 0.78;
     0.78; 0.78; 0.78;
-    0.3; 0.3; 0.3;
-    0.3; 0.3; 0.3];
+    0.3; 0.3; UnitConversionPkg.ConvVel(150,'kts','m/s'); 0;];
 
 Mission.VelEnd  = [UnitConversionPkg.ConvVel(150,'kts','m/s'); UnitConversionPkg.ConvVel(250,'kts','m/s'); 0.78; 0.78;
     0.78; 0.78;
     0.78; 0.78; 0.3;
-    0.3; 0.3; 0.3;
-    0.3; 0.3; 0];
+    0.3; UnitConversionPkg.ConvVel(150,'kts','m/s'); 0; 10];
 
 % define the speed types
 Mission.TypeBeg = [ "TAS"; "TAS"; "TAS"; "Mach";
     "Mach"; "Mach";
     "Mach"; "Mach"; "Mach";
-    "Mach"; "Mach"; "Mach";
-    "Mach"; "Mach"; "Mach"];
+    "Mach"; "Mach"; "TAS"; "TAS";];
 
 Mission.TypeEnd = [ "TAS"; "TAS"; "Mach"; "Mach";
     "Mach"; "Mach";
     "Mach"; "Mach"; "Mach";
-    "Mach"; "Mach"; "Mach";
-    "Mach"; "Mach"; "Mach"];
+    "Mach"; "TAS"; "TAS"; "TAS"];
 
+Mission.TaxiTime = 20;
 Mission.MainMissEnd = 82;
 Mission.TkoRoll = 1600; %m;
 %% REMEMBER THE MISSION PROFILE %%
