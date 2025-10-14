@@ -2,7 +2,7 @@ function [FRate, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 %
 % [FRate, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 06 oct 2025
+% last updated: 14 oct 2025
 %
 % Given an adjacency-like matrix, find the minimum cut sets that account
 % for internal failures and redundant primary events. then, using the
@@ -125,8 +125,8 @@ noutput = sum(ConnCheck, 2) ;
 ntrigger = sum(Arch, 1)' ./ ninput;
 
 % find the sources, sinks, and transmitters
-isrc = find(ninput  == 0);
-isnk = find(noutput == 0);
+isrc = find(ninput == 0 & noutput >  0);
+isnk = find(ninput >  0 & noutput == 0);
 
 % get the number of sinks
 nsnk = length(isnk);
@@ -135,7 +135,7 @@ nsnk = length(isnk);
 if (nsnk > 1)
     
     % throw an error
-    error("ERROR - CreateFaultTree: there are multiple sinks in the architecture matrix.");
+    error("ERROR - FaultTreeAnalysis: there are multiple sinks in the architecture matrix.");
     
 end
 
