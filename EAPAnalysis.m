@@ -351,19 +351,21 @@ while (iter < MaxIter)
      
      % Extract only the elements that are structures
      AircraftHistory = AircraftHistory(isStruct);
+
+     n = 7;
      
-     if length(AircraftHistory) >= 5
+     if length(AircraftHistory) >= n
      
          % Extract the battery weights from the last 5 iterations
-         battWeights = zeros(1,5);
-         for k = 0:4
-             battWeights(5-k) = AircraftHistory{iter-k}.Specs.Weight.Batt;
+         battWeights = zeros(1,n);
+         for k = 0:n-1
+             battWeights(n-k) = AircraftHistory{iter-k}.Specs.Weight.Batt;
          end
      
          % Check if any two of the last five iterations are essentially equal (within tolerance)
          repeatedFound = false;
-         for i = 1:4
-             for j = i+1:5
+         for i = 1:n-1
+             for j = i+1:n
                  if abs(battWeights(i) - battWeights(j)) < BattW_tol
                      repeatedFound = true;
                      break;

@@ -1,12 +1,11 @@
 function [Aircraft] = EvalTaxi(Aircraft)
 %
 % [Aircraft] = EvalTaxi(Aircraft)
-% originally written by Huseyin Acar
-% modified by Paul Mokotoff, prmoko@umich.edu
-% last modified: 05 mar 2025
+% originally written by Emma Cassidy, emmasmit@umich.edu
+% last modified: 13 oct 2025
 %
-% Evaluate the takeoff segment. Assume a 1-minute takeoff at constant
-% acceleration and maximum thrust/power from all power sources.
+% Evaluate the takeoff segment. Converge on ground roll to compute takeoff
+% performance
 %
 % INPUTS:
 %     Aircraft - aircraft being flown.

@@ -32,7 +32,7 @@ Aircraft.Settings.Analysis.Type = -1;
 
 Aircraft.Specs.Power.LamUps = rmfield(Aircraft.Specs.Power.LamUps, 'Miss');
 Aircraft.Specs.Power.LamDwn = rmfield(Aircraft.Specs.Power.LamDwn, 'Miss');
-Aircraft = Main(Aircraft, @MissionProfilesPkg.A320);
+%Aircraft = Main(Aircraft, @MissionProfilesPkg.A320);
 
 %% test 2 
 
@@ -62,16 +62,16 @@ Aircraft.Specs.Power.LamUps = [];
 Aircraft.Specs.Power.LamDwn = [];
 % upstream power splits
 Aircraft.Specs.Power.LamUps.SLS = 1;
-Aircraft.Specs.Power.LamUps.Tko = 1;
-Aircraft.Specs.Power.LamUps.Clb = 0;
+Aircraft.Specs.Power.LamUps.Tko = 0;
+Aircraft.Specs.Power.LamUps.Clb = 1;
 Aircraft.Specs.Power.LamUps.Crs = 0;
 Aircraft.Specs.Power.LamUps.Des = 0;
 Aircraft.Specs.Power.LamUps.Lnd = 0;
 
 % downstream power splits
-Aircraft.Specs.Power.LamDwn.SLS = .11;
-Aircraft.Specs.Power.LamDwn.Tko = .1;
-Aircraft.Specs.Power.LamDwn.Clb = 0;
+Aircraft.Specs.Power.LamDwn.SLS = .15;
+Aircraft.Specs.Power.LamDwn.Tko = 0;
+Aircraft.Specs.Power.LamDwn.Clb = .1;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;

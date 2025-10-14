@@ -174,7 +174,7 @@ idx = (nsrc + 1) : ncomp;
 for ipnt = 1:npnt
     
     % evaluate the function handles for the current splits
-    if Aircraft.Settings.PowerOpt == 1
+    if Aircraft.Settings.PowerOpt == 0
         Lambda = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
     else
         Lambda = PropulsionPkg.EvalSplit(OperUps, ones(1, ntrn-2));
