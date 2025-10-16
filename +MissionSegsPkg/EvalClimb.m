@@ -312,9 +312,9 @@ while (iter < MaxIter)
             warning('Target climb altitude cannot be reached (Ps < 0). Results may be faulty.')
         end
         if Aircraft.Settings.Analysis.Type < 0
-                if Aircraft.Settings.PrintOut ==1
-                    error('Target climb altitude cannot be reached (Ps < 0). Results may be faulty.')
-                end
+        
+            error('Target climb altitude cannot be reached (Ps < 0). Results may be faulty.')
+         
         end
     end
     

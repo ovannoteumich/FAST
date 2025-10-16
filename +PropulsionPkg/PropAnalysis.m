@@ -372,13 +372,12 @@ if (any(Batt))
         
         % get the column index
         icol = HasBatt(ibatt);
-                
+      
         % check if detailed battery model is used
         if (DetailedBatt == 1)
             
             % power available from the battery
-            [V(ibeg:iend, icol), I(ibeg:iend, icol), Pout(ibeg:iend, icol),  Q(ibeg+1:iend+1, icol), SOC(ibeg:iend+1, icol),C_rate(ibeg:iend, 1)] = BatteryPkg.Discharging(Aircraft,...
-             Pout(ibeg:iend, icol), dt, SOC(1, icol), ParCells, SerCells);
+            [V(ibeg:iend, icol), I(ibeg:iend, icol), Pout(ibeg:iend, icol),  Q(ibeg+1:iend+1, icol), SOC(ibeg:iend+1, icol),C_rate(ibeg:iend, 1)] = BatteryPkg.Discharging(Aircraft, Pout(ibeg:iend, icol), dt, SOC(1, icol), ParCells, SerCells);
             
             % check if the SOC falls below 20%
             BattDeplete = find(SOC(:, icol) < 20, 1);

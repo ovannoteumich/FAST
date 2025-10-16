@@ -285,7 +285,6 @@ while dTkoRoll > EPS06 && i < 10
      i = i +1;
 end
 
-TkoRoll
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 %                        %

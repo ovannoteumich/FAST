@@ -25,7 +25,7 @@ Aircraft.Specs.Power.Battery.BegSOC = 100;
 AircraftOG = Main(Aircraft, @MissionProfilesPkg.A320);
 
 %% test 4 
-
+%{
 Aircraft = AircraftOG;
 Aircraft.Specs.Performance.Range = UnitConversionPkg.ConvLength(800, "naut mi", "m");
 Aircraft.Settings.Analysis.Type = -1;
@@ -33,6 +33,7 @@ Aircraft.Settings.Analysis.Type = -1;
 Aircraft.Specs.Power.LamUps = rmfield(Aircraft.Specs.Power.LamUps, 'Miss');
 Aircraft.Specs.Power.LamDwn = rmfield(Aircraft.Specs.Power.LamDwn, 'Miss');
 %Aircraft = Main(Aircraft, @MissionProfilesPkg.A320);
+%}
 
 %% test 2 
 
@@ -62,16 +63,16 @@ Aircraft.Specs.Power.LamUps = [];
 Aircraft.Specs.Power.LamDwn = [];
 % upstream power splits
 Aircraft.Specs.Power.LamUps.SLS = 1;
-Aircraft.Specs.Power.LamUps.Tko = 0;
+Aircraft.Specs.Power.LamUps.Tko = 1;
 Aircraft.Specs.Power.LamUps.Clb = 1;
 Aircraft.Specs.Power.LamUps.Crs = 0;
 Aircraft.Specs.Power.LamUps.Des = 0;
 Aircraft.Specs.Power.LamUps.Lnd = 0;
 
 % downstream power splits
-Aircraft.Specs.Power.LamDwn.SLS = .15;
-Aircraft.Specs.Power.LamDwn.Tko = 0;
-Aircraft.Specs.Power.LamDwn.Clb = .1;
+Aircraft.Specs.Power.LamDwn.SLS = .1207;
+Aircraft.Specs.Power.LamDwn.Tko = .1;
+Aircraft.Specs.Power.LamDwn.Clb = .1207;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;
@@ -84,6 +85,19 @@ Aircraft.Settings.PowerOpt = 0;
 Aircraft = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
 %end
 
+
+%%
+Aircraft.Settings.Analysis.Type = -2;
+
+% turn off FAST print outs
+Aircraft.Settings.PrintOut = 0;
+
+% turn off FAST internal SOC constraint
+Aircraft.Settings.PowerOpt = 1;
+
+Aircraft.Settings.PowerStrat = 1;
+
+Aircraft22 = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
 
 %% test 2 
 

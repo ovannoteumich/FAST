@@ -69,23 +69,24 @@ npt = TkoPts + 3 * (ClbPts - 1) + CrsPts - 1 + 3 * (DesPts - 1);
 
 n1= 10;
 n2= 64;
-pts = [10:27,37:45,55:63];
+pts = [1:27,37:45,55:63];
 % get starting point
 PC0 = Aircraft.Specs.Power.LamUps.Miss(pts, [1,3]);
-PC0 = ones(size(PC0)).*[1,0];
+
 b = size(PC0);
-lb = zeros(b)*-.001;
+lb = zeros(b);
 ub = ones(b);
 
 % save storage values
-PClast = [];
-fburn = [];
-SOC    = [];
-Ps = [];
-dh_dt = [];
+PClast=[];
+fburn=[];
+SOC =[];
+dist =[];
+dh_dt=[];
+
 DOC = 0;
 g = 9.81;
-priceTable = readtable('\+ExperimentPkg\Energy_CostbyAirport.xlsx');
+%priceTable = readtable('\+ExperimentPkg\Energy_CostbyAirport.xlsx');
 %% Run the Optimizer %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
 tic
@@ -103,7 +104,7 @@ disp(pout)
 
 Aircraft.Specs.Power.LamUps.Miss(pts, [1,3]) = PCbest;
 Aircraft.Specs.Power.LamUps.Miss(pts, [2,4]) = PCbest;
-Aircraft = Main(Aircraft, @MissionProfilesPkg.A320);
+Aircraft = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
 OptAircraft = Aircraft;
 disp(PCbest)
     
@@ -115,14 +116,14 @@ disp(PCbest)
 %  Function Evaluation        %
 %                            %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [fburn, SOC, dh_dt] = FlyAircraft(PC, Aircraft)
+function [fburn, SOC, dh_dt, dist] = FlyAircraft(PC, Aircraft)
     % input updated PC
     Aircraft.Specs.Power.LamUps.Miss(pts, [1,3]) = PC;
     Aircraft.Specs.Power.LamUps.Miss(pts, [2,4]) = PC;
 
     try
         % fly off design mission
-        Aircraft = Main(Aircraft, @MissionProfilesPkg.A320);
+        Aircraft = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
         
         % fuel required for mission
         fburn = Aircraft.Mission.History.SI.Weight.Fburn(end);
@@ -130,23 +131,23 @@ function [fburn, SOC, dh_dt] = FlyAircraft(PC, Aircraft)
             fburn = 10^3;
         end
         % SOC for mission
-        SOC = Aircraft.Mission.History.SI.Power.SOC(n1:64,2);
+        SOC = Aircraft.Mission.History.SI.Power.SOC(pts,2);
         %Aircraft = ExperimentPkg.EnergyCost_perAirport(Aircraft, "ATL", priceTable);
         %DOC = Aircraft.Mission.History.SI.Performance.Cost;
     catch 
         fburn = 1e10;
         % SOC for mission
-        SOC = -1*Aircraft.Mission.History.SI.Power.SOC(n1:64,2);
+        SOC = -1*Aircraft.Mission.History.SI.Power.SOC(pts,2);
         DOC = 10e12;
     end
     
 
     % check if enough power for desired climb profile
     % extract climb TAS
-    TAS = Aircraft.Mission.History.SI.Performance.TAS(n1:64);
+    TAS = Aircraft.Mission.History.SI.Performance.TAS(pts);
     % rate of climb
-    dh_dt = Aircraft.Mission.History.SI.Performance.RC(n1:64);
-
+    dh_dt = Aircraft.Mission.History.SI.Performance.RC(pts);
+    dist = Aircraft.Mission.History.SI.Performance.Dist(pts);
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -158,7 +159,7 @@ end
 function [val] = ObjFunc(PC, Aircraft)
     % check if PC values changes
     if ~isequal(PC, PClast)
-        [fburn, SOC, dh_dt] = FlyAircraft(PC, Aircraft);
+        [fburn, SOC, dh_dt, dist] = FlyAircraft(PC, Aircraft);
         PClast = PC;
         %disp(PC)
     end
@@ -175,18 +176,19 @@ end
 function [c, ceq] = Cons(PC, Aircraft)
     % check if PC values changes
     if ~isequal(PC, PClast)
-        [fburn, SOC, dh_dt] = FlyAircraft(PC, Aircraft);
+        [fburn, SOC, dh_dt, dist] = FlyAircraft(PC, Aircraft);
         PClast = PC;
     end
     % compute SOC constraint
     cSOC = Aircraft.Specs.Battery.MinSOC - SOC;
     
-
-    % compute RC constraint
+    distC = dist(10);
+    cd = distC - 2000;
+    % compute RC constraint, enforce max rate of climb
     cRC = dh_dt - Aircraft.Specs.Performance.RCMax;
 
     % out put constraints
-    c = [cSOC; cRC];
+    c = [cSOC; cRC; cd];
     ceq = [];
 
 end

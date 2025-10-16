@@ -145,7 +145,9 @@ for itime = 1:ntime
     % compute the initial discharged capacity
     DischargedCapacityStart = (1 - (SOC(itime) / 100)) .* Q;
         
-    if (Preq >= 0)
+    isDischarge = (Preq(itime)>=0);
+
+    if (isDischarge)
         
         % compute the hot cell voltage
         VoltageCellHot = -(PolarizedVoTemp ./ (SOC(itime) / 100) + ResistanceTemp);
@@ -167,7 +169,7 @@ for itime = 1:ntime
     % find the root
     CurrBatt = roots(CurrBattPoly);
     
-    if (Preq >= 0)
+    if isDischarge
         
         % check if the current is less than 0
         CurrBatt(CurrBatt < 0) = NaN;
