@@ -2,7 +2,7 @@ function [FRate, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 %
 % [FRate, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 14 oct 2025
+% last updated: 16 oct 2025
 %
 % Given an adjacency-like matrix, find the minimum cut sets that account
 % for internal failures and redundant primary events. then, using the
@@ -16,10 +16,10 @@ function [FRate, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 %     Components - a structure array containing each component in the
 %                  system architecture and the following information about
 %                  it:
-%                      a) the component name, a string
+%                      a) the component name, as a cell array of characters
 %                      b) a column vector of failure rates
 %                      c) a column vector of failure modes corresponding to
-%                         the failure rates
+%                         the failure rates, as a cell array of characters
 %                  size/type/units: 1-by-1 / struct / []
 %
 %     RemoveSrc  - a flag to indicate whether the sources should be removed
@@ -32,9 +32,9 @@ function [FRate, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 %     FRate      - the system-level failure rate.
 %                  size/type/units: 1-by-1 / double / []
 %
-%     FailModes  - string array of the different ways that the system
-%                  architecture can fail.
-%                  size/type/units: nfail-by-ncomp / string / []
+%     FailModes  - cell array of the different ways that the system
+%                  architecture can fail (printed as character arrays).
+%                  size/type/units: nfail-by-ncomp / cell / []
 %
 
 
@@ -50,10 +50,10 @@ function [FRate, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 
 % check that an architecture matrix was provided
 if (nargin < 1)
-    
+
     % throw an error
-    error("ERROR - CreateFaultTree: the architecture matrix was not provided.");
-    
+    error('ERROR - CreateFaultTree: the architecture matrix was not provided.');
+
 end
 
 % get the size of the architecture matrix
@@ -61,10 +61,10 @@ end
 
 % check the that number of rows and columns match
 if (nrow ~= ncol)
-    
+
     % throw an error
-    error("ERROR - CreateFaultTree: architecture matrix must be square.");
-    
+    error('ERROR - CreateFaultTree: architecture matrix must be square.');
+
 end
 
 % ----------------------------------------------------------
@@ -77,21 +77,21 @@ end
 
 % check that the component list was provided
 if (nargin < 2)
-    
+
     % throw an error
-    error("ERROR - CreateFaultTree: component list was not provided.");
-    
+    error('ERROR - CreateFaultTree: component list was not provided.');
+
 end
 
 % get the number of components
-ncomp = length(Components.Name);
+[ncomp, ~] = size(Components.Name);
 
 % check that there are the same number of components as entries in matrix
 if (ncomp ~= nrow)
-    
+
     % throw an error
-    error("ERROR - CreateFaultTree: number of compononents must match dimension of architecture matrix.");
-    
+    error('ERROR - CreateFaultTree: number of compononents must match dimension of architecture matrix.');
+
 end
 
 % ----------------------------------------------------------
@@ -104,10 +104,10 @@ end
 
 % check if the "remove source" flag was included
 if (nargin < 3)
-    
+
     % if it isn't included, assume it should be 0
     RemoveSrc = 0;
-    
+
 end
 
 
@@ -133,18 +133,18 @@ nsnk = length(isnk);
 
 % for a fault tree, there can only be one sink
 if (nsnk > 1)
-    
+
     % throw an error
-    error("ERROR - FaultTreeAnalysis: there are multiple sinks in the architecture matrix.");
-    
+    error('ERROR - FaultTreeAnalysis: there are multiple sinks in the architecture matrix.');
+
 end
 
 % check if sources must be removed
 if (RemoveSrc == 1)
-    
+
     % remove their connections, but keep them in the matrix
     Arch(isrc, :) = 0; %#ok<*FNDSB>
-    
+
 end
 
 % memory for finding connections
@@ -152,10 +152,10 @@ ArchConns = cell(ncomp, 1);
 
 % remember the connections
 for icomp = 1:ncomp
-    
+
     % find the connections
     ArchConns{icomp} = find(Arch(:, icomp));
-    
+
 end
 
 % assign an ID to each failure mode
@@ -190,19 +190,19 @@ EnumModes = SafetyPkg.LawOfAbsorption(EnumModes);
 
 % allocate memory for the failure rates (allocate ones for ease of
 % multiplying across rows in a later step)
-FailRates = ones(   nrow, ncol);
-FailModes = strings(nrow, ncol);
+FailRates = ones(nrow, ncol);
+FailModes = cell(nrow, ncol);
 
 % loop through each component and add in its failure rate
 for icomp = 1:ncomp
-    
+
     % find the component in the failure modes
     idx = EnumModes == icomp;
-    
+
     % fill in the failure rate
-    FailRates(idx) = Components.FailRate(icomp);
-    FailModes(idx) = Components.Name(    icomp);
-    
+    FailRates(idx) = Components.FailRate(    icomp );
+    FailModes(idx) = cellstr(Components.Name{icomp});
+
 end
 
 % multiply failure rates in the given row
