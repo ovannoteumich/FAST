@@ -377,13 +377,13 @@ if (any(Batt))
         if (DetailedBatt == 1)
             
             % power available from the battery
-            [V(ibeg:iend, icol), I(ibeg:iend, icol), Pout(ibeg:iend, icol),  Q(ibeg+1:iend+1, icol), SOC(ibeg:iend+1, icol),C_rate(ibeg:iend, 1)] = BatteryPkg.Discharging(Aircraft, Pout(ibeg:iend, icol), dt, SOC(1, icol), ParCells, SerCells);
+            [V(ibeg:iend, icol), I(ibeg:iend, icol), Pbatt,  Q(ibeg+1:iend+1, icol), SOC(ibeg:iend+1, icol),C_rate(ibeg:iend, 1)] = BatteryPkg.Discharging(Aircraft, Pout(ibeg:iend, icol), dt, SOC(1, icol), ParCells, SerCells);
             
             % check if the SOC falls below 20%
             BattDeplete = find(SOC(:, icol) < 20, 1);
             
             % update the battery/EM power and SOC
-            if ((~isempty(BattDeplete)) && (strcmpi(ArchType, "E") == 0) && (Aircraft.Settings.Analysis.Type <0))&& Aircraft.Settings.PowerOpt == 0
+            if ((~isempty(BattDeplete)) && (strcmpi(ArchType, "E") == 0) && (Aircraft.Settings.Analysis.Type <-1))&& Aircraft.Settings.PowerOpt == 0
                 
                 % no more power is provided from the electric motor or battery
                 Pout(BattDeplete:end, icol) = 0;
@@ -410,7 +410,7 @@ if (any(Batt))
         StopBatt = find(Eleft_ES(:, icol) < 0, 1);
         
         % transfer power to the engines if the battery is empty (if not sizing)
-        if (any(StopBatt) && (Aircraft.Settings.Analysis.Type < 0)) && Aircraft.Settings.PowerOpt == 0
+        if (any(StopBatt) && (Aircraft.Settings.Analysis.Type < -1)) && Aircraft.Settings.PowerOpt == 0
             
             % stop the battery before it crosses 0 (maximum to avoid 0 index)
             StopBatt = max(1, StopBatt - 1);

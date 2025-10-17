@@ -35,7 +35,7 @@ n = 30;
 n1 = 1;
 lams_tko = 0;
 %lams_tko = linspace(0,1,n1);
-lams_clb = linspace(0,.5,n);
+lams_clb = linspace(0,.4,n);
 fburn = zeros(n,n1);
 batt = zeros(n,n1);
 pass = zeros(n*n1,1);
@@ -45,7 +45,7 @@ for itko = 1:n1
     for iclb = 1:n
         i=i+1;
         
-         MyMat = sprintf("HEAClb_%d.mat", i);
+         MyMat = sprintf("HEAclb_%d.mat", i);
         
         % check if cases must be run
         if (RunCases == 1)

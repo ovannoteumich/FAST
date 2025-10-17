@@ -5,7 +5,7 @@
 %% test one-switch on design mission
 
 Aircraft = AircraftSpecsPkg.A320neo;
-Aircraft.Specs.Propulsion.PropArch.Type = "PHE";
+Aircraft.Specs.Propulsion.PropArch.Type = "C";
 Aircraft.Specs.Propulsion.PropArch.TrnType = [];
 Aircraft.Settings.PowerStrat = -1;
 
@@ -63,7 +63,7 @@ Aircraft.Specs.Power.LamUps = [];
 Aircraft.Specs.Power.LamDwn = [];
 % upstream power splits
 Aircraft.Specs.Power.LamUps.SLS = 1;
-Aircraft.Specs.Power.LamUps.Tko = 1;
+Aircraft.Specs.Power.LamUps.Tko = 0;
 Aircraft.Specs.Power.LamUps.Clb = 1;
 Aircraft.Specs.Power.LamUps.Crs = 0;
 Aircraft.Specs.Power.LamUps.Des = 0;
@@ -71,7 +71,7 @@ Aircraft.Specs.Power.LamUps.Lnd = 0;
 
 % downstream power splits
 Aircraft.Specs.Power.LamDwn.SLS = .1207;
-Aircraft.Specs.Power.LamDwn.Tko = .1;
+Aircraft.Specs.Power.LamDwn.Tko = 0;
 Aircraft.Specs.Power.LamDwn.Clb = .1207;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
