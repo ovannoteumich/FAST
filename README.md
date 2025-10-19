@@ -20,12 +20,15 @@ Principal Authors:
 
 Additional Contributors:
 - Hüseyin Acar
+- Yi-Chih (Arenas) Wang
+- Miranda Stockhausen
+- Emma Cassidy
 - Nawa Khailany
 - Janki Patel
 - Michael Tsai
 - Vaibhav Rau
 
-README last updated: 20 Jun 2025
+README last updated: 08 Sep 2025
 
 ## Learn More About FAST
 
@@ -37,7 +40,7 @@ To stay informed about upcoming papers, new releases, and news about FAST, pleas
 
 ## Please cite us when using FAST
 
-If you are using FAST in your work, please cite the following paper: [Mokotoff, P., Arnson, M., Wang, Y. C., & Cinar, G. (2025). FAST: A Future Aircraft Sizing Tool for Conventional and Electrified Aircraft Design. In AIAA SciTech 2025 Forum (p. 2374).](https://www.gokcincinar.com/publication/c-2025-scitech-pm/c-2025-SciTech-PM.pdf)
+If you are using FAST in your work, please cite the following paper: [Mokotoff, P., Arnson, M., Wang, Y. C., & Cinar, G. (2025). FAST: A Future Aircraft Sizing Tool for Conventional and Electrified Aircraft Design. In AIAA SciTech 2025 Forum (p. 2374).](https://doi.org/10.2514/6.2025-2374)
 
 Alternatively, you may use the information below when using BibTeX:
 
@@ -130,7 +133,7 @@ FAST performs on- and off-design analysis of a user-prescribed aircraft on a use
     - Select whether or not a geometry of the aircraft should be created. This is controlled by the variable: "Aircraft.Settings.VisualizeAircraft". The default is 0 (no geometry created).
     - Prescribe an aircraft architecture by either using a preset one (given in "CreatePropArch" within the "PropulsionPkg") or define their own. To learn more about how to define a propulsion architecture, the user should refer to the examples in "CreatePropArch" and the following paper:
 
-        > Mokotoff, P. and Cinar, G. (2025). Graph Theory-based propulsion system analysis. Aerospace Science and Technology (under review).
+        > Mokotoff, P. and Cinar, G. (2025). [Graph Theory-based propulsion system analysis](https://doi.org/10.1016/j.ast.2025.110798). Aerospace Science and Technology, in press.
 
     It is acceptable if some information is unknown about the aircraft. The user can either set the value to `NaN` or omit it. During the analysis preprocessing, any unknown information about the aircraft will be estimated using historical regressions from a database of over 450 aircraft.
 
@@ -173,7 +176,7 @@ Should additional support be needed (beyond reporting bugs or issues with the so
 1. When defining an aircraft in the "AircraftSpecsPkg" folder, many of the values will remain as `NaN`. For any values that remain as `NaN`, the regressions mentioned previously will attempt to approximate values for these variables. In some cases, this can lead to an unrealistic design, or one that is not able to converge. If possible, please try to define as much as possible about the aircraft. For any value in the "Aircraft.Settings" sub-structure that is not specified, a default value is internally provided.
 2. Some of the variables in the aircraft specification may have dependencies on each other. In the event that a dependency exists, the user will see a warning in the command window, indicating which variables will be prioritized and used to compute the others. If this warning appears, it does not mean that the design failed to converge or is deprecated. Instead, it means that excess information was supplied before the analysis began.
 3. During the mission evaluation, the thrust (for a turbojet or turbofan) or power (for a turboprop or piston aircraft) is lapsed by a power of the density ratio (density at altitude to density at sea level). For turbojets and turbofans, this exponent is set to 1. For turboprops or piston aircraft, this exponent is set to 0 (no lapse). Currently, the user is unable to specify the exponent. However, it can be modified inside the "EngineLapse" function, which is housed in the "PropulsionPkg" folder.
-4. The "OptimizationPkg" is currently deprecated and only runs on previous versions of FAST. Updates to this package are expected to commence in Spring/Summer 2024 and be released by the end of 2024.
+4. The "OptimizationPkg" is currently deprecated and only runs on previous versions of FAST.
 5. Currently, we are in the process of switching to a new off-design engine model. As a result of that, some of the engines provided in the "+EngineModelPkg\+EngineSpecsPkg" are not fully up to date. The engines that currently work are the LEAP-1A26, CF34-8E5, and any turboprop engine. If you want to use a turbofan engine not listed above, please refer to "+EngineModelPkg\SimpleOffDesign" for the necessary coefficients that need to be provided to use the fuel flow equation. Additionally, due to this switch, please refrain from using the "+EngineModelPkg\TurbofanOffDesign" function or any functions that it calls within its routine.
 
 # (IX) Testing FAST:

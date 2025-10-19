@@ -12,9 +12,9 @@ Principal Authors:
 - Paul Mokotoff, <prmoko@umich.edu>
 - Max Arnson, <marnson@umich.edu>
 
-Last Updated: 20 Jun 2025
+Last Updated: 08 Sep 2025
 
-## Version 1.0.0 - 20 Jun 2025
+## Version 0.2.0 - 08 Sep 2025
 
 ### Added
 
@@ -26,7 +26,7 @@ Last Updated: 20 Jun 2025
 If you use a pre-defined propulsion architecture ("C", "E", "PHE", "SHE", "TE", or "PE"), the propulsion architecture does not need to be redefined.
 If you use a custom propulsion architecture ("O"), then the matrices need to be redefined using the following five matrices:
 
-    - ``Aircraft.Specs.Propulsion.PropArch.Arch``: architecture matrix (defines the     propulsion architecture)
+    - ``Aircraft.Specs.Propulsion.PropArch.Arch``: architecture matrix (defines the propulsion architecture)
     
     - ``Aircraft.Specs.Propulsion.PropArch.OperUps``: upstream operational matrix (for computing power available, still a function of the mission segment)
     
@@ -50,7 +50,7 @@ If you use a custom propulsion architecture ("O"), then the matrices need to be 
 
     Refer to the following paper to learn about the matrices:
 
-    > Mokotoff, P. and Cinar, G. (2025). Graph Theory-based propulsion system analysis. Aerospace Science and Technology (under review).
+    > Mokotoff, P. and Cinar, G. (2025). [Graph Theory-based propulsion system analysis](https://doi.org/10.1016/j.ast.2025.110798). Aerospace Science and Technology, in press. 
 
 ## Version 0.1.2 - 25 Jan 2025
 
