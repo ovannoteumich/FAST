@@ -1,4 +1,4 @@
-% function [] = BuildThermArch()
+
 clear;clc;
 % Inputs
 
@@ -17,19 +17,19 @@ HeatSrc = [PropSrcType(PropSrcType == 0); PropTrnType(PropTrnType == 2); PropTrn
 % Group by type
 HeatGroups = unique(HeatSrc);
 
-% always 2 sinks, internal reservoir and ambient, and each can have a pump
-UpStreamStem = zeros(length(HeatGroups) + 2 + 2);
-UpStreamStem(end-3 ,end-1) = 1; % Connect Sink to its pump
-UpStreamStem(end-2 ,end) = 1; % Connect Sink to its pump
+% Add an extra for testing
+HeatGroups(end+1) = 3;
 
-
+% Turn heatgroups into strings
 items = num2str(1:length(HeatGroups));
 items = items(items~= ' ');
 items = num2cell(items);
+
+% Find all combos of the loops
 LoopsUnordered = ThermalPkg.Partitions(items);
 
 
-UpStreamStruct = ThermalPkg.BuildUpStreams(LoopsUnordered,UpStreamStem)
+SinklessArches = ThermalPkg.BuildUpStreams(LoopsUnordered,zeros(length(HeatGroups)))
 
 Key = ["Batt","Mot","RezPump","AmbPump","Rez","Amb"]'
 
