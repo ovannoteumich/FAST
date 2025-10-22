@@ -25,8 +25,8 @@ for ii = 1:Narch
 
     % for each they can all be connected to a either a reservoir pump or an
     % ambient pump, reservoir is
-    Stem = [curarch, zeros(size(curarch,1),2)];
-    Stem = [Stem;zeros(2,size(Stem,2))];
+    Stem = [curarch, zeros(size(curarch,1),4)];
+    Stem = [Stem;zeros(4,size(Stem,2))];
 
 
 
@@ -45,7 +45,7 @@ end
 
         % if at the limit, just return current arch and move on
         if iter > nloops
-            CompleteArches.("Arch_"+counter) = addsink(localstem);
+            CompleteArches.("Arch_"+counter) = ConnectPumpsToSinks(localstem);
             counter = counter+1;
             return
         end
@@ -54,7 +54,7 @@ end
         % and then recurse
 
         % Go through each last row
-        for jj = size(localstem,1)-1:size(localstem,1)
+        for jj = size(localstem,1)-3:size(localstem,1)
             % assign to rez
             localstem(LoopEndInds(iter),jj) = 1;
             assignpump(iter+1,localstem)
@@ -64,18 +64,11 @@ end
     end
 end
 
-function [ArchWithSinks] = addsink(arch)
+function [ArchWithSinks] = ConnectPumpsToSinks(arch)
 
 % Check if there are rez and amb pumps
-rezs = any(arch(:,end-1) == 1);
-ambs = any(arch(:,end) == 1);
-
-% Extract size of arch
-N = size(arch,1);
-
-% Add 2 columns and 2 rows
-arch = [arch,zeros(N,2)];
-arch = [arch; zeros(2,N+2)];
+rezs = any(arch(:,end-3) == 1);
+ambs = any(arch(:,end-2) == 1);
 
 % If rezs, dump rez pump to rez sink
 if rezs
