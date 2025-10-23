@@ -3,7 +3,7 @@ function [] = ConstraintDiagram(Aircraft)
 % ConstraintDiagram.m
 % written by Paul Mokotoff, prmoko@umich.edu
 % adapted from code used in AEROSP 481 as a GSI
-% last updated: 19 sep 2025
+% last updated: 23 oct 2025
 %
 % create a constraint diagram according to 14 CFR 23/25. for turbofans, a
 % T/W-W/S diagram is created using 14 CFR 25. for turboprops/piston, either
@@ -149,6 +149,9 @@ colormap([1.0, 1.0, 1.0]);
 % memory for text positions
 TextPos = zeros(ncon, 2);
 
+% eliminate infinite values
+g(isinf(g)) = NaN;
+
 % shade the infeasible region
 for icon = 1:ncon
     
@@ -186,7 +189,7 @@ xlim([Hrange(1), Hrange(end)]);
 ylim([Vrange(1), Vrange(end)]);
 
 % increase font size
-set(gca, "FontSize", 18);
+set(gca, "FontSize", 24);
 
 % ----------------------------------------------------------
 
