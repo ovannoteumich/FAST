@@ -35,10 +35,10 @@ Aircraft.Specs.TLAR.Class = "Turboprop";
 Aircraft.Specs.TLAR.CFRPart = 25;
 
 % regulations for certification
-Aircraft.Specs.Performance.ConstraintFuns = ["Jet25_119"; "Jet25_121a"; "Jet25_121b"; "Jet25_121c"; "Jet25_121d"; "JetAEOClimb"; "JetApp"; "JetCrs"; "JetDiv"; "JetLFL"; "JetTOFL"];
+Aircraft.Specs.Performance.ConstraintFuns = ["Jet25_119"; "Jet25_121a"; "Jet25_121b"; "Jet25_121c"; "Jet25_121d"; "JetApp"; "JetCrs"; "JetDiv"; "JetLFL"; "JetTOFL"; "JetAEOClimb"];
 
 % labels for regulations
-Aircraft.Specs.Performance.ConstraintLabs = ["25.119"; "25.121a"; "25.121b"; "25.121c"; "25.121d"; "AEO Climb"; "Approach"; "Cruise"; "Diversion"; "Landing"; "TOFL"];
+Aircraft.Specs.Performance.ConstraintLabs = ["25.119"; "25.121a"; "25.121b"; "25.121c"; "25.121d"; "Approach"; "Cruise"; "Diversion"; "Landing"; "TOFL"; "AEO Climb"];
 
 % ----------------------------------------------------------
 
@@ -71,7 +71,7 @@ Aircraft.Specs.Performance.TempInc = 1.25;
 Aircraft.Specs.Performance.MaxCont = 1 / 0.94;
 
 % design specific excess power loss ???
-Aircraft.Specs.Performance.PsLoss = 0;
+Aircraft.Specs.Performance.PsLoss = 0.8487;
 
 % landing weight as a fraction of MTOW
 Aircraft.Specs.Performance.Wland_MTOW = 1;
@@ -99,7 +99,7 @@ Aircraft.Specs.Aero.AR = 12;
 % lift coefficients
 Aircraft.Specs.Aero.CL.Crs = 1.0;
 Aircraft.Specs.Aero.CL.Tko = 2.5;
-Aircraft.Specs.Aero.CL.Lnd = 3.1;
+Aircraft.Specs.Aero.CL.Lnd = 2.5;%3.1;
 
 % parasite drag coefficients
 Aircraft.Specs.Aero.CD0.Tko = 0.0618;
@@ -142,7 +142,7 @@ Aircraft.Specs.Propulsion.NumEngines = 4;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % determine which constraints to use (0 = 14 CFR 25; 1 = novel)
-Aircraft.Settings.ConstraintType = 0;
+Aircraft.Settings.ConstraintType = 1;
 
 % create a constraint diagram
 ConstraintDiagramPkg.ConstraintDiagram(Aircraft);
@@ -150,5 +150,10 @@ ConstraintDiagramPkg.ConstraintDiagram(Aircraft);
 % add the existing sizing point
 hold on
 scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 48, "o", "MarkerEdgeColor", "red", "MarkerFaceColor", "red");
-
+% p1 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 48, "o", "MarkerEdgeColor", "red", "MarkerFaceColor", "red");
+% p2 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 0.072, 48, "o", "MarkerEdgeColor", "blue", "MarkerFaceColor", "blue");
+% xlim([0.03, 8])
+% L = legend([p1, p2], "Literature", "Novel Regulations", "Location", "northeast");
+% L.Color = [1; 1; 1];
+% axis square
 end
