@@ -1,16 +1,22 @@
-function [OutputTemp] = ToyHeatSource(InputTemp,type)
+function [TempsOut] = ToyHeatSource(ind,TempsIn,TempsOut)
+
+NComp = length(TempsIn);
 
 
-switch type
-    case "l"
-        DeltaT= 40;
-    case "m"
-        DeltaT= 3;
-    case "s"
-        DeltaT= 2;
+switch ind
+    case NComp % Ambient Sink
+        % Do nothing, output temperature already set  
+    case NComp-1 % Reservoir Sink
+        % Do nothing, output temperature already set
+    case NComp-2 % Ambient Pump
+        DeltaT = 0;
+    case NComp-3 % Reservoir Pump
+        DeltaT = 0;
+    otherwise % Heat Source
+        TempsOut(ind) = TempsIn(ind) + 40;
 end
 
-OutputTemp = InputTemp + DeltaT;
+
 
 
 
