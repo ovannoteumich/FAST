@@ -1,14 +1,15 @@
-function [Aircraft] = ERJ175LR()
+function [Aircraft] = ERJ175LR_Elec()
 %
 % [Aircraft] = ERJ175LR()
 % originally written for E175 by Nawa Khailany
 % modified to E175LR by Paul Mokotoff, prmoko@umich.edu
-% last updated: 13 dec 2024
+% modified to E175LR_elec by Yipeng Liu, prmoko@umich.edu
+% last updated: 21 oct 2024
 % 
-% Create a baseline model of the ERJ 175, long-range version (also known as
-% an ERJ 170-200). This version uses a conventional propulsion
-% architecture.
-%
+% Create a baseline model of the ERJ 175, long-range (also known as
+% an ERJ 170-200) and electrified version. This version uses a parallel 
+% hybrid propulsion architecture.
+% 
 % INPUTS:
 %     none
 %
@@ -120,7 +121,7 @@ Aircraft.Specs.Weight.Batt = 0;
 %     (5) "PHE" = parallel hybrid electric
 %     (6) "SHE" = series hybrid electric
 %     (7) "O"   = other architecture (specified by the user)
-Aircraft.Specs.Propulsion.PropArch.Type = "C";
+Aircraft.Specs.Propulsion.PropArch.Type = "PHE";
 
 % get the engine
 Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.CF34_8E5;
@@ -145,40 +146,39 @@ Aircraft.Specs.Propulsion.Eta.Prop = 0.8;
 Aircraft.Specs.Power.SpecEnergy.Fuel = 12;
 
 % gravimetric specific energy of battery (kWh/kg), not used here
-Aircraft.Specs.Power.SpecEnergy.Batt = NaN;
+Aircraft.Specs.Power.SpecEnergy.Batt = 0.25;
 
 % downstream power splits
-Aircraft.Specs.Power.LamDwn.SLS = 0;
-Aircraft.Specs.Power.LamDwn.Tko = 0;
-Aircraft.Specs.Power.LamDwn.Clb = 0;
+Aircraft.Specs.Power.LamDwn.SLS = 0.1;
+Aircraft.Specs.Power.LamDwn.Tko = 0.1;
+Aircraft.Specs.Power.LamDwn.Clb = 0.05;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;
 
 % upstream power splits
-Aircraft.Specs.Power.LamUps.SLS = 0;
-Aircraft.Specs.Power.LamUps.Tko = 0;
-Aircraft.Specs.Power.LamUps.Clb = 0;
+Aircraft.Specs.Power.LamUps.SLS = 1;
+Aircraft.Specs.Power.LamUps.Tko = 1;
+Aircraft.Specs.Power.LamUps.Clb = 1;
 Aircraft.Specs.Power.LamUps.Crs = 0;
 Aircraft.Specs.Power.LamUps.Des = 0;
 Aircraft.Specs.Power.LamUps.Lnd = 0;
 
 % electric motor and generator efficiencies, not used here just in HEA one
-Aircraft.Specs.Power.Eta.EM = NaN;
-Aircraft.Specs.Power.Eta.EG = NaN;
+Aircraft.Specs.Power.Eta.EM = 0.96;
+Aircraft.Specs.Power.Eta.EG = 0.96;
 
 % power-weight ratio for the aircraft (kW/kg, if a turboprop)
 Aircraft.Specs.Power.P_W.SLS = NaN;
 
 % power-weight ratio for the electric motor and generator (kW/kg)
 % leave as NaN if an electric motor or generator isn't in the powertrain
-Aircraft.Specs.Power.P_W.EM = NaN;
+Aircraft.Specs.Power.P_W.EM = 10;
 Aircraft.Specs.Power.P_W.EG = NaN;
 
 % battery cells in series and parallel
-% (commented values used for electrified aircraft)
-Aircraft.Specs.Power.Battery.ParCells = NaN;%100;
-Aircraft.Specs.Power.Battery.SerCells = NaN;% 62;
+Aircraft.Specs.Power.Battery.ParCells = 100; % 100;
+Aircraft.Specs.Power.Battery.SerCells = 62; % 62;
 
 % initial battery SOC (commented value used for electrified aircraft)
 Aircraft.Specs.Power.Battery.BegSOC = 100;%100;

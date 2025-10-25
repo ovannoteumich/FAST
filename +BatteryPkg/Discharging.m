@@ -1,11 +1,13 @@
 function [Voltage, Current, Pout, Capacity, SOC, C_rate] = Discharging(Aircraft, Preq, Time, SOCBeg, Parallel, Series)
 %
-% [Voltage, Pout, Capacity, SOC] = Model(Preq, Time, SOCBeg, Parallel, Series)
+% [Voltage, Current, Pout, Capacity, SOC, C_rate] = Discharging(Aircraft, Preq, Time, SOCBeg, Parallel, Series)
 % originally written by Sasha Kryuchkov
 % overhauled by Paul Mokotoff, prmoko@umich.edu
-% last updated: 10 jul 2024
+% modified by Yipeng Liu, yipenglx@umich.edu
 %
-% Model (dis)charging for a Lithium-ion battery.
+% last updated: 21 oct 2025
+%
+% Model discharging dynamics for a Lithium-ion battery.
 %
 % INPUTS:
 %     Preq     - power required by the battery.
@@ -68,7 +70,7 @@ elseif ((npreq >  1) && (ntime == 1))
 elseif (npreq ~= ntime)
     
     % throw an error
-    error("ERROR - Model: required power and time are different sizes.");
+    error("ERROR - Discharging: required power and time are different sizes.");
         
 end
 
@@ -76,7 +78,7 @@ end
 if     (nsocs >  1)
     
     % throw an error
-    error("ERROR - Model: initial SOC must be a scalar or an empty array.");
+    error("ERROR - Discharging: initial SOC must be a scalar or an empty array.");
     
 elseif (nsocs == 0)
     
@@ -102,10 +104,10 @@ ResistanceTemp = Aircraft.Specs.Battery.IntResist;
 ncell = Series * Parallel;
 
 % exponential voltage [V]
-A = Aircraft.Specs.Battery.expVol;
+A = Aircraft.Specs.Battery.ExpVol;
 
 % exponential capacity [(Ah)^-1]
-B = Aircraft.Specs.Battery.expCap;
+B = Aircraft.Specs.Battery.ExpCap;
 
 % Determine maximum capacity [Ah] based on analysis type and degradation effect
 if Aircraft.Settings.Analysis.Type < 0 && Aircraft.Specs.Battery.Degradation == 1

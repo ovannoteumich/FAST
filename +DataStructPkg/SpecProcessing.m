@@ -2,7 +2,7 @@ function [Aircraft] = SpecProcessing(Aircraft)
 %
 % [Aircraft] = SpecProcessing(Aircraft)
 % written by Maxfield Arnson, marnson@umich.edu
-% lasat updated: 13 dec 2024
+% lasat updated: 21 oct 2025
 %
 % This function initializes mission outputs, runs regressions, and
 % overwrites values left as NaN in the user input. It prepares the aircraft
@@ -136,8 +136,8 @@ DefaultBattery.NomVolCell = NaN;
 DefaultBattery.MaxExtVolCell = NaN;
 DefaultBattery.CapCell = NaN;
 DefaultBattery.IntResist = NaN;
-DefaultBattery.expVol = NaN;
-DefaultBattery.expCap = NaN;
+DefaultBattery.ExpVol = NaN;
+DefaultBattery.ExpCap = NaN;
 DefaultBattery.MinSOC = NaN;
 DefaultBattery.MaxAllowCRate = NaN;
 DefaultBattery.Chem = NaN;
@@ -345,8 +345,8 @@ DefaultBattery.NomVolCell = 3.6;
 DefaultBattery.MaxExtVolCell = 4.0880;
 DefaultBattery.CapCell = 3;
 DefaultBattery.IntResist = 0.0199;
-DefaultBattery.expVol = 0.0986;
-DefaultBattery.expCap = 30;
+DefaultBattery.ExpVol = 0.0986;
+DefaultBattery.ExpCap = 30;
 DefaultBattery.MinSOC = 20;
 DefaultBattery.MaxAllowCRate = 5;
 DefaultBattery.Chem = 1;

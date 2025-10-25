@@ -1,10 +1,12 @@
 function [Aircraft] = ResizeBattery(Aircraft)
 %
 % [Aircraft] = ResizeBattery(Aircraft)
+%
 % originally written by Sasha Kryuchkov
 % overhauled by Paul Mokotoff, prmoko@umich.edu
 % modified by Yipeng Liu, yipenglx@umich.edu
-% last updated: 11 dec 2024
+%
+% last updated: 21 oct 2025
 %
 % After an aircraft flies a mission, update its battery size. If a "simple"
 % battery model is used (not considering cells in series and parallel),
@@ -48,11 +50,8 @@ ebatt = Aircraft.Specs.Power.SpecEnergy.Batt;
 % energy consumed during flight
 Ebatt = Aircraft.Mission.History.SI.Energy.E_ES(:, Batt); 
 
-% energy remaining during flight
-Ebatt_re = Aircraft.Mission.History.SI.Energy.Eleft_ES(:, Batt); 
-
-energy =2;
-if energy==0
+Energy = 2;
+if Energy==0
         % return zero battery weight
     Aircraft.Specs.Weight.Batt = 0;
     
@@ -110,9 +109,6 @@ if (Aircraft.Settings.DetailedBatt == 1)
     
     % power consumed during flight
     Pbatt = Aircraft.Mission.History.SI.Power.Pout(:, [Batt, false(1, ncomp-nsrc)]);
-    
-
-    %Pbatt = Aircraft.Mission.History.SI.Power.P_ES(:, Batt);
 
     % Current curing flight
     Cbatt = Aircraft.Mission.History.SI.Power.Current(:, Batt);
@@ -162,10 +158,7 @@ if (Aircraft.Settings.DetailedBatt == 1)
     % too rapidly)               %
     %                            %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    % get the energy consumed by the battery during each segment
-    dEbatt = diff(Ebatt);
-    
+
     % compute the C-rate (current in segment / total capacity of battery pack)
     C_rate = Cbatt ./ (ExistBattCap); 
 

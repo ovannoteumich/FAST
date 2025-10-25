@@ -35,8 +35,8 @@ itest = 1;
 % define the aircraft structure
 A.Specs.Battery.NomVolCell     = 3.7;
 A.Specs.Battery.MaxExtVolCell  = 4.0880;
-A.Specs.Battery.expVol         = 0.12;
-A.Specs.Battery.expCap         = 0.6;
+A.Specs.Battery.ExpVol         = 0.12;
+A.Specs.Battery.ExpCap         = 0.6;
 A.Specs.Battery.IntResist      = 0.01;
 A.Settings.Analysis.Type       = 0;
 A.Settings.Degradation         = 0;
@@ -74,8 +74,8 @@ itest = itest + 1;
 % define the aircraft structure
 A.Specs.Battery.NomVolCell     = 3.7;
 A.Specs.Battery.MaxExtVolCell  = 4.0880;
-A.Specs.Battery.expVol         = 0.12;
-A.Specs.Battery.expCap         = 0.6;
+A.Specs.Battery.ExpVol         = 0.12;
+A.Specs.Battery.ExpCap         = 0.6;
 A.Specs.Battery.IntResist      = 0.01;
 A.Settings.Analysis.Type       = 0;
 A.Settings.Degradation         = 0;

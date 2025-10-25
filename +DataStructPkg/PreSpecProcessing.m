@@ -79,8 +79,8 @@ if ~ isfield(Aircraft,"Specs")
     Aircraft.Specs.Battery.MaxExtVolCell = NaN;
     Aircraft.Specs.Battery.CapCell = NaN;
     Aircraft.Specs.Battery.IntResist = NaN;
-    Aircraft.Specs.Battery.expVol = NaN;
-    Aircraft.Specs.Battery.expCap = NaN;
+    Aircraft.Specs.Battery.ExpVol = NaN;
+    Aircraft.Specs.Battery.ExpCap = NaN;
     Aircraft.Specs.Battery.MinSOC = NaN;
     Aircraft.Specs.Battery.MaxAllowCRate = NaN;
     Aircraft.Specs.Battery.Chem = NaN;
@@ -399,8 +399,8 @@ else
             Aircraft.Specs.Battery.MaxExtVolCell = NaN;
             Aircraft.Specs.Battery.CapCell = NaN;
             Aircraft.Specs.Battery.IntResist = NaN;
-            Aircraft.Specs.Battery.expVol = NaN;
-            Aircraft.Specs.Battery.expCap = NaN;
+            Aircraft.Specs.Battery.ExpVol = NaN;
+            Aircraft.Specs.Battery.ExpCap = NaN;
             Aircraft.Specs.Battery.MinSOC = NaN;
             Aircraft.Specs.Battery.MaxAllowCRate = NaN;
             Aircraft.Specs.Battery.Chem = NaN;
@@ -424,10 +424,10 @@ else
                 Aircraft.Specs.Battery.IntResist = NaN;
             end
             if ~isfield(Aircraft.Specs.Battery, "expVol")
-                Aircraft.Specs.Battery.expVol = NaN;
+                Aircraft.Specs.Battery.ExpVol = NaN;
             end
             if ~isfield(Aircraft.Specs.Battery, "expCap")
-                Aircraft.Specs.Battery.expCap = NaN;
+                Aircraft.Specs.Battery.ExpCap = NaN;
             end
             if ~isfield(Aircraft.Specs.Battery, "MinSOC")
                 Aircraft.Specs.Battery.MinSOC = NaN;
@@ -469,10 +469,13 @@ if ~isfield(Aircraft,"Settings")
     Aircraft.Settings.CrsPoints = NaN;
     Aircraft.Settings.DesPoints = NaN;
     Aircraft.Settings.OEW.MaxIter = NaN;
+    Aircraft.Settings.Degradation = NaN;
+    Aircraft.Settings.Analysis.PowerOpt = NaN;
     Aircraft.Settings.OEW.Tol = NaN;
     Aircraft.Settings.Analysis.MaxIter = NaN;
     Aircraft.Settings.Analysis.Type = NaN;
     Aircraft.Settings.Plotting = NaN;
+    Aircraft.Settings.PrintOut = NaN;
     Aircraft.Settings.Table = NaN;
     Aircraft.Settings.VisualizeAircraft = NaN;
     Aircraft.Settings.Dir.Size = NaN;

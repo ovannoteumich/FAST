@@ -33,7 +33,7 @@ EPS03 = 1.0e-03;
 % assume all tests passed
 Pass = ones(4, 1);
 
-itest = 1;
+NumTest = 1;
 
 
 %% CASE 1: SINGLE CELL BATTERY MODEL %%
@@ -52,7 +52,7 @@ TestIn.SOCi     = 90;
 TestIn.Parallel = 1;
 TestIn.Series   = 1;
 
-A1 = makeAircraft();
+A1 = MakeAircraft();
 
 % ----------------------------------------------------------
 
@@ -64,16 +64,16 @@ A1 = makeAircraft();
 
 % complete the model
 % store resulting values
-[Voltage, Current, Pout, Capacity, SOC, C_rate] = BatteryPkg.Discharging(A1, TestIn.PreSOC, ...
+[Voltage, Current, ~, ~, SOC, ~] = BatteryPkg.Discharging(A1, TestIn.PreSOC, ...
     TestIn.Time, TestIn.SOCi, TestIn.Parallel, TestIn.Series);
 
-TestValue = [Voltage(end), Current(end), TestIn.PreSOC, A1.Specs.Battery.CapCell, SOC(end)];
-TrueValue = [3.3702, 29.6720, 100.0000, 2.7000, 62.5412];
+TestValue = [Voltage(end), Current(end), TestIn.PreSOC, SOC(end)];
+TrueValue = [3.3702, 29.6720, 100.0000, 62.5412];
 
 % run the test
 % increment the test counter
-Pass(itest) = CheckTest(TestValue, TrueValue, EPS03, itest);
-itest = itest + 1;
+Pass(NumTest) = CheckTest(TestValue, TrueValue, EPS03);
+NumTest = NumTest + 1;
 
 
 %% CASE 2: MULTIPLE PARALLEL, SINGLE SERIES BATTERY MODEL %%
@@ -92,7 +92,7 @@ TestIn.SOCi     = 72;
 TestIn.Parallel = 3;
 TestIn.Series   = 1;
 
-A2 = makeAircraft();
+A2 = MakeAircraft();
 
 % ----------------------------------------------------------
 
@@ -103,18 +103,17 @@ A2 = makeAircraft();
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % complete the model
-[Voltage, Current, Pout, Capacity, SOC, C_rate] = BatteryPkg.Discharging(A2, TestIn.PreSOC, ...
+[Voltage, Current, ~, ~, SOC, ~] = BatteryPkg.Discharging(A2, TestIn.PreSOC, ...
     TestIn.Time, TestIn.SOCi, TestIn.Parallel, TestIn.Series);
 
 % store resulting values
 % list the correct values of the output
 % run the test
-TestValue = [Voltage(end), Current(end), TestIn.PreSOC, A2.Specs.Battery.CapCell, SOC(end)];
-TrueValue = [3.6403, 27.4707, 100.0000, 6.4800, 67.2527];
+TestValue = [Voltage(end), Current(end), TestIn.PreSOC, SOC(end)];
+TrueValue = [3.6403, 27.4707, 100.0000, 67.2527];
 
-% increment the test counter
-Pass(itest) = CheckTest(TestValue, TrueValue, EPS03, itest);
-itest = itest + 1;
+Pass(NumTest) = CheckTest(TestValue, TrueValue, EPS03);
+NumTest = NumTest + 1;
 
 
 %% CASE 3: MULTIPLE PARALLEL, SINGLE SERIES BATTERY MODEL %%
@@ -133,7 +132,7 @@ TestIn.SOCi     = 50;
 TestIn.Parallel = 1;
 TestIn.Series   = 3;
 
-A3 = makeAircraft();
+A3 = MakeAircraft();
 
 % ----------------------------------------------------------
 
@@ -144,18 +143,16 @@ A3 = makeAircraft();
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % complete the model
-[Voltage, Current, Pout, Capacity, SOC, C_rate] = BatteryPkg.Discharging(A3, TestIn.PreSOC, ...
+[Voltage, Current, ~, ~, SOC, ~] = BatteryPkg.Discharging(A3, TestIn.PreSOC, ...
     TestIn.Time, TestIn.SOCi, TestIn.Parallel, TestIn.Series);
 
 % store resulting values
 % list the correct values of the output
-TestValue = [Voltage(end), Current(end), TestIn.PreSOC, A3.Specs.Battery.CapCell, SOC(end)];
-TrueValue = [10.4583, 6.8844, 72.0000, 4.5000, 49.4264];
+TestValue = [Voltage(end), Current(end), TestIn.PreSOC, SOC(end)];
+TrueValue = [10.4583, 6.8844, 72.0000, 49.4264];
 
-% run the test
-% increment the test counter
-Pass(itest) = CheckTest(TestValue, TrueValue, EPS03, itest);
-itest = itest + 1;
+Pass(NumTest) = CheckTest(TestValue, TrueValue, EPS03);
+NumTest = NumTest + 1;
 
 
 %% CASE 4: MULTIPLE PARALLEL, MULTIPLE SERIES BATTERY MODEL %%
@@ -175,7 +172,7 @@ TestIn.Parallel = 5;
 TestIn.Series   = 3;
 
 % ----------------------------------------------------------
-A4 = makeAircraft();
+A4 = MakeAircraft();
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                            %
@@ -184,24 +181,24 @@ A4 = makeAircraft();
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % complete the model
-[Voltage, Current, Pout, Capacity, SOC, ~] = BatteryPkg.Discharging(A4, TestIn.PreSOC, ...
+[Voltage, Current, ~, ~, SOC, ~] = BatteryPkg.Discharging(A4, TestIn.PreSOC, ...
     TestIn.Time, TestIn.SOCi, TestIn.Parallel, TestIn.Series);
 
 % store resulting values
-TestValue = [Voltage(end), Current(end), TestIn.PreSOC, A4.Specs.Battery.CapCell, SOC(end)];
-TrueValue = [10.8624, 46.0300, 499.9950, 31.5000, 62.3295];
+TestValue = [Voltage(end), Current(end), TestIn.PreSOC, SOC(end)];
+TrueValue = [10.8624, 46.0300, 499.9950, 62.3295];
 
-Pass(itest) = CheckTest(TestValue, TrueValue, EPS03, itest);
+Pass(NumTest) = CheckTest(TestValue, TrueValue, EPS03);
 
 
 %% CHECK THE TEST RESULTS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % identify any tests that failed
-itest = find(~Pass);
+NumTest = find(~Pass);
 
 % check whether any tests failed
-if (isempty(itest))
+if (isempty(NumTest))
     
     % all tests passed
     fprintf(1, "Model tests passed!\n");
@@ -215,7 +212,7 @@ else
     fprintf(1, "Model tests failed:\n");
     
     % print which tests failed
-    fprintf(1, "    Test %d\n", itest);
+    fprintf(1, "    Test %d\n", NumTest);
     
     % return failure
     Success = 0;
@@ -234,7 +231,8 @@ function [Pass] = CheckTest(TestValue, TrueValue, Tol)
 %
 % [Pass] = CheckTest(TestValue, TrueValue, Tol)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 22 may 2024
+% updated by Yipeng Liu, yipenglx@umich.edu
+% last updated: 21 oct 2025
 %
 % Helper function to check if a test passed.
 %
@@ -260,26 +258,25 @@ if (any(RelTol > Tol))
     
     % the test fails
     Pass = 0;
-    fprintf(1,"  Test %d expected: [%0.4f %0.4f %0.4f %0.4f %0.4f]\n", id, TrueValue);
-    fprintf(1,"  Test %d got     : [%0.4f %0.4f %0.4f %0.4f %0.4f]\n", id, TestValue);
+    fprintf(1,"  Test expected: [%0.4f %0.4f %0.4f %0.4f %0.4f]\n", TrueValue);
+    fprintf(1,"  Test got     : [%0.4f %0.4f %0.4f %0.4f %0.4f]\n", TestValue);
 else
     
     % the test passes
     Pass = 1;
-    
+end
+
 end
 
 % ----------------------------------------------------------
 
-function Aircraft = makeAircraft()
-
-Aircraft.Specs.Battery.MaxExtVolCell = 4.0880;   % nominal voltage [V]
+function Aircraft = MakeAircraft()
+Aircraft.Specs.Battery.MaxExtVolCell = 4.0880;
 Aircraft.Specs.Battery.IntResist     = 0.0199;
-Aircraft.Specs.Battery.expVol        = 0.0986;
-Aircraft.Specs.Battery.expCap        = 30;
-Aircraft.Specs.Battery.CapCell       = 3;
+Aircraft.Specs.Battery.ExpVol        = 0.0986;
+Aircraft.Specs.Battery.ExpCap        = 30;
+Aircraft.Specs.Battery.CapCell       = 3.0;
 Aircraft.Specs.Battery.SOH           = 100;
 Aircraft.Settings.Analysis.Type      = 0;
 Aircraft.Settings.Degradation        = 0;
 end
-

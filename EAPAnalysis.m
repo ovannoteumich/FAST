@@ -163,8 +163,11 @@ EPS = 1.0e-3;
 iter = 0;
 
 
-%% SIZE THE AIRCRAFT %%
-%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                            %
+% SIZE THE AIRCRAFT          %
+%                            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Initialize new MTOW if off-design
 if Type < 0
@@ -173,7 +176,6 @@ if Type < 0
         Aircraft.Specs.Weight.Crew   +...
         Aircraft.Specs.Weight.Payload   +...
         Aircraft.Specs.Weight.Fuel   +...
-        Aircraft.Specs.Weight.EM   +...
         Aircraft.Specs.Weight.Batt;
 end
 
@@ -326,8 +328,11 @@ if ((iter == MaxIter) && (Type > 0))
 end
 
 
-%% DELETE UNNECESSARY VARIABLES FROM THE STRUCTURE %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                          %
+% DELETE UNNECESSARY VARIABLES FROM THE STRUCTURE          %
+%                                                          %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % length of the aircraft
 if (isfield(Aircraft, "LengthSet"))
@@ -350,9 +355,11 @@ if (isfield(Aircraft, "TempParts"))
 end
 
 % ----------------------------------------------------------
-
-%% Battery Degradation %%
-%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                              %
+% Battery Degradation          %
+%                              %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % grounding time
 GroundTime = Aircraft.Specs.Battery.GroundT;
