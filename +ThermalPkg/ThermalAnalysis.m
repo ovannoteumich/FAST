@@ -1,10 +1,10 @@
-function [ThermalOut] = ThermalAnalysis(ThermalSystem)
+function [ThermalSystem] = ThermalAnalysis(ThermalSystem)
 
 ReturnSettings = [
-    ThermalSystem.ReservoirPumpReturnSetting
-    ThermalSystem.AmbientPumpReturnSetting
-    ThermalSystem.ReservoirSetting
-    ThermalSystem.AmbientSetting
+ThermalSystem.TemperatureSettings.FuelPumpReturn
+ThermalSystem.TemperatureSettings.FuelPumpSink
+ThermalSystem.TemperatureSettings.AmbientPumpReturn
+ThermalSystem.TemperatureSettings.AmbientPumpSink
     ];
 
 
@@ -44,14 +44,14 @@ end
 
 % If there is an ambient pump, set pump output and ambient input
 if ThermalSystem.Arch(end-2,end)
-    TempsIn(end) = ThermalSystem.AmbientPumpSinkSetting;
-    TempsOut(end-2) = ThermalSystem.AmbientPumpSinkSetting;
+    TempsIn(end) = ThermalSystem.TemperatureSettings.AmbientPumpSink;
+    TempsOut(end-2) = ThermalSystem.TemperatureSettings.AmbientPumpSink;
 end
 
 % Set input to reservoir as the reservoir pump setting
 if ThermalSystem.Arch(end-3,end-1)
-    TempsIn(end-1) = ThermalSystem.ReservoirPumpSinkSetting;
-    TempsOut(end-3) = ThermalSystem.ReservoirPumpSinkSetting;
+    TempsIn(end-1) = ThermalSystem.TemperatureSettings.FuelPumpSink;
+    TempsOut(end-3) = ThermalSystem.TemperatureSettings.FuelPumpSink;
 end
 
 % Assign unknown temps
@@ -80,6 +80,8 @@ ThermalOut.Labeled(2:end,3) = num2cell(TempsOut(:));
 MissingInds = find(TempsIn == -1);
 ThermalOut.Labeled(MissingInds+1,2:3) = {"Nonexistent"};
 
+ThermalSystem.Analysis = ThermalOut;
+
 
 
 
@@ -88,15 +90,13 @@ ThermalOut.Labeled(MissingInds+1,2:3) = {"Nonexistent"};
     function sendbackward(ind,arch)
         % takes in a component index and an architecture
 
-        % read in the global state vector
-
 
         % Find where the connection sends the coolant to
         ReceivingFrom = find(arch(:,ind) == 1);
 
         % if it doesnt send anywhere, return out of the function
         if isempty(ReceivingFrom)
-            TempsOut = ThermalPkg.ToyHeatSource(ind,TempsIn,TempsOut);
+            TempsOut = ThermalPkg.HeatSourceSwitch(ThermalSystem,ind,TempsIn,TempsOut);
             return
         end
 
@@ -111,7 +111,7 @@ ThermalOut.Labeled(MissingInds+1,2:3) = {"Nonexistent"};
         TempsIn(ind) = sum(TempsOut(ReceivingFrom))./length(ReceivingFrom);
 
         % Update output temperature of current component
-        TempsOut = ThermalPkg.ToyHeatSource(ind,TempsIn,TempsOut);
+        TempsOut = ThermalPkg.HeatSourceSwitch(ThermalSystem,ind,TempsIn,TempsOut);
 
 
 

@@ -21,77 +21,77 @@ function [] = InitializeComponents()
 
 %% Metals
 
-Metals.RefUnits.Density = 'kg/m3';
-Metals.RefUnits.K = 'W/(mK)'; % heat transfer coeff @ 0 celsius
+MetalProperties.RefUnits.Density = 'kg/m3';
+MetalProperties.RefUnits.K = 'W/(mK)'; % heat transfer coeff @ 0 celsius
 
 % Aluminum
-Metals.Aluminum.Density = 2710;
-Metals.Aluminum.K = 236; 
+MetalProperties.Aluminum.Density = 2710;
+MetalProperties.Aluminum.K = 236; 
 
 % Copper
-Metals.Copper.Density = 8960;
-Metals.Copper.K = 401; 
+MetalProperties.Copper.Density = 8960;
+MetalProperties.Copper.K = 401; 
 
 % Steel 304
-Metals.Steel_304.Density = 7930;
-Metals.Steel_304.K = 16.2;
+MetalProperties.Steel_304.Density = 7930;
+MetalProperties.Steel_304.K = 16.2;
 
 
 %% Fluids
 
-Fluids.RefUnits.Density = 'kg/m3';
-Fluids.RefUnits.SpecificHeat = 'J/(kgK)'; % specific heat capacity @ 0 celsius
-Fluids.RefUnits.VaporTemp = 'C'; % at 1 atmosphere
-Fluids.RefUnits.VaporHeat = 'J/kg'; % at vapor temp
-Fluids.RefUnits.K = 'W/(mK)'; % thermal conductivity
-Fluids.RefUnits.Mu = 'kg/(ms)'; % dynamic viscosity
+FluidProperties.RefUnits.Density = 'kg/m3';
+FluidProperties.RefUnits.SpecificHeat = 'J/(kgK)'; % specific heat capacity @ 0 celsius
+FluidProperties.RefUnits.VaporTemp = 'C'; % at 1 atmosphere
+FluidProperties.RefUnits.VaporHeat = 'J/kg'; % at vapor temp
+FluidProperties.RefUnits.K = 'W/(mK)'; % thermal conductivity
+FluidProperties.RefUnits.Mu = 'kg/(ms)'; % dynamic viscosity
 
 
 % Water
-Fluids.Water.Density = 1000;
-Fluids.Water.SpecificHeat = 4184;
-Fluids.Water.VaporTemp = 100;
-Fluids.Water.VaporHeat = 2.2564e6;
-Fluids.Water.K = 0.6; % Varies based on temperature
-Fluids.Water.Mu = 0.0010005; % Dynamic viscosity
+FluidProperties.Water.Density = 1000;
+FluidProperties.Water.SpecificHeat = 4184;
+FluidProperties.Water.VaporTemp = 100;
+FluidProperties.Water.VaporHeat = 2.2564e6;
+FluidProperties.Water.K = 0.6; % Varies based on temperature
+FluidProperties.Water.Mu = 0.0010005; % Dynamic viscosity
 
 % Ethylene Glycol 30% by weight
-Fluids.EthyleneGlycol_30.Density = 1054;
-Fluids.EthyleneGlycol_30.SpecificHeat = 3764;
-Fluids.EthyleneGlycol_30.VaporTemp = 104;
-Fluids.EthyleneGlycol_30.VaporHeat = ...
+FluidProperties.EthyleneGlycol_30.Density = 1054;
+FluidProperties.EthyleneGlycol_30.SpecificHeat = 3764;
+FluidProperties.EthyleneGlycol_30.VaporTemp = 104;
+FluidProperties.EthyleneGlycol_30.VaporHeat = ...
     (8e5 * (0.3 / 62.07 ) + 2.2564e6 * (0.7 / 18.015)) / ((0.3 / 62.07 ) + (0.7 / 18.015)); % simple linear interpolation
-Fluids.EthyleneGlycol_30.K = ...
+FluidProperties.EthyleneGlycol_30.K = ...
     (0.258 * (0.3 / 62.07 ) + 0.6 * (0.7 / 18.015)) / ((0.3 / 62.07 ) + (0.7 / 18.015)); % simple linear interpolation
-Fluids.EthyleneGlycol_30.Mu = exp(0.3 * log(0.0010005 * 15.5) + 0.7 * log(0.0010005));
+FluidProperties.EthyleneGlycol_30.Mu = exp(0.3 * log(0.0010005 * 15.5) + 0.7 * log(0.0010005));
 
 % Ethylene Glycol 60% by weight
-Fluids.EthyleneGlycol_60.Density = 1108;
-Fluids.EthyleneGlycol_60.SpecificHeat = 3214;
-Fluids.EthyleneGlycol_60.VaporTemp = 111;
-Fluids.EthyleneGlycol_60.VaporHeat = ...
+FluidProperties.EthyleneGlycol_60.Density = 1108;
+FluidProperties.EthyleneGlycol_60.SpecificHeat = 3214;
+FluidProperties.EthyleneGlycol_60.VaporTemp = 111;
+FluidProperties.EthyleneGlycol_60.VaporHeat = ...
     (8e5 * (0.6 / 62.07 ) + 2.2564e6 * (0.7 / 18.015)) / ((0.4 / 62.07 ) + (0.7 / 18.015)); % simple linear interpolation
-Fluids.EthyleneGlycol_60.K = ...
+FluidProperties.EthyleneGlycol_60.K = ...
     (0.258 * (0.6 / 62.07 ) + 0.6 * (0.7 / 18.015)) / ((0.4 / 62.07 ) + (0.7 / 18.015)); % simple linear interpolation
-Fluids.EthyleneGlycol_60.Mu = exp(0.6 * log(0.0010005 * 15.5) + 0.4 * log(0.0010005));
+FluidProperties.EthyleneGlycol_60.Mu = exp(0.6 * log(0.0010005 * 15.5) + 0.4 * log(0.0010005));
 
 % Ethylene Glycol 100% by weight
-Fluids.EthyleneGlycol_100.Density = 1180; % Approx
-Fluids.EthyleneGlycol_100.SpecificHeat = 2281;
-Fluids.EthyleneGlycol_100.VaporTemp = 197;
-Fluids.EthyleneGlycol_100.VaporHeat = 8e5;
-Fluids.EthyleneGlycol_100.K = 0.258;  
-Fluids.EthyleneGlycol_100.Mu = 0.0010005 * 15.5; % at 40 celsius. 
+FluidProperties.EthyleneGlycol_100.Density = 1180; % Approx
+FluidProperties.EthyleneGlycol_100.SpecificHeat = 2281;
+FluidProperties.EthyleneGlycol_100.VaporTemp = 197;
+FluidProperties.EthyleneGlycol_100.VaporHeat = 8e5;
+FluidProperties.EthyleneGlycol_100.K = 0.258;  
+FluidProperties.EthyleneGlycol_100.Mu = 0.0010005 * 15.5; % at 40 celsius. 
 
 
 % Air
-Fluids.Air.Density = 1.225;
-Fluids.Air.SpecificHeat = 1005;
+FluidProperties.Air.Density = 1.225;
+FluidProperties.Air.SpecificHeat = 1005;
 
 
 %% Return Outputs
 
-save('+ThermalPkg/+MaterialsPkg/Material_DB.mat','Fluids','Metals')
+save('+ThermalPkg/+MaterialsPkg/Material_DB.mat','FluidProperties','MetalProperties')
 
 
 

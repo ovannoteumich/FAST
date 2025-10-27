@@ -1,21 +1,22 @@
-function [Arches] = ThermalFromProp(NoHeatGroups)
+function [Arches] = ThermalFromProp(PropArch)
 
+% Read in Transmitter and source types
+Trns = PropArch.TrnType;
+Srcs = PropArch.SrcType;
 
-% % need to move props so they dont coincide with sources
-% % shift by 2
-% PropTrnType = PropTrnType + 2;
-% 
-% % 0 is batt, 2 is motor, 5 is generator
-% HeatSrc = [PropSrcType(PropSrcType == 0); PropTrnType(PropTrnType == 2); PropTrnType(PropTrnType == 5)];
-% 
-% % Group by type
-% HeatGroups = unique(HeatSrc);
+% need to move props so they dont coincide with sources
+% shift by 2
+Trns = Trns + 2;
 
-% Add extra(s) for testing
-% HeatGroups(end+1) = 3;
-% HeatGroups(end+1) = 4;
-% HeatGroups(end+1) = 5;
-% HeatGroups(end+1) = 6;
+% Extract batteries
+SrcHeatSrcs = Srcs(Srcs == 0);
+
+% 0 is batt, 2 is motor, 5 is generator
+TrnHeatSrcs = [Trns(Trns == 2), Trns(Trns == 5)];
+
+% Concatenate Group motors and generators, but keep all batteries
+HeatGroupTypes = [SrcHeatSrcs,unique(TrnHeatSrcs)];
+NoHeatGroups = length(HeatGroupTypes);
 
 % Turn heatgroups into strings
 items = num2str(1:NoHeatGroups);
@@ -35,8 +36,10 @@ Archnames = fieldnames(Arches);
 
 % Label all the architectures with the component key
 for ii = 1:length(Archnames)
-    Arches.(Archnames{ii}) = ThermalPkg.LabelArch(Arches.(Archnames{ii}));
+    Arches.(Archnames{ii}) = ThermalPkg.LabelArch(Arches.(Archnames{ii}),HeatGroupTypes,PropArch);
+   
 end
+
 
 end
 
