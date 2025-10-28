@@ -49,9 +49,9 @@ ebatt = Aircraft.Specs.Power.SpecEnergy.Batt;
 
 % energy consumed during flight
 Ebatt = Aircraft.Mission.History.SI.Energy.E_ES(:, Batt); 
+Energy = sum(Ebatt);
 
-Energy = 2;
-if Energy==0
+if Energy == 0
         % return zero battery weight
     Aircraft.Specs.Weight.Batt = 0;
     
@@ -210,12 +210,6 @@ if (Aircraft.Settings.DetailedBatt == 1)
     % remember the new number of cells in parallel
     Npar = max(NparSOC, NparCrate);
     
-%     % compute the number of battery cells (from E-PASS, not used)
-%     Ncells = Npar * Nser;
-% 
-%     % compute the required capacity (from E-PASS, not used)
-%     Qreq = Npar * QMax;
-    
     % compute the mass of the battery (multiply by 3600 to convert from Wh to Joules)
     Wbatt = QMax * Npar * VNom * Nser * 3600 ./ ebatt;
     
@@ -236,7 +230,7 @@ if (Aircraft.Settings.DetailedBatt == 1)
     Aircraft.Specs.Power.Battery.ParCells = Npar;
 
     % remember the battery c-rates updated
-    % Aircraft.Mission.History.SI.Power.C_rate = Cbatt ./ (QMax * Npar);
+    Aircraft.Mission.History.SI.Power.C_rate = Cbatt ./ (QMax * Npar);
 
 
 end

@@ -13,6 +13,11 @@ Principal Authors:
 - Max Arnson, <marnson@umich.edu>
 
 Last Updated: 08 Sep 2025
+## Version 0.3.0 - 12 Dec 2025
+
+### Added
+
+### Changed
 
 ## Version 0.2.0 - 08 Sep 2025
 
