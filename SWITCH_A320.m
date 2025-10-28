@@ -5,7 +5,7 @@
 %% test one-switch on design mission
 
 Aircraft = AircraftSpecsPkg.A320neo;
-Aircraft.Specs.Propulsion.PropArch.Type = "C";
+Aircraft.Specs.Propulsion.PropArch.Type = "PHE";
 Aircraft.Specs.Propulsion.PropArch.TrnType = [];
 Aircraft.Settings.PowerStrat = -1;
 
@@ -79,7 +79,7 @@ Aircraft.Specs.Power.LamDwn.Lnd = 0;
 
 % settings
 Aircraft.Settings.PowerStrat = -1;
-Aircraft.Settings.PowerOpt = 0;
+Aircraft.Settings.PowerOpt = 1;
 % -1 = prioritize downstream, go from fan back to energy sources
 
 Aircraft = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);

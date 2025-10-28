@@ -175,7 +175,6 @@ for ipnt = 1:npnt
     
     % get the initial power available
     Pav(ipnt, :) = [zeros(1, nsrc), PowerAv(ipnt, :), zeros(1, nsnk)];
-    
         
     % propagate the power upstream
     PavTemp = PropulsionPkg.PowerFlow(Pav(ipnt, idx)', Arch(idx, idx), Lambda(idx, idx), EtaUps(idx, idx), +1)';
