@@ -410,6 +410,7 @@ if (any(Batt))
         StopBatt = find(Eleft_ES(:, icol) < 0, 1);
         
         % transfer power to the engines if the battery is empty (if not sizing)
+
         if (any(StopBatt) && (Aircraft.Settings.Analysis.Type < -1)) && Aircraft.Settings.PowerOpt == 0
             
             % stop the battery before it crosses 0 (maximum to avoid 0 index)

@@ -82,7 +82,7 @@ Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = LamDwn;
 Aircraft.Specs.Power.LamDwn.Miss(SegBeg:SegEnd, :) = LamDwn;
 
 
-if Aircraft.Settings.PowerOpt == 0
+if Aircraft.Settings.PowerOpt == 1
     Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :) = LamUps;
     Aircraft.Specs.Power.LamUps.Miss(SegBeg:SegEnd, :) = LamUps;
 end

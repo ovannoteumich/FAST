@@ -38,6 +38,7 @@ Aircraft.Specs.Power.LamDwn = rmfield(Aircraft.Specs.Power.LamDwn, 'Miss');
 %% test 2 
 
 Aircraft2 = AircraftOG;
+%Aircraft2 = DataStructPkg.InitMissionHistory(Aircraft2);
 Aircraft2.Specs.Performance.Range = UnitConversionPkg.ConvLength(800, "naut mi", "m");
 Aircraft2.Settings.Analysis.Type = -1;
 
@@ -76,6 +77,17 @@ Aircraft.Specs.Power.LamDwn.Clb = .1207;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;
+%{
+Npar = 200;
+Nser = 62;
+QMax = Aircraft.Specs.Battery.CapCell;
+ VNom = Aircraft.Specs.Battery.NomVolCell;
+ebatt = Aircraft.Specs.Power.SpecEnergy.Batt;
+ Wbatt = QMax * Npar * VNom * Nser * 3600 ./ ebatt;
+     Aircraft.Specs.Weight.Batt = Wbatt;
+%}
+    % remember the new cell arrangement
+    %Aircraft.Specs.Power.Battery.ParCells = Npar;
 
 % settings
 Aircraft.Settings.PowerStrat = -1;
@@ -87,7 +99,7 @@ Aircraft = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
 
 
 %%
-Aircraft.Settings.Analysis.Type = -2;
+Aircraft.Settings.Analysis.Type = -1;
 
 % turn off FAST print outs
 Aircraft.Settings.PrintOut = 0;

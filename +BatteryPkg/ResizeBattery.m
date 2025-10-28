@@ -50,7 +50,7 @@ Ebatt = Aircraft.Mission.History.SI.Energy.E_ES(:, Batt);
 % energy remaining during flight
 Ebatt_re = Aircraft.Mission.History.SI.Energy.Eleft_ES(:, Batt); 
 
-energy =2;
+energy = sum(Ebatt);
 if energy==0
         % return zero battery weight
     Aircraft.Specs.Weight.Batt = 0;
