@@ -17,7 +17,10 @@ function [W] = ElectricMachineWeight(P)
 % convert the rated power from W to kW
 P = P ./ 1000;
 
+% memory for the output
+W = zeros(size(P));
+
 % compute the weight
-W = 113.8 .* log10(P) -236.73;
+W(P > 0) = 113.8 .* log10(P(P > 0)) - 235.73;
 
 end
