@@ -2,7 +2,7 @@ function [Aircraft] = PropulsionSizing(Aircraft)
 %
 % [Aircraft] = PropulsionSizing(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 03 sep 2025
+% last updated: 29 oct 2025
 %
 % Split the total thrust/power throughout the powertrain and determine the
 % total power needed to size each component.
@@ -287,8 +287,8 @@ end
 Aircraft.Specs.Weight.Engines = sum(Weng);
 
 % compute the electric motor and generator weight
-Aircraft.Specs.Weight.EM = sum(Pdwn(EM)) / P_Wem;
-Aircraft.Specs.Weight.EG = sum(Pdwn(EG)) / P_Weg;
+Aircraft.Specs.Weight.EM = sum(OEWPkg.ElectricMachineWeight(Pdwn(EM)));%sum(Pdwn(EM)) / P_Wem;
+Aircraft.Specs.Weight.EG = sum(OEWPkg.ElectricMachineWeight(Pdwn(EG)));%sum(Pdwn(EG)) / P_Weg;
 
 % ----------------------------------------------------------
 
