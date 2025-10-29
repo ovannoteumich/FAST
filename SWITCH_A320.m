@@ -44,7 +44,7 @@ Aircraft2.Settings.Analysis.Type = -1;
 
 Aircraft2.Specs.Power.LamUps = rmfield(Aircraft2.Specs.Power.LamUps, 'Miss');
 Aircraft2.Specs.Power.LamDwn = rmfield(Aircraft2.Specs.Power.LamDwn, 'Miss');
-Aircraft2 = Main(Aircraft2, @MissionProfilesPkg.NarrowBodyMission);
+Aircraft2 = Main(Aircraft2, @MissionProfilesPkg.A320);
 
 %%
 
@@ -124,3 +124,13 @@ Aircraft.Specs.Power.LamUps.Miss(10:end, [3,4])=0;
 Aircraft.Specs.Power.LamUps.Miss(10:28, [3,4]) = [pc;pcc];
 Aircraft_Ups = Main(Aircraft, @MissionProfilesPkg.A320);
 %}
+
+%%
+figure;
+plot(Aircraft.Mission.History.SI.Performance.Time/60, Aircraft.Mission.History.SI.Power.LamUps(:,1))
+xlabel("Time (min)")
+ylabel("GT Throttle")
+hold on
+yyaxis right
+plot(Aircraft.Mission.History.SI.Performance.Time/60, Aircraft.Mission.History.SI.Power.Pout(:,end-1))
+ylabel("Power Out (W)")
