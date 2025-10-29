@@ -1,10 +1,10 @@
 function [ThermalSystem] = ThermalAnalysis(ThermalSystem)
 
 ReturnSettings = [
-ThermalSystem.TemperatureSettings.FuelPumpReturn
-ThermalSystem.TemperatureSettings.FuelPumpSink
-ThermalSystem.TemperatureSettings.AmbientPumpReturn
-ThermalSystem.TemperatureSettings.AmbientPumpSink
+    ThermalSystem.Settings.Coolant.FuelPumpReturn
+    ThermalSystem.Settings.Coolant.AmbientPumpReturn
+    ThermalSystem.Settings.Coolant.Fuel
+    ThermalSystem.Settings.Coolant.Ambient
     ];
 
 
@@ -13,45 +13,47 @@ ThermalSystem.TemperatureSettings.AmbientPumpSink
 CompSums = sum(ThermalSystem.Arch);
 NComps = length(CompSums);
 
+ThermalSystem.Analysis.ReqMDot = zeros(NComps,1);
+
 % Initialize components which are first in the loops by the temp of their
 % destination
 FirstInLoopInds = find(CompSums(1:NComps-4) == 0);
 
-TempsIn = -ones(NComps,1);
-TempsOut = -ones(NComps,1);
+ThermalSystem.Analysis.TempsIn = -ones(NComps,1);
+ThermalSystem.Analysis.TempsOut = -ones(NComps,1);
 
 % Set input temperatures of components which receive coolant from after
 % heat has been dumped
-for FirstLoopCompInd = FirstInLoopInds
+for FirstLoopCompInd = FirstInLoopInds(:)'
 
     % Call local function to do this for each source
     SnkInd = ThermalPkg.TraceUpstream(ThermalSystem.Arch,FirstLoopCompInd);
 
     % Adjust index because the Tempsettings dont include non sink comps
-    TempsIn(FirstLoopCompInd) = ReturnSettings(SnkInd - (NComps - 4));
+    ThermalSystem.Analysis.TempsIn(FirstLoopCompInd) = ReturnSettings(SnkInd - (NComps - 4));
 end
 
 
 % If there is an ambient sink, set temp out to the ambient temperature
 if any(ThermalSystem.Arch(:,end))
-    TempsOut(end) = ReturnSettings(4);
+    ThermalSystem.Analysis.TempsOut(end) = ThermalSystem.Settings.Coolant.Ambient;
 end
 
 % If there is a reservoir sink, set temp out to the reservoir temperature
 if any(ThermalSystem.Arch(:,end-1))
-    TempsOut(end-1) = ReturnSettings(3);
+    ThermalSystem.Analysis.TempsOut(end-1) = ThermalSystem.Settings.Coolant.Fuel;
 end
 
 % If there is an ambient pump, set pump output and ambient input
 if ThermalSystem.Arch(end-2,end)
-    TempsIn(end) = ThermalSystem.TemperatureSettings.AmbientPumpSink;
-    TempsOut(end-2) = ThermalSystem.TemperatureSettings.AmbientPumpSink;
+    ThermalSystem.Analysis.TempsIn(end) = ThermalSystem.Settings.Coolant.AmbientPumpSink;
+    ThermalSystem.Analysis.TempsOut(end-2) = ThermalSystem.Settings.Coolant.AmbientPumpSink;
 end
 
 % Set input to reservoir as the reservoir pump setting
 if ThermalSystem.Arch(end-3,end-1)
-    TempsIn(end-1) = ThermalSystem.TemperatureSettings.FuelPumpSink;
-    TempsOut(end-3) = ThermalSystem.TemperatureSettings.FuelPumpSink;
+    ThermalSystem.Analysis.TempsIn(end-1) = ThermalSystem.Settings.Coolant.FuelPumpSink;
+    ThermalSystem.Analysis.TempsOut(end-3) = ThermalSystem.Settings.Coolant.FuelPumpSink;
 end
 
 % Assign unknown temps
@@ -64,23 +66,20 @@ end
 
 
 % Assign Outputs
-ThermalOut.TempsIn = TempsIn;
-ThermalOut.TempsOut = TempsOut;
+
 
 % Create nice labeled cell
-ThermalOut.Labeled = cell(length(TempsIn)+1,3);
-ThermalOut.Labeled(1,1) = {"Component"};
-ThermalOut.Labeled(1,2) = {"Inlet Temp"};
-ThermalOut.Labeled(1,3) = {"Outlet Temp"};
-ThermalOut.Labeled(2:end,1) = ThermalSystem.CompNames;
+ThermalSystem.Analysis.Labeled = cell(length(ThermalSystem.Analysis.TempsIn)+1,3);
+ThermalSystem.Analysis.Labeled(1,1) = {"Component"};
+ThermalSystem.Analysis.Labeled(1,2) = {"Inlet Temp"};
+ThermalSystem.Analysis.Labeled(1,3) = {"Outlet Temp"};
+ThermalSystem.Analysis.Labeled(2:end,1) = ThermalSystem.CompNames;
 
-ThermalOut.Labeled(2:end,2) = num2cell(TempsIn(:));
-ThermalOut.Labeled(2:end,3) = num2cell(TempsOut(:));
+ThermalSystem.Analysis.Labeled(2:end,2) = num2cell(ThermalSystem.Analysis.TempsIn(:));
+ThermalSystem.Analysis.Labeled(2:end,3) = num2cell(ThermalSystem.Analysis.TempsOut(:));
 
-MissingInds = find(TempsIn == -1);
-ThermalOut.Labeled(MissingInds+1,2:3) = {"Nonexistent"};
-
-ThermalSystem.Analysis = ThermalOut;
+MissingInds = find(ThermalSystem.Analysis.TempsIn == -1);
+ThermalSystem.Analysis.Labeled(MissingInds+1,2:3) = {"Nonexistent"};
 
 
 
@@ -96,7 +95,7 @@ ThermalSystem.Analysis = ThermalOut;
 
         % if it doesnt send anywhere, return out of the function
         if isempty(ReceivingFrom)
-            TempsOut = ThermalPkg.HeatSourceSwitch(ThermalSystem,ind,TempsIn,TempsOut);
+            ThermalSystem = ThermalPkg.HeatSourceSwitch(ind,ThermalSystem);
             return
         end
 
@@ -108,11 +107,10 @@ ThermalSystem.Analysis = ThermalOut;
 
 
         % Mix coolant flows incoming to component
-        TempsIn(ind) = sum(TempsOut(ReceivingFrom))./length(ReceivingFrom);
+        ThermalSystem.Analysis.TempsIn(ind) = sum(ThermalSystem.Analysis.TempsOut(ReceivingFrom))./length(ReceivingFrom);
 
         % Update output temperature of current component
-        TempsOut = ThermalPkg.HeatSourceSwitch(ThermalSystem,ind,TempsIn,TempsOut);
-
+        ThermalSystem = ThermalPkg.HeatSourceSwitch(ind,ThermalSystem);
 
 
 

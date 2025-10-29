@@ -1,32 +1,38 @@
-function [TempsOut] = HeatSourceSwitch(ThermalSystem,ind,TempsIn,TempsOut)
+function [ThermalSystem] = HeatSourceSwitch(ind,ThermalSystem)
 
-NComp = length(TempsIn);
+% Get Number of Components
+NComp = length(ThermalSystem.CompNames);
 
-
-switch ind
-    case NComp % Ambient Sink
-        % Do nothing, output temperature already set
-    case NComp-1 % Reservoir Sink
-        % Do nothing, output temperature already set
-    case NComp-2 % Ambient Pump
-        DeltaT = 0;
-    case NComp-3 % Reservoir Pump
-        DeltaT = 0;
-    otherwise % Heat Source
+% Only sources add heat to the system
+if ind < NComp-3
 
         Comp = ThermalSystem.CompNames{ind};
 
+        % This is necessary as the labeling scheme might call them batt1 or
+        % 'motor group' or something, so we want to be explicit here
         if startsWith(Comp,"Batt",'IgnoreCase',true)
-
+            Component.Name = "Battery";
         elseif startsWith(Comp,"Mot",'IgnoreCase',true)
-
+            Component.Name = "Motor";
         elseif startsWith(Comp,"Gen",'IgnoreCase',true)
-            
+            Component.Name = "Generator";
         else
             error("Invalid Propulsion Component")
         end
 
-        TempsOut(ind) = TempsIn(ind) + 40;
+        % Set Component power, efficiency, and max temp based on thermal
+        % system inputs
+        Component.MaxPower = ThermalSystem.Propulsion.MaxPower(ind);
+        Component.Eta = ThermalSystem.Propulsion.Efficiency(ind);
+        Component.MaxTemp = ThermalSystem.Settings.MaxTemperature.(Component.Name);
+
+        % Update component temperature
+        [ThermalSystem] = ThermalPkg.ComponentsPkg.HeatSource(...
+            ind,...
+            ThermalSystem, ...
+            Component);
+
+
 end
 
 

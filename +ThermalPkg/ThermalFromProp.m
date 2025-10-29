@@ -16,10 +16,10 @@ TrnHeatSrcs = [Trns(Trns == 2), Trns(Trns == 5)];
 
 % Concatenate Group motors and generators, but keep all batteries
 HeatGroupTypes = [SrcHeatSrcs,unique(TrnHeatSrcs)];
-NoHeatGroups = length(HeatGroupTypes);
+NumHeatGroups = length(HeatGroupTypes);
 
 % Turn heatgroups into strings
-items = num2str(1:NoHeatGroups);
+items = num2str(1:NumHeatGroups);
 items = items(items~= ' ');
 items = num2cell(items);
 
@@ -27,7 +27,7 @@ items = num2cell(items);
 LoopsUnordered = ThermalPkg.Partitions(items);
 
 % Generate basic loop architectures (no heatsinks or pumps yet)
-SinklessArches = ThermalPkg.OrderComponents(LoopsUnordered,zeros(NoHeatGroups));
+SinklessArches = ThermalPkg.OrderComponents(LoopsUnordered,zeros(NumHeatGroups));
 
 % Attach sinks and pumps to the architectures
 Arches = ThermalPkg.AttachSinks(SinklessArches);
@@ -36,8 +36,12 @@ Archnames = fieldnames(Arches);
 
 % Label all the architectures with the component key
 for ii = 1:length(Archnames)
-    Arches.(Archnames{ii}) = ThermalPkg.LabelArch(Arches.(Archnames{ii}),HeatGroupTypes,PropArch);
-   
+    Arches.(Archnames{ii}) = ThermalPkg.LabelArch(Arches.(Archnames{ii}),...
+        HeatGroupTypes,PropArch);
+
+    % Assign Loop numbers for each component
+    Arches.(Archnames{ii}) = ThermalPkg.AssignLoopNumbers(Arches.(Archnames{ii}));
+
 end
 
 

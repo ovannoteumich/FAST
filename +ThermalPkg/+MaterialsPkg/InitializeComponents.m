@@ -25,14 +25,17 @@ MetalProperties.RefUnits.Density = 'kg/m3';
 MetalProperties.RefUnits.K = 'W/(mK)'; % heat transfer coeff @ 0 celsius
 
 % Aluminum
+MetalProperties.Aluminum.Name = "Aluminum";
 MetalProperties.Aluminum.Density = 2710;
 MetalProperties.Aluminum.K = 236; 
 
 % Copper
+MetalProperties.Copper.Name = "Copper";
 MetalProperties.Copper.Density = 8960;
 MetalProperties.Copper.K = 401; 
 
 % Steel 304
+MetalProperties.Steel_304.Name = "Steel_304";
 MetalProperties.Steel_304.Density = 7930;
 MetalProperties.Steel_304.K = 16.2;
 
@@ -48,6 +51,7 @@ FluidProperties.RefUnits.Mu = 'kg/(ms)'; % dynamic viscosity
 
 
 % Water
+FluidProperties.Water.Name = "Water";
 FluidProperties.Water.Density = 1000;
 FluidProperties.Water.SpecificHeat = 4184;
 FluidProperties.Water.VaporTemp = 100;
@@ -56,6 +60,7 @@ FluidProperties.Water.K = 0.6; % Varies based on temperature
 FluidProperties.Water.Mu = 0.0010005; % Dynamic viscosity
 
 % Ethylene Glycol 30% by weight
+FluidProperties.EthyleneGlycol_30.Name = "EthyleneGlycol_30";
 FluidProperties.EthyleneGlycol_30.Density = 1054;
 FluidProperties.EthyleneGlycol_30.SpecificHeat = 3764;
 FluidProperties.EthyleneGlycol_30.VaporTemp = 104;
@@ -66,6 +71,7 @@ FluidProperties.EthyleneGlycol_30.K = ...
 FluidProperties.EthyleneGlycol_30.Mu = exp(0.3 * log(0.0010005 * 15.5) + 0.7 * log(0.0010005));
 
 % Ethylene Glycol 60% by weight
+FluidProperties.EthyleneGlycol_60.Name = "EthyleneGlycol_60";
 FluidProperties.EthyleneGlycol_60.Density = 1108;
 FluidProperties.EthyleneGlycol_60.SpecificHeat = 3214;
 FluidProperties.EthyleneGlycol_60.VaporTemp = 111;
@@ -76,6 +82,7 @@ FluidProperties.EthyleneGlycol_60.K = ...
 FluidProperties.EthyleneGlycol_60.Mu = exp(0.6 * log(0.0010005 * 15.5) + 0.4 * log(0.0010005));
 
 % Ethylene Glycol 100% by weight
+FluidProperties.EthyleneGlycol_100.Name = "EthyleneGlycol_100";
 FluidProperties.EthyleneGlycol_100.Density = 1180; % Approx
 FluidProperties.EthyleneGlycol_100.SpecificHeat = 2281;
 FluidProperties.EthyleneGlycol_100.VaporTemp = 197;
@@ -85,6 +92,7 @@ FluidProperties.EthyleneGlycol_100.Mu = 0.0010005 * 15.5; % at 40 celsius.
 
 
 % Air
+FluidProperties.Air.Name = "Air";
 FluidProperties.Air.Density = 1.225;
 FluidProperties.Air.SpecificHeat = 1005;
 

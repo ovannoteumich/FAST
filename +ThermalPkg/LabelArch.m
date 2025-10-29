@@ -42,7 +42,7 @@ LabeledArch(2:end,2:end) = num2cell(Arch);
 ThermalSystem.Labeled = LabeledArch;
 ThermalSystem.CompNames = Key(:);
 ThermalSystem.Arch = Arch;
-ThermalSystem.PropArch = PropArch;
+ThermalSystem.Propulsion = PropArch;
 
 
 end
