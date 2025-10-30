@@ -1,4 +1,4 @@
-function [ThermalSystem] = AssignLoopNumbers(ThermalSystem)
+function [ThermalSystem] = AddLoopIndices(ThermalSystem)
 %ASSIGNLOOPNUMBERS Summary of this function goes here
 
 
@@ -18,7 +18,7 @@ end
 
 NumLoops = length(StartingComps);
 
-% If there is a fuel heat pump, add the loop and the ID for the pump
+% % If there is a fuel heat pump, add the loop and the ID for the pump
 if sum(Arch(:,end-3))
     NumLoops = NumLoops+1;
     LoopIDs(end-3,end-1) = LoopCounter;
@@ -64,14 +64,6 @@ ThermalSystem.Loops.Labeled = Labeled;
         SendingTo = find(Arch(ind,:) == 1);
         LoopIDs(ind,SendingTo) = LoopCounter;
 
-        %         if SendingTo == NComps-3 || SendingTo == NComps -2
-        %             LoopIDs(SendingTo,SendingTo+2) = LoopCounter+1;
-        %             LoopCounter = LoopCounter+1;
-        %             return
-        %         elseif SendingTo == NComps-1 || SendingTo == NComps
-        %             LoopCounter = LoopCounter +1;
-        %             return
-        %         end
         if SendingTo > NComps-4
             return
         end

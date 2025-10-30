@@ -27,7 +27,7 @@ ThermalSystem.Analysis.TempsOut = -ones(NComps,1);
 for FirstLoopCompInd = FirstInLoopInds(:)'
 
     % Call local function to do this for each source
-    SnkInd = ThermalPkg.TraceUpstream(ThermalSystem.Arch,FirstLoopCompInd);
+    SnkInd = ThermalPkg.ArchitecturePkg.TraceUpstream(ThermalSystem.Arch,FirstLoopCompInd);
 
     % Adjust index because the Tempsettings dont include non sink comps
     ThermalSystem.Analysis.TempsIn(FirstLoopCompInd) = ReturnSettings(SnkInd - (NComps - 4));
@@ -107,7 +107,22 @@ ThermalSystem.Analysis.Labeled(MissingInds+1,2:3) = {"Nonexistent"};
 
 
         % Mix coolant flows incoming to component
-        ThermalSystem.Analysis.TempsIn(ind) = sum(ThermalSystem.Analysis.TempsOut(ReceivingFrom))./length(ReceivingFrom);
+        IncomingLoopInds = ThermalSystem.Loops.LoopIDs(ReceivingFrom,ind);
+
+        % Get masses of incoming flows
+        Masses = ThermalSystem.Loops.MassFlow(IncomingLoopInds);
+        Masses = Masses(:);
+
+        % Get temperatures
+        Temps = ThermalSystem.Analysis.TempsOut(ReceivingFrom);
+        Temps = Temps(:);
+        
+        % Calculate total enthalpy (TODO: add in different cp values for
+        % different loops) this currently assumes same coolant in all loops
+        TotalEnthalpy = sum(Masses .* Temps);
+
+        % Assign Output
+        ThermalSystem.Analysis.TempsIn(ind) = TotalEnthalpy / sum(Masses);
 
         % Update output temperature of current component
         ThermalSystem = ThermalPkg.HeatSourceSwitch(ind,ThermalSystem);

@@ -1,16 +1,19 @@
 function [MDotSink] = PumpMassFlow(Component,ThermalSystem)
 
+NComps = length(ThermalSystem.CompNames);
 
 if Component == "FuelPump"
     ind = NComps -3;
     ReturnTemp = ThermalSystem.Settings.Coolant.FuelPumpReturn;
     SinkTemp = ThermalSystem.Settings.Coolant.FuelPumpSink;
+    ReservoirTemp = ThermalSystem.Settings.Coolant.Fuel;
 end
 
 if Component == "AmbPump"
     ind = NComps - 2;
     ReturnTemp = ThermalSystem.Settings.Coolant.AmbientPumpReturn;
     SinkTemp = ThermalSystem.Settings.Coolant.AmbientPumpSink;
+    ReservoirTemp = ThermalSystem.Settings.Coolant.Ambient;
 end
 
 
@@ -20,12 +23,19 @@ end
 Cp = ThermalSystem.WorkingFluid.SpecificHeat;
 
 DelTReturn = ThermalSystem.Analysis.TempsIn(ind) ...
-    - ThermalSystem.Settings.Coolant.FuelPumpReturn;
+    - ReturnTemp;
+
+ReturnInds = unique(ThermalSystem.Loops.LoopIDs(:,ind));
+ReturnInds = ReturnInds(ReturnInds ~= 0);
+
+MDotReturn = sum(ThermalSystem.Loops.MassFlow(ReturnInds));
 
 % To size the mass flow through a pumped coolant loop, the amount of heat
 % needing to be removed is calculated
-
 Q = MDotReturn * Cp * DelTReturn;
+
+
+DelTSink = SinkTemp-ReservoirTemp;
 
 
 MDotSink = Q / Cp / DelTSink;

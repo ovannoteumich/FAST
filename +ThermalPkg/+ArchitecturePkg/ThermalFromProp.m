@@ -24,23 +24,23 @@ items = items(items~= ' ');
 items = num2cell(items);
 
 % Find all combos of the loops
-LoopsUnordered = ThermalPkg.Partitions(items);
+LoopsUnordered = ThermalPkg.ArchitecturePkg.Partitions(items);
 
 % Generate basic loop architectures (no heatsinks or pumps yet)
-SinklessArches = ThermalPkg.OrderComponents(LoopsUnordered,zeros(NumHeatGroups));
+SinklessArches = ThermalPkg.ArchitecturePkg.OrderComponents(LoopsUnordered,zeros(NumHeatGroups));
 
 % Attach sinks and pumps to the architectures
-Arches = ThermalPkg.AttachSinks(SinklessArches);
+Arches = ThermalPkg.ArchitecturePkg.AttachSinks(SinklessArches);
 
 Archnames = fieldnames(Arches);
 
 % Label all the architectures with the component key
 for ii = 1:length(Archnames)
-    Arches.(Archnames{ii}) = ThermalPkg.LabelArch(Arches.(Archnames{ii}),...
+    Arches.(Archnames{ii}) = ThermalPkg.ArchitecturePkg.LabelArch(Arches.(Archnames{ii}),...
         HeatGroupTypes,PropArch);
 
     % Assign Loop numbers for each component
-    Arches.(Archnames{ii}) = ThermalPkg.AssignLoopNumbers(Arches.(Archnames{ii}));
+    Arches.(Archnames{ii}) = ThermalPkg.ArchitecturePkg.AddLoopIndices(Arches.(Archnames{ii}));
 
 end
 

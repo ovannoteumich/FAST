@@ -3,7 +3,7 @@ function [ThermalSystem] = HeatSource(ind,ThermalSystem,Component)
 % Read in Input temperature
 InputTemp = ThermalSystem.Analysis.TempsIn(ind);
 
- 
+ Cp = ThermalSystem.WorkingFluid.SpecificHeat;
 
 % Find mass flow rate through this component
 LoopCol = ThermalSystem.Loops.LoopIDs(ind,:) ~= 0;

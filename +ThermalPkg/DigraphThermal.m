@@ -24,7 +24,7 @@ FirstInLoopInds = find(CompSums(1:NComps-4) == 0);
 
 % Loop through and add those down connections
 for ii = FirstInLoopInds(:)'
-    SnkInd = ThermalPkg.TraceUpstream(Up,ii);
+    SnkInd = ThermalPkg.ArchitecturePkg.TraceUpstream(Up,ii);
     Down(SnkInd,ii) = 1;
 end
 
