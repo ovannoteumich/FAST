@@ -49,19 +49,19 @@ Aircraft.Specs.Performance.ConstraintLabs = ["25.119"; "25.121a"; "25.121b"; "25
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % altitudes
-Aircraft.Specs.Performance.Alts.Crs = 7600;
-Aircraft.Specs.Performance.Alts.Srv = 8000;
-Aircraft.Specs.Performance.Alts.Div = 4000;
+Aircraft.Specs.Performance.Alts.Crs = 7600; % [2024, 2025 says anywhere between 6400 and 9100 m]
+Aircraft.Specs.Performance.Alts.Srv = 8000; % still approximated
+Aircraft.Specs.Performance.Alts.Div = 4000; % [2024]
 
-% stall speed
+% stall speed [2024]
 Aircraft.Specs.Performance.Vels.Stl = sqrt(2 * 509.6840 * 9.81 / 2.5 / 1.225);
 Aircraft.Specs.Performance.Vels.App = UnitConversionPkg.ConvVel(145, "kts", "m/s");
 
-% cruise mach number
+% cruise mach number [2024]
 Aircraft.Specs.Performance.Vels.Crs = 0.6;
 Aircraft.Specs.Performance.Vels.Div = 0.4;
 
-% runway lengths and obstacle clearances
+% runway lengths and obstacle clearances [2024]
 Aircraft.Specs.Performance.TOFL    = 2000;
 Aircraft.Specs.Performance.LFL     = 2000;
 Aircraft.Specs.Performance.ObstLen = UnitConversionPkg.ConvLength(1000, "ft", "m");
