@@ -99,7 +99,7 @@ Aircraft.Specs.Aero.AR = 12;
 % lift coefficients
 Aircraft.Specs.Aero.CL.Crs = 1.0;
 Aircraft.Specs.Aero.CL.Tko = 2.5;
-Aircraft.Specs.Aero.CL.Lnd = 2.5;%3.1;
+Aircraft.Specs.Aero.CL.Lnd = 2.5; % (optionally 3.1, but seems unrealistic)
 
 % parasite drag coefficients
 Aircraft.Specs.Aero.CD0.Tko = 0.0618;
@@ -132,9 +132,9 @@ Aircraft.Specs.Weight.MTOW = 76000;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % power-weight ratio (kW/kg)
-Aircraft.Specs.Power.P_W.SLS = 0.1568;
+Aircraft.Specs.Power.P_W.SLS = 1/(0.0666*1000/9.81); % approx. 0.1473;
 
-% number of engines
+% number of engines [2024 paper, actually 8, but uses 4-engine climb gradients]
 Aircraft.Specs.Propulsion.NumEngines = 4;
 
 
@@ -149,11 +149,11 @@ ConstraintDiagramPkg.ConstraintDiagram(Aircraft);
 
 % add the existing sizing point
 hold on
-scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 48, "o", "MarkerEdgeColor", "red", "MarkerFaceColor", "red");
-% p1 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 48, "o", "MarkerEdgeColor", "red", "MarkerFaceColor", "red");
-% p2 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 0.072, 48, "o", "MarkerEdgeColor", "blue", "MarkerFaceColor", "blue");
-% xlim([0.03, 8])
-% L = legend([p1, p2], "Literature", "Novel Regulations", "Location", "northeast");
-% L.Color = [1; 1; 1];
-% axis square
+% scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 48, "o", "MarkerEdgeColor", "red", "MarkerFaceColor", "red");
+p1 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 48, "o", "MarkerEdgeColor", "red", "MarkerFaceColor", "red");
+p2 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 0.072, 48, "o", "MarkerEdgeColor", "blue", "MarkerFaceColor", "blue");
+xlim([0.03, 8])
+L = legend([p1, p2], "Literature", "Novel Regulations", "Location", "northeast");
+L.Color = [1; 1; 1];
+axis square
 end
