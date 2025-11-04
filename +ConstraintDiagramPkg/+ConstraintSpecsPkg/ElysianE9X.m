@@ -2,7 +2,7 @@ function [] = ElysianE9X()
 %
 % [] = ElysianE9X()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 03 nov 2025
+% last updated: 04 nov 2025
 %
 % create a constraint diagram for a battery electric aircraft
 % representative of the elysian E9.
@@ -35,10 +35,10 @@ Aircraft.Specs.TLAR.Class = "Turboprop";
 Aircraft.Specs.TLAR.CFRPart = 25;
 
 % regulations for certification
-Aircraft.Specs.Performance.ConstraintFuns = ["Jet25_119"; "Jet25_121a"; "Jet25_121b"; "Jet25_121c"; "Jet25_121d"; "JetApp"; "JetCrs"; "JetDiv"; "JetLFL"; "JetTOFL"; "JetAEOClimb"];
+Aircraft.Specs.Performance.ConstraintFuns = ["Jet25_119"; "Jet25_121a"; "Jet25_121b"; "Jet25_121c"; "Jet25_121d"; "JetApp"; "JetCrs"; "JetDiv"; "JetLFL"; "JetTOFL"];% "JetAEOClimb"];
 
 % labels for regulations
-Aircraft.Specs.Performance.ConstraintLabs = ["25.119"; "25.121a"; "25.121b"; "25.121c"; "25.121d"; "Approach"; "Cruise"; "Diversion"; "Landing"; "TOFL"; "AEO Climb"];
+Aircraft.Specs.Performance.ConstraintLabs = ["25.119"; "25.121a"; "25.121b"; "25.121c"; "25.121d"; "Approach"; "Cruise"; "Diversion"; "Landing"; "TOFL"];% "AEO Climb"];
 
 % ----------------------------------------------------------
 
@@ -149,11 +149,6 @@ ConstraintDiagramPkg.ConstraintDiagram(Aircraft);
 
 % add the existing sizing point
 hold on
-scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 48, "o", "MarkerEdgeColor", [0, 0.251, 0.478], "MarkerFaceColor", [0, 0.251, 0.478]);
-% p1 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 48, "o", "MarkerEdgeColor", "red", "MarkerFaceColor", "red");
-% p2 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 0.072, 48, "o", "MarkerEdgeColor", "blue", "MarkerFaceColor", "blue");
-% L = legend([p1, p2], "Literature", "Novel Regulations", "Location", "northeast");
-% L.Color = [1; 1; 1];
 xlim([0.03, 8])
 axis square
 grid on
@@ -162,4 +157,13 @@ A.GridAlpha = 0.5;
 A.Layer = "top";
 A.XMinorGrid = "on";
 A.YMinorGrid = "on";
+MyColor1 = [0.000, 0.086, 0.165];
+p1 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 48, "o", "MarkerEdgeColor", MyColor1, "MarkerFaceColor", MyColor1);
+L = legend(p1, "Baseline E9X", "Location", "northeast");
+% MyColor2 = [0.930, 0.490, 0.192];
+% p1 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 48, "o", "MarkerEdgeColor", MyColor1, "MarkerFaceColor", MyColor1);
+% p2 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 0.018, 48, "s", "MarkerEdgeColor", MyColor2, "MarkerFaceColor", MyColor2);
+% L = legend([p1, p2], "Baseline E9X", "Novel Req's.", "Location", "northeast");
+L.Color = [1; 1; 1];
+
 end
