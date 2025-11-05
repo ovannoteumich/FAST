@@ -2,7 +2,7 @@ function [Aircraft] = PropulsionSizing(Aircraft)
 %
 % [Aircraft] = PropulsionSizing(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 29 oct 2025
+% last updated: 05 nov 2025
 %
 % Split the total thrust/power throughout the powertrain and determine the
 % total power needed to size each component.
@@ -254,19 +254,44 @@ else
 
 end
 
-% check if the cable weight must be computed
-if (any(Cab))
+% check if cable weight information is available
+if (isfield(Aircraft.Specs.Propulsion.PropArch, "CableConns"  ) && ...
+    isfield(Aircraft.Specs.Propulsion.PropArch, "CableLengths") )
     
     % get the cable lengths and connections
     CabCon = Aircraft.Specs.Propulsion.PropArch.CableConns  ;
     CabLen = Aircraft.Specs.Propulsion.PropArch.CableLengths;
     
-    % get the number of connections from the cables
-    [ndwn, ~] = size(CabCon);
+    % check if cables are explicitly provided
+    if (any(Cab))
+
+        % get the number of connections from the cables
+        [ndwn, ~] = size(CabCon);
+        
+        % get the required power for the cables
+        Pcab = repmat(Pdwn(Cab)', ndwn, 1);
+        
+    else
     
-    % get the required power for the cables
-    Pcab = repmat(Pdwn(Cab)', ndwn, 1);
-    
+        % get the electric motor power
+        Pem = Pdwn(EM);
+        
+        % get the transmitter architecture and operational matrices
+        TrnArch = Arch(  idx, idx);
+        TrnLam  = Splits(idx, idx);
+        
+        % capture the electric generator-motor connections
+        ArchEG2EM = TrnArch(EG, EM);
+        LamEM2EG  = TrnLam( EM, EG);
+        
+        % get the cable efficiencies
+        CabEta = Aircraft.Specs.Propulsion.PropArch.CableEta;
+        
+        % compute the cable power
+        Pcab = Pem' .* (ArchEG2EM .* LamEM2EG' ./ CabEta);
+        
+    end
+   
     % get the cable weight-power ratio
     W_Pcab = Aircraft.Specs.Power.P_W.Cables;
     
