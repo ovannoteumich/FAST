@@ -31,13 +31,14 @@ Aircraft2.Specs.Power.LamDwn = rmfield(Aircraft2.Specs.Power.LamDwn, 'Miss');
 Aircraft2 = Main(Aircraft2, @MissionProfilesPkg.NarrowBodyMission);
 
 %%
-n = 30;
+n = 50;
 n1 = 1;
-lams_tko = 0;
-%lams_tko = linspace(0,1,n1);
-lams_clb = linspace(0,.4,n);
+lams_tko=0;
+%lams_tko = linspace(0,.5,n1);
+lams_clb = linspace(0,.25,n);
 fburn = zeros(n,n1);
 batt = zeros(n,n1);
+SOC = zeros(n,n1);
 pass = zeros(n*n1,1);
 i=0;
 
@@ -113,6 +114,7 @@ for itko = 1:n1
         
         fburn(iclb,itko) = Aircraft.Specs.Weight.Fuel;
         batt(iclb,itko) = Aircraft.Specs.Weight.Batt;
+        SOC(iclb, itko) = Aircraft.Mission.History.SI.Power.SOC(end,2);
     end
 end
 
@@ -328,18 +330,39 @@ grid on
 
 % ----------------------------------------------------------
 figure;
-plot(lams_clb, batt)
+plot(lams_clb, fburn)
+xlabel("Climb Power Split %")
+ylabel("Fuel Burn(kg)")
 hold on
 yyaxis right
-plot(lams_clb, fburn)
+plot(lams_clb, batt)
+ylabel("Battery Weight (kg)")
 %}
 [X,Y]= meshgrid(lams_tko, lams_clb);
-figure;
+figure(1);
 hold on;
 contourf(X, Y, fburn); % Points inside with color
 xlabel('Tko EM Power Code (%)');
 ylabel('Clb Power Split (%)');
+title('HEA Fuel Weight (kg) Colormap');
+grid on;
+hold off;
+
+figure(2);
+hold on;
+contourf(X, Y, batt); % Points inside with color
+xlabel('Tko EM Power Code (%)');
+ylabel('Clb Power Split (%)');
 title('HEA Battery Weight (kg) Colormap');
+grid on;
+hold off;
+
+figure(3);
+hold on;
+contourf(X, Y, SOC); % Points inside with color
+xlabel('Tko EM Power Code (%)');
+ylabel('Clb Power Split (%)');
+title('Final SOC Val (%) Colormap');
 grid on;
 hold off;
 

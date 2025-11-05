@@ -82,6 +82,10 @@ for isegs = 1:nsegs
         
         % only two points in landing
         SegPts(isegs) = 2;
+    elseif  (strcmpi(SegName, "EWheelTaxi"  ) == 1)
+        
+        % only two points in landing
+        SegPts(isegs) = 2;
         
     else
     

@@ -44,7 +44,7 @@ Aircraft2.Settings.Analysis.Type = -1;
 
 Aircraft2.Specs.Power.LamUps = rmfield(Aircraft2.Specs.Power.LamUps, 'Miss');
 Aircraft2.Specs.Power.LamDwn = rmfield(Aircraft2.Specs.Power.LamDwn, 'Miss');
-Aircraft2 = Main(Aircraft2, @MissionProfilesPkg.A320);
+Aircraft2 = Main(Aircraft2, @MissionProfilesPkg.NarrowBodyMission);
 
 %%
 
@@ -63,7 +63,7 @@ Aircraft.Specs.Propulsion.SLSThrust(:,[3,4]) = Aircraft.Specs.Propulsion.SLSPowe
 Aircraft.Specs.Power.LamUps = [];
 Aircraft.Specs.Power.LamDwn = [];
 % upstream power splits
-Aircraft.Specs.Power.LamUps.SLS = 1;
+Aircraft.Specs.Power.LamUps.SLS = 0;
 Aircraft.Specs.Power.LamUps.Tko = 0;
 Aircraft.Specs.Power.LamUps.Clb = 1;
 Aircraft.Specs.Power.LamUps.Crs = 0;
@@ -71,9 +71,9 @@ Aircraft.Specs.Power.LamUps.Des = 0;
 Aircraft.Specs.Power.LamUps.Lnd = 0;
 
 % downstream power splits
-Aircraft.Specs.Power.LamDwn.SLS = .1207;
+Aircraft.Specs.Power.LamDwn.SLS = 0.091836734693878;
 Aircraft.Specs.Power.LamDwn.Tko = 0;
-Aircraft.Specs.Power.LamDwn.Clb = .1207;
+Aircraft.Specs.Power.LamDwn.Clb = 0.091836734693878;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;
@@ -91,7 +91,7 @@ ebatt = Aircraft.Specs.Power.SpecEnergy.Batt;
 
 % settings
 Aircraft.Settings.PowerStrat = -1;
-Aircraft.Settings.PowerOpt = 1;
+Aircraft.Settings.PowerOpt = 0;
 % -1 = prioritize downstream, go from fan back to energy sources
 
 Aircraft = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
@@ -99,7 +99,7 @@ Aircraft = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
 
 
 %%
-Aircraft.Settings.Analysis.Type = -1;
+Aircraft.Settings.Analysis.Type = -2;
 
 % turn off FAST print outs
 Aircraft.Settings.PrintOut = 0;

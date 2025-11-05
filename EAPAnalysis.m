@@ -414,7 +414,8 @@ end
 
 %% choose the optimal aircraft from last three iteration within but closest to Crate_max = 5% %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%'
- if Type > -2
+ 
+if Type > -2 && iter > 7
      if Aircraft.Specs.Weight.Batt < 5
          % if conventional aircraft, do nothing
      else

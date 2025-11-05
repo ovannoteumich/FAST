@@ -1,11 +1,12 @@
-%function [Aircraft] = EGTDecay(Aircraft)
+function [Aircraft] = EGTDecay(Aircraft)
 
 % function that determines EGT decay coefficient values based on hotsection
 % derating
 
-n = 200;
+cmax = 40000;
+n = ;
 
-fec = linspace(0,30000, n);
+fec = linspace(0,cmax, n);
 
 
 a = 0.08;

@@ -31,11 +31,13 @@ function [Aircraft] = EvalEWheelTaxi(Aircraft)
 % weight: get the maximum takeoff weight
 MTOW = Aircraft.Specs.Weight.MTOW; 
 
-% wing loading: get the wing loading
-W_S = Aircraft.Specs.Aero.W_S.SLS;
-
-% area: get the wing area
-S = MTOW / W_S;
+% get landging gear electric motor weight
+if isfield(Aircraft.Specs.Weight, "LandEM")
+    W_LandEM = Aircraft.Specs.Weight.LandEM;
+else
+    W_LandEM = 0;
+    Aircraft.Specs.Weight.LandEM = 0;
+end
 
 % ----------------------------------------------------------
 
@@ -100,27 +102,11 @@ TAS = V_taxi;
 % time 
 Time = taxiT;
 
-% ----------------------------------------------------------
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                            %
-% setup the airspeed profile %
-%                            %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% convert the takeoff velocity to TAS, and find the density at takeoff
-[~, V_taxi, ~, ~, ~, Rho, ~] = MissionSegsPkg.ComputeFltCon( ...
-                              AltEnd, dISA, vtype, V_taxi);
-
-Aircraft.Mission.History.SI.Performance.Rho(SegEnd) = Rho;
-
 Aircraft.Mission.History.SI.Performance.TAS(SegEnd) = TAS;
 
 % ----------------------------------------------------------------
 %% Eval Taxi %%
 %%%%%%%%%%%%%%%%%
-
-Aircraft = PropulsionPkg.PowerAvailable(Aircraft);
 
 % lift and frag at taxi speeds is assumed negligable
 
@@ -142,7 +128,26 @@ Aircraft.Mission.History.SI.Weight.CurWeight(SegEnd) = MTOW;
 Aircraft.Mission.History.SI.Performance.Time(SegEnd) = Time + Aircraft.Mission.History.SI.Performance.Time(SegBeg);
 
 % perform the propulsion analysis
-Aircraft = PropulsionPkg.PropAnalysis(Aircraft);
+%Aircraft = PropulsionPkg.PropAnalysis(Aircraft);
+SOC   = Aircraft.Mission.History.SI.Power.SOC(SegBeg:SegEnd,2);
+
+% battery: get battery cell arrangement
+SerCells = Aircraft.Specs.Power.Battery.SerCells;
+ParCells = Aircraft.Specs.Power.Battery.ParCells;
+    % power available from the battery
+[V, I, Pbatt,  Q, SOC,C_rate] = BatteryPkg.Discharging(Aircraft, Preq, Time, SOC(1), ParCells, SerCells);
+        
+
+% get the energy from the battery
+E_ES = Preq .* Time;
+
+wEM = Preq ./ 1000 /10
+if Aircraft.Settings.Analysis.Type > -2
+    % add them to the payload
+    Aircraft.Specs.Weight.Payload = Aircraft.Specs.Weight.Payload - W_LandEM + wEM;
+    Aircraft.Specs.Weight.LandEM = wEM;
+end
+
 
 %% FILL THE STRUCTURE %%
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -150,6 +155,11 @@ Aircraft = PropulsionPkg.PropAnalysis(Aircraft);
 % performance metrics
 Aircraft.Mission.History.SI.Performance.Dist(SegEnd) = Dist + Aircraft.Mission.History.SI.Performance.Dist(SegBeg);
 Aircraft.Mission.History.SI.Performance.EAS( SegEnd) = TAS  ; % at takeoff this is the same
+
+% energy from battery and remaining
+Aircraft.Mission.History.SI.Energy.E_ES(SegEnd, 2)= Aircraft.Mission.History.SI.Energy.E_ES(SegBeg, 2) + E_ES;
+Aircraft.Mission.History.SI.Energy.Eleft_ES(SegEnd, 2)= Aircraft.Mission.History.SI.Energy.Eleft_ES(SegBeg, 2) - E_ES;
+Aircraft.Specs.Mission.History.SI.Power.SOC(SegBeg:SegEnd,2) = SOC;
 
 % current segment
 Aircraft.Mission.History.Segment(SegBeg:SegEnd) = "Taxi";
