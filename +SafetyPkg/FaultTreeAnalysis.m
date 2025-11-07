@@ -1,12 +1,13 @@
-function [FRate, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
+function [PFail, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 %
-% [FRate, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
+% [PFail, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 16 oct 2025
+% last updated: 07 nov 2025
 %
 % Given an adjacency-like matrix, find the minimum cut sets that account
 % for internal failures and redundant primary events. then, using the
-% minimum cut sets, compute the system-level failure rate.
+% minimum cut sets, compute the system-level failure probability per
+% flight.
 %
 % INPUTS:
 %     Arch       - the architecture matrix representing the system
@@ -17,7 +18,7 @@ function [FRate, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 %                  system architecture and the following information about
 %                  it:
 %                      a) the component name, as a cell array of characters
-%                      b) a column vector of failure rates
+%                      b) a column vector of failure probabilities
 %                      c) a column vector of failure modes corresponding to
 %                         the failure rates, as a cell array of characters
 %                  size/type/units: 1-by-1 / struct / []
@@ -29,7 +30,7 @@ function [FRate, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 %                  size/type/units: 1-by-1 / integer / []
 %
 % OUTPUTS:
-%     FRate      - the system-level failure rate.
+%     PFail      - the system-level failure probability (per flight hour).
 %                  size/type/units: 1-by-1 / double / []
 %
 %     FailModes  - cell array of the different ways that the system
@@ -52,7 +53,7 @@ function [FRate, FailModes] = FaultTreeAnalysis(Arch, Components, RemoveSrc)
 if (nargin < 1)
 
     % throw an error
-    error('ERROR - CreateFaultTree: the architecture matrix was not provided.');
+    error('ERROR - FaultTreeAnalysis: the architecture matrix was not provided.');
 
 end
 
@@ -63,7 +64,7 @@ end
 if (nrow ~= ncol)
 
     % throw an error
-    error('ERROR - CreateFaultTree: architecture matrix must be square.');
+    error('ERROR - FaultTreeAnalysis: architecture matrix must be square.');
 
 end
 
@@ -79,7 +80,7 @@ end
 if (nargin < 2)
 
     % throw an error
-    error('ERROR - CreateFaultTree: component list was not provided.');
+    error('ERROR - FaultTreeAnalysis: component list was not provided.');
 
 end
 
@@ -90,7 +91,7 @@ end
 if (ncomp ~= nrow)
 
     % throw an error
-    error('ERROR - CreateFaultTree: number of compononents must match dimension of architecture matrix.');
+    error('ERROR - FaultTreeAnalysis: number of compononents must match dimension of architecture matrix.');
 
 end
 
@@ -209,7 +210,7 @@ end
 FRateIndiv = prod(FailRates, 2);
 
 % add all failure rates together for the system-level failure rate
-FRate = sum(FRateIndiv);
+PFail = sum(FRateIndiv);
 
 % ----------------------------------------------------------
 
