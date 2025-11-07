@@ -35,10 +35,10 @@ Aircraft.Specs.TLAR.Class = "Turboprop";
 Aircraft.Specs.TLAR.CFRPart = 25;
 
 % regulations for certification
-Aircraft.Specs.Performance.ConstraintFuns = ["Jet25_119"; "Jet25_121a"; "Jet25_121b"; "Jet25_121c"; "Jet25_121d"; "JetApp"; "JetCrs"; "JetDiv"; "JetLFL"; "JetTOFL"; "JetAEOClimb"];
+Aircraft.Specs.Performance.ConstraintFuns = ["Jet25_119"; "Jet25_121a"; "Jet25_121b"; "Jet25_121c"; "Jet25_121d"; "JetApp"; "JetCrs"; "JetDiv"; "JetLFL"; "JetTOFL"];% "JetAEOClimb"];
 
 % labels for regulations
-Aircraft.Specs.Performance.ConstraintLabs = ["25.119"; "25.121a"; "25.121b"; "25.121c"; "25.121d"; "Approach"; "Cruise"; "Diversion"; "Landing"; "TOFL"; "AEO Climb"];
+Aircraft.Specs.Performance.ConstraintLabs = ["25.119"; "25.121a"; "25.121b"; "25.121c"; "25.121d"; "Approach"; "Cruise"; "Diversion"; "Landing"; "TOFL"];% "AEO Climb"];
 
 % ----------------------------------------------------------
 
