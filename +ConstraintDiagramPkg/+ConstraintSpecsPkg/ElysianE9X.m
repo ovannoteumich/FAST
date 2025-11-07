@@ -2,7 +2,7 @@ function [] = ElysianE9X()
 %
 % [] = ElysianE9X()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 03 nov 2025
+% last updated: 07 nov 2025
 %
 % create a constraint diagram for a battery electric aircraft
 % representative of the elysian E9.
@@ -150,16 +150,5 @@ ConstraintDiagramPkg.ConstraintDiagram(Aircraft);
 % add the existing sizing point
 hold on
 scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 48, "o", "MarkerEdgeColor", [0, 0.251, 0.478], "MarkerFaceColor", [0, 0.251, 0.478]);
-% p1 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 48, "o", "MarkerEdgeColor", "red", "MarkerFaceColor", "red");
-% p2 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 0.072, 48, "o", "MarkerEdgeColor", "blue", "MarkerFaceColor", "blue");
-% L = legend([p1, p2], "Literature", "Novel Regulations", "Location", "northeast");
-% L.Color = [1; 1; 1];
-xlim([0.03, 8])
-axis square
-grid on
-A = gca;
-A.GridAlpha = 0.5;
-A.Layer = "top";
-A.XMinorGrid = "on";
-A.YMinorGrid = "on";
+
 end
