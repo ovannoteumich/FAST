@@ -26,7 +26,7 @@ function [] = README()
 %     Michael Tsai
 %     Vaibhav Rau
 % 
-% README last updated: 09 Oct 2025
+% README last updated: 07 Nov 2025
 % 
 % -------------------------------------------------------------------------
 %
@@ -39,7 +39,7 @@ function [] = README()
 % To utilize any of these examples, load the data from the .mat file into
 % your workspace. Then, call the FTA analysis:
 %
-%     [FRate, FailModes] = SafetyPkg.FaultTreeAnalysis(Arch, Components);
+%     [Pfail, FailModes] = SafetyPkg.FaultTreeAnalysis(Arch, Components);
 %
 % To understand how the architecture matrix was constructed and what the
 % different values mean, refer to the README in the SafetyPkg.

@@ -48,8 +48,8 @@ function [] = README()
 %
 % The FTA requires two key inputs: 1) an architecture matrix, describing
 % the connections between components; and 2) a data structure describing
-% the components in the system architecture, their failure rates, and their
-% failure modes.
+% the components in the system architecture, their failure probabilities, 
+% and their failure modes.
 %
 % -------------------------------------------------------------------------
 %
@@ -112,15 +112,16 @@ function [] = README()
 % the number of components in the system architecture. Three fields are
 % necessary:
 %
-%     1) Name     - the name of the components, as a string array.
+%     1) Name     - the name of the components, as a cell array of
+%                   characters.
 %
-%     2) FailMode - the failure mode for the component, as a string array.
-%                   If there is no failure mode for a given component,
-%                   input an empty string ("").
+%     2) FailMode - the failure mode for the component, as a cell array of
+%                   characters. If there is no failure mode for a given
+%                   component, input an empty character ('').
 %
-%     3) FailRate - the failure rate for an internal failure, as a double
-%                   array. If there is no failure mode for a given
-%                   component, input 0.
+%     3) FailRate - the failure probability per flight for an internal
+%                   failure, as a doublearray. If there is no failure mode
+%                   for a given component, input 0.
 %
 % -------------------------------------------------------------------------
 %
@@ -134,12 +135,8 @@ function [] = README()
 % function for this capability.
 %
 % Additionally, for components with time-varying failure rates, the
-% "FailureModel.m" function allows a user to input a failure rate and
-% exposure time to determine the probability that the component fails. If
-% this function is used, then the FTA input may contain the probability of
-% a component failure rather than the components' failure rate -- in this
-% case, the probability of a system-level failure is returned instead of
-% the system-level failure rate.
+% "FailureModel.m" function allows a user to input a failure probability
+% and exposure time to determine the probability that the component fails.
 %
 % The "FailureModel.m" function assumes that the component has a constant
 % failure rate and that the reliability of the component is represented by
