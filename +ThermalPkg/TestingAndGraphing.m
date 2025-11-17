@@ -10,7 +10,7 @@ PropArch.TrnType = [0 0 2 2 3];
 [ArchCells] = ThermalPkg.ArchitecturePkg.ThermalFromProp(PropArch);
 
 % Test a chosen architecture
-testno = 22;
+testno = 15;
 ThermalSystem = ArchCells.("Arch_" + testno);
 
 % Visualize our current architecture
