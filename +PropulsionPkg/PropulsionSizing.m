@@ -262,7 +262,7 @@ end
 Aircraft.Specs.Weight.Engines = sum(Weng);
 
 % compute the electric motor and generator weight
-%Aircraft.Specs.Weight.EM = sum(Pdwn(EM)) / P_Wem;
+Aircraft.Specs.Weight.EM = sum(Pdwn(EM)) / P_Wem;
 Aircraft.Specs.Weight.EG = sum(Pdwn(EG)) / P_Weg;
 
 % ----------------------------------------------------------

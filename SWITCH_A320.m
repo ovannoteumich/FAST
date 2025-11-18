@@ -38,6 +38,7 @@ Aircraft.Specs.Power.LamDwn = rmfield(Aircraft.Specs.Power.LamDwn, 'Miss');
 %% test 2 
 
 Aircraft2 = AircraftOG;
+Aircraft2.Specs.Weight.Payload = Aircraft2.Specs.Weight.Payload + 500; %500 kh of reserve fuel
 %Aircraft2 = DataStructPkg.InitMissionHistory(Aircraft2);
 Aircraft2.Specs.Performance.Range = UnitConversionPkg.ConvLength(800, "naut mi", "m");
 Aircraft2.Settings.Analysis.Type = -1;
@@ -54,6 +55,7 @@ Aircraft.Specs.Performance.Range = UnitConversionPkg.ConvLength(800, "naut mi", 
 Aircraft.Settings.Analysis.Type = -1;
 
 Aircraft.Specs.Weight.EM = 400;
+Aircraft.Specs.Weight.OEW = Aircraft.Specs.Weight.OEW + Aircraft.Specs.Weight.EM;
 
 Aircraft.Specs.Power.P_W.EM = 10;
 
@@ -71,9 +73,9 @@ Aircraft.Specs.Power.LamUps.Des = 0;
 Aircraft.Specs.Power.LamUps.Lnd = 0;
 
 % downstream power splits
-Aircraft.Specs.Power.LamDwn.SLS = 0.091836734693878;
+Aircraft.Specs.Power.LamDwn.SLS = 0.13;
 Aircraft.Specs.Power.LamDwn.Tko = 0;
-Aircraft.Specs.Power.LamDwn.Clb = 0.091836734693878;
+Aircraft.Specs.Power.LamDwn.Clb = 0.13;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;
@@ -99,15 +101,8 @@ Aircraft = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
 
 
 %%
+
 Aircraft.Settings.Analysis.Type = -2;
-
-% turn off FAST print outs
-Aircraft.Settings.PrintOut = 0;
-
-% turn off FAST internal SOC constraint
-Aircraft.Settings.PowerOpt = 1;
-
-Aircraft.Settings.PowerStrat = 1;
 
 Aircraft22 = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
 
@@ -132,5 +127,5 @@ xlabel("Time (min)")
 ylabel("GT Throttle")
 hold on
 yyaxis right
-plot(Aircraft.Mission.History.SI.Performance.Time/60, Aircraft.Mission.History.SI.Power.Pout(:,end-1))
+plot(Aircraft.Mission.History.SI.Performance.Time/60, Aircraft.Mission.History.SI.Power.Pout(:,3))
 ylabel("Power Out (W)")

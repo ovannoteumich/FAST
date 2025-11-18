@@ -40,7 +40,7 @@ function [Aircraft] = NarrowBodyMission(Aircraft)
 Range = Aircraft.Specs.Performance.Range;
 
 % holding time in air
-holdT = 20;
+holdT = 30;
 %taxiT = 20;
 %holdT = Aicraft.Specs.Perfromace.HoldTime;
 
@@ -61,7 +61,7 @@ Mission.Segs = ["DetailedTakeoff"; "Climb"; "Climb"; "Cruise";
     "Climb"; "Cruise"; 
     "Climb"; "Cruise"; "Descent"; 
     %"Cruise"; "Descent"; "Landing"];
-    "Cruise"; "Descent"; "Landing"; "Taxi"];
+    "Cruise"; "Descent"; "Landing"; "EWheelTaxi"];
 
 
 % define the mission id (segments in same mission must be consecutive)

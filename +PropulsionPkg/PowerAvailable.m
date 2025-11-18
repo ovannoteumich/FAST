@@ -130,7 +130,7 @@ for jtrn = 1:ntrn
         
     elseif (TrnType(jtrn) == 0) % electric motor
         
-        PowerAv(:, jtrn) = Aircraft.Specs.Weight.EM./2 * Aircraft.Specs.Power.P_W.EM * 1000; % watts
+        PowerAv(:, jtrn) = Aircraft.Specs.Weight.EM./2 * Aircraft.Specs.Power.P_W.EM; % watts
         ThrustAv(:,jtrn) = PowerAv(:, jtrn)./TAS;
         
     elseif (TrnType(jtrn) == 2) % fuel cell
@@ -167,11 +167,11 @@ idx = (nsrc + 1) : ncomp;
 for ipnt = 1:npnt
     
     % evaluate the function handles for the current splits
-    if Aircraft.Settings.PowerOpt == 0
+    %if Aircraft.Settings.PowerOpt == 1
         Lambda = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
-    else
-        Lambda = PropulsionPkg.EvalSplit(OperUps, ones(1, ntrn-2));
-    end
+    %else
+        %Lambda = PropulsionPkg.EvalSplit(OperUps, ones(1, ntrn-2));
+    %end
     
     % get the initial power available
     Pav(ipnt, :) = [zeros(1, nsrc), PowerAv(ipnt, :), zeros(1, nsnk)];

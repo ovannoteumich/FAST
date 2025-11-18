@@ -121,7 +121,7 @@ Aircraft.Specs.Weight.Batt = 0;
 %     (5) "PHE" = parallel hybrid electric
 %     (6) "SHE" = series hybrid electric
 %     (7) "O"   = other architecture (specified by the user)
-Aircraft.Specs.Propulsion.Arch.Type = "PHE";
+Aircraft.Specs.Propulsion.PropArch.Type = "PHE";
 
 % get the engine
 Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.CF34_8E5;
@@ -138,7 +138,6 @@ Aircraft.Specs.Propulsion.Thrust.SLS = UnitConversionPkg.ConvForce(2 * 14510, "l
 % engine propulsive efficiency
 Aircraft.Specs.Propulsion.Eta.Prop = 0.8;
 
-
 %% POWER %%
 %%%%%%%%%%%
 
@@ -146,11 +145,11 @@ Aircraft.Specs.Propulsion.Eta.Prop = 0.8;
 Aircraft.Specs.Power.SpecEnergy.Fuel = 12;
 
 % gravimetric specific energy of battery (kWh/kg), not used here
-Aircraft.Specs.Power.SpecEnergy.Batt = 0.5;
+Aircraft.Specs.Power.SpecEnergy.Batt = .25;
 
 % electric motor and generator efficiencies, not used here just in HEA one
-Aircraft.Specs.Power.Eta.EM = 0.96;
-Aircraft.Specs.Power.Eta.EG = 0.96;
+Aircraft.Specs.Power.Eta.EM = NaN;
+Aircraft.Specs.Power.Eta.EG = NaN;
 
 % power-weight ratio for the aircraft (kW/kg, if a turboprop)
 Aircraft.Specs.Power.P_W.SLS = NaN;
@@ -160,33 +159,28 @@ Aircraft.Specs.Power.P_W.SLS = NaN;
 Aircraft.Specs.Power.P_W.EM = 10;
 Aircraft.Specs.Power.P_W.EG = NaN;
 
-% EM Power code (only works for PHE right now)
-Aircraft.Specs.Power.PC.EM.Split = .3;
-Aircraft.Specs.Power.PC.EM.Alt = [0, 36000];
+% upstream power splits
+Aircraft.Specs.Power.LamUps.SLS = 1;
+Aircraft.Specs.Power.LamUps.Tko = 1;
+Aircraft.Specs.Power.LamUps.Clb = 1;
+Aircraft.Specs.Power.LamUps.Crs = 0;
+Aircraft.Specs.Power.LamUps.Des = 0;
+Aircraft.Specs.Power.LamUps.Lnd = 0;
 
-% thrust splits (thrust / total thrust)
-Aircraft.Specs.Power.LamTS.Split = 0;
-Aircraft.Specs.Power.LamTS.Alt = 0;
-Aircraft.Specs.Power.LamTS.SLS = 0;
+% downstream power splits
+Aircraft.Specs.Power.LamDwn.SLS = .1;
+Aircraft.Specs.Power.LamDwn.Tko = .1;
+Aircraft.Specs.Power.LamDwn.Clb = .01;
+Aircraft.Specs.Power.LamDwn.Crs = 0;
+Aircraft.Specs.Power.LamDwn.Des = 0;
+Aircraft.Specs.Power.LamDwn.Lnd = 0;
 
-% power splits between power/thrust sources (electric power / total power)
-Aircraft.Specs.Power.LamTSPS.Split = .10; %{.09, .01};
-Aircraft.Specs.Power.LamTSPS.Alt = 0;
-Aircraft.Specs.Power.LamTSPS.SLS = 0.10; %0.09;
+% battery cells in series and parallel 
+Aircraft.Specs.Power.Battery.ParCells = 100;
+Aircraft.Specs.Power.Battery.SerCells = 62;
 
-% power splits between power/power sources (electric power / total power)
-Aircraft.Specs.Power.LamPSPS.Split = 0;
-Aircraft.Specs.Power.LamPSPS.Alt = 0;
-Aircraft.Specs.Power.LamPSPS.SLS = 0;
-
-% power splits between energy/power sources (electric power / total power)
-Aircraft.Specs.Power.LamPSES.Split = 0;
-Aircraft.Specs.Power.LamPSES.Alt = 0;
-Aircraft.Specs.Power.LamPSES.SLS = 0;
-
-% coefficient for HEA engine analysis
-Aircraft.Specs.Propulsion.Engine.HEcoeff = 1 +  Aircraft.Specs.Power.LamTSPS.SLS;
-
+% initial battery SOC
+Aircraft.Specs.Power.Battery.BegSOC = 100;
 %% BATTERY SETTINGS %%
 %%%%%%%%%%%%%%%%%%%%%%
 
@@ -279,7 +273,8 @@ Aircraft.Settings.Analysis.MaxIter = 30;
 Aircraft.Settings.Analysis.Type = +1;
 
 % power optimaztion
-Aircraft.Settings.Analysis.PowerOpt = 0;
+Aircraft.Settings.PowerOpt = 0;
+Aircraft.Settings.PowerStrat = -1;
 
 % constrain SOC from 20% to 100% for off design 
 Aircraft.Settings.ConSOC = 1; 

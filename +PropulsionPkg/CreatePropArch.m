@@ -201,7 +201,7 @@ elseif (strcmpi(ArchName, "PHE") == 1)
                ones(NumEng, 1), zeros(NumEng, 1), zeros(NumEng, NumEng)            , zeros(NumEng, NumEng)      , zeros(             NumEng, NumEng), zeros(NumEng, 1); ... % the gas-turbine engines are powered by the fuel
                zeros(NumEng, 1),  ones(NumEng, 1), zeros(NumEng, NumEng)            , zeros(NumEng, NumEng)      , zeros(             NumEng, NumEng), zeros(NumEng, 1); ... % the electric motors are powered by the battery
                zeros(NumEng, 1), zeros(NumEng, 1),   eye(NumEng, NumEng)  .* lam(TrnType==1)',   eye(NumEng, NumEng) .* lam(TrnType==0)', zeros(             NumEng, NumEng), zeros(NumEng, 1); ... % the propeller/fan power is split between the gas-turbine engines and electric motors
-               zeros(     1, 1), zeros(     1, 1), zeros(     1, NumEng)            , zeros(     1, NumEng)      , repmat(1 / NumEng,      1, NumEng), zeros(     1, 1)] ;   % the sink power is split evenly between the propellers/fans
+               zeros(     1, 1), zeros(     1, 1), zeros(     1, NumEng)            , zeros(     1, NumEng)      , ones(1,NumEng).*lam(TrnType==2), zeros(1,1)] ;   % the sink power is split evenly between the propellers/fans
            
     % check the aircraft class
     if (strcmpi(aclass, "Turbofan") == 1)

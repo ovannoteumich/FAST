@@ -30,7 +30,7 @@ end
 Alt = Aircraft.Mission.History.SI.Performance.Alt;
 nlen = height(Alt);
 TrnType = Aircraft.Specs.Propulsion.PropArch.TrnType;
-TrnType(TrnType==2) = [];
+%TrnType(TrnType==2) = [];
 ntrans = length(TrnType);
 
 % get lambda splits over mission profile
@@ -53,6 +53,7 @@ else
     % get transient types
     iEM = find(TrnType == 0);
     iGT = find(TrnType == 1);
+    iFan= find(TrnType == 2);
 
     % collect mission profile information
     nsegs = length(Profile.Segs);
@@ -72,7 +73,7 @@ else
         elseif Seg == 'Landing'
             lamseg = 'Lnd';
         elseif Seg == 'Taxi'
-            lamseg == 'Tko';
+            lamseg = 'Tko';
         end
 
         % segement length
@@ -89,7 +90,11 @@ else
         if ~isempty(iEM)
             dwn(iGT) = dwn(iGT) - dwn(iEM);
         end
-        %dwn(iFan) = 0.5;
+        dwn(iFan) = 0.5;
+        if Seg == 'Taxi'
+            dwn(iGT)=[1,0];
+            dwn(iFan)=[1,0];
+        end
         
         % propagate through sgement points
         LamUps.Miss(Profile.SegBeg(i):Profile.SegEnd(i), :) = repmat(ups,npt,1);

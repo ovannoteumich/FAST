@@ -141,7 +141,7 @@ ParCells = Aircraft.Specs.Power.Battery.ParCells;
 % get the energy from the battery
 E_ES = Preq .* Time;
 
-wEM = Preq ./ 1000 /10
+wEM = Preq ./ 1000 /10;
 if Aircraft.Settings.Analysis.Type > -2
     % add them to the payload
     Aircraft.Specs.Weight.Payload = Aircraft.Specs.Weight.Payload - W_LandEM + wEM;
@@ -159,10 +159,21 @@ Aircraft.Mission.History.SI.Performance.EAS( SegEnd) = TAS  ; % at takeoff this 
 % energy from battery and remaining
 Aircraft.Mission.History.SI.Energy.E_ES(SegEnd, 2)= Aircraft.Mission.History.SI.Energy.E_ES(SegBeg, 2) + E_ES;
 Aircraft.Mission.History.SI.Energy.Eleft_ES(SegEnd, 2)= Aircraft.Mission.History.SI.Energy.Eleft_ES(SegBeg, 2) - E_ES;
-Aircraft.Specs.Mission.History.SI.Power.SOC(SegBeg:SegEnd,2) = SOC;
+Aircraft.Mission.History.SI.Power.SOC(SegBeg:SegEnd,2) = SOC;
+Aircraft.Mission.History.SI.Power.Voltage( SegEnd, 2) = V  ;
+Aircraft.Mission.History.SI.Power.Current( SegEnd, 2) = I  ;
+Aircraft.Mission.History.SI.Power.Capacity(SegEnd, 2) = Q  ;
+Aircraft.Mission.History.SI.Power.C_rate(  SegEnd, 2) = C_rate;
+
+% set values for fuel side not used
+Aircraft.Mission.History.SI.Energy.E_ES(SegEnd, 1)= Aircraft.Mission.History.SI.Energy.E_ES(SegBeg, 1);
+Aircraft.Mission.History.SI.Energy.Eleft_ES(SegEnd, 1)= Aircraft.Mission.History.SI.Energy.Eleft_ES(SegBeg, 1);
+Aircraft.Mission.History.SI.Power.SOC(SegEnd,1) = Aircraft.Mission.History.SI.Power.SOC(SegBeg,1);
+Aircraft.Mission.History.SI.Weight.Fburn(SegEnd,1) = Aircraft.Mission.History.SI.Weight.Fburn(SegBeg,1);
+Aircraft.Mission.History.SI.Weight.CurWeight(SegEnd,1) = Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg,1);
 
 % current segment
-Aircraft.Mission.History.Segment(SegBeg:SegEnd) = "Taxi";
+Aircraft.Mission.History.Segment(SegBeg:SegEnd) = "EWheelTaxi";
 
 
 end

@@ -10,6 +10,8 @@ function [Aircraft] = EvalTaxi(Aircraft)
 % INPUTS:
 %     Aircraft - aircraft being flown.
 %                size/type/units: 1-by-1 / struct / []
+
+%   assumes single engine taxi as an option
 %
 % OUTPUTS:
 %     Aircraft - aircraft flown after takeoff with the mission history
