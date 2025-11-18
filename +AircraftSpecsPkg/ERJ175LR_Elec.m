@@ -151,7 +151,7 @@ Aircraft.Specs.Power.SpecEnergy.Batt = 0.25;
 % downstream power splits
 Aircraft.Specs.Power.LamDwn.SLS = 0.1;
 Aircraft.Specs.Power.LamDwn.Tko = 0.1;
-Aircraft.Specs.Power.LamDwn.Clb = 0.05;
+Aircraft.Specs.Power.LamDwn.Clb = 0.01;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;

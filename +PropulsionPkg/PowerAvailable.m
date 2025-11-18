@@ -129,7 +129,8 @@ for jtrn = 1:ntrn
     elseif (TrnType(jtrn) == 0) % electric motor
         
         % once available, input an electric motor model here
-        
+        PowerAv(:, jtrn) = Aircraft.Specs.Weight.EM ./ sum(TrnType==0) .* Aircraft.Specs.Power.P_W.EM;
+        ThrustAv(:, jtrn)= PowerAv(:,jtrn)./TAS;
     elseif (TrnType(jtrn) == 2) % fuel cell
         
         % once available, input a fuel cell model here
