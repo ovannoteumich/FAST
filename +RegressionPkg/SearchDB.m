@@ -2,7 +2,7 @@ function [NewStruct,OutputCell] = SearchDB(MainStruct,SubstructList,DesVel)
 %
 % [NewStruct,OutputCell] = SearchDB(MainStruct,SubstructList,DesVel)
 % Written by Maxfield Arnson
-% Updated 10/3/2023
+% Updated 19 nov 2025
 %
 % This function takes a datastructure, a parameter search path, and (optionally) a
 % desired parameter value. It then returns a substructure containing all

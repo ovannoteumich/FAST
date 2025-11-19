@@ -3,6 +3,7 @@ function [PostMu,PostVar] = NLGPR(DataStruct,IOSpace,Target,varargin)
 % [PostMu,PostVar] =  NLGPR(DataStruct,IOspace,Target,varargin)
 % Non-Linear Gaussian Process Regression
 % Written by Maxfield Arnson
+% last updated: 19 nov 2025
 %
 % This function predicts aircraft or engine parameters using the IDEAS
 % historical database. Given as many known (and relevant) parameters as

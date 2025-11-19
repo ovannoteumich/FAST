@@ -2,7 +2,7 @@ function [Aircraft] = SpecProcessing(Aircraft)
 %
 % [Aircraft] = SpecProcessing(Aircraft)
 % written by Maxfield Arnson, marnson@umich.edu
-% lasat updated: 13 dec 2024
+% last updated: 19 nov 2025
 %
 % This function initializes mission outputs, runs regressions, and
 % overwrites values left as NaN in the user input. It prepares the aircraft
@@ -41,9 +41,6 @@ Propulsion = Aircraft.Specs.Propulsion;
 Power = Aircraft.Specs.Power;
 Settings = Aircraft.Settings;
 Geometry = Aircraft.Geometry;
-
-% remember the sizing directory
-SizeDir = Aircraft.Settings.Dir.Size;
 
 % remove the engine field for the regressions
 Engine = Propulsion.Engine;
@@ -89,10 +86,6 @@ if isnan(TLAR.EIS)
     TLAR.EIS = 2021;
 end
 
-future = 0;
-if TLAR.EIS > 2021
-    future  = 1;
-end
 
 %% Pre-Regression Initializatons
 switch TLAR.Class
@@ -176,26 +169,14 @@ for i = 1:length(unknowns)
         [DefaultWeight.MTOW,~] = ...
             RegressionPkg.NLGPR(DataAC,IO,target,'Weights',w);
     elseif length(Output) == 4 && isequal(Output,["Specs","Propulsion","T_W","SLS"])
-        %             if future
-        %                 [DefaultPropulsion.T_W.SLS] = ...
-        %                     Projection.KPPProjection(TLAR.Class, TLAR.EIS, 'Total Takeoff T/ MTOW');
-        %             else
         [DefaultPropulsion.T_W.SLS,~] = ...
             RegressionPkg.NLGPR(DataAC,IO,target,'Weights',w);
-        %             end
+
 
 
     elseif length(Output) == 4 && isequal(Output,["Specs","Propulsion","Thrust","SLS"])
         [DefaultPropulsion.Thrust.SLS,~] = ...
             RegressionPkg.NLGPR(DataAC,IO,target,'Weights',w);
-        %         elseif length(Output) == 4 && isequal(Output,["Specs","Propulsion","Engine","TSFC_SLS"])
-        %             if future
-        %                 [DefaultPropulsion.TSFC] = ...
-        %                     Projection.KPPProjection(TLAR.Class, TLAR.EIS, 'Cruise SFC');
-        %             else
-        %                 [DefaultPropulsion.TSFC,~] = ...
-        %                     RegressionPkg.NLGPR(DataAC,IO,target,'Weights',w);
-        %             end
     elseif length(Output) == 4 && isequal(Output,["Specs","Power","P_W","SLS"])
         [DefaultPower.P_W.SLS,~] = ...
             RegressionPkg.NLGPR(DataAC,IO,target,'Weights',w);
@@ -260,44 +241,26 @@ DefaultAero.L_D.Des = DefaultAero.L_D.Clb; % set descent L/D to Clb value
 
 %% Set Default Variable Values
 
-% Default_TLAR.EIS = 2021;                   % already specified
-% Default_TLAR.Class = 'Turbofan';           *required*
-%Default_TLAR.MaxPax = 150;                     % switch case
-% DefaultPerformance.Vels.Tko = 0;           *regression*
-% DefaultPerformance.Vels.Crs = 0;            *regression*
-%DefaultPerformance.Vels.Type = 'TAS';        % good
-DefaultPerformance.Alts.Tko = 0;             % good
-% DefaultPerformance.Alts.Crs = 0;            *regression*
-% DefaultPerformance.Range =                 *required*
+
+DefaultPerformance.Alts.Tko = 0;
 DefaultPerformance.RCMax = 10.5;             % m/s
+
 switch TLAR.Class
     case "Turbofan"
         DefaultPerformance.Vels.Tko = UnitConversionPkg.ConvVel(135,'kts','m/s');
     case "Turboprop"
         DefaultPerformance.Vels.Tko = UnitConversionPkg.ConvVel(115,'kts','m/s');
 end
-% DefaultAero.L_D.Clb = 15;                    % 0.6*cruise L_D
-%DefaultAero.L_D.Crs = 15;                     % regression
-%DefaultWeight.MTOW = 0;                     % regression
-DefaultWeight.MLW = 0;                      % good
-DefaultWeight.Batt = 0;                      % good
-DefaultWeight.EG = 0;                        % good
-DefaultWeight.EM = 0;                        % good
+
+
+DefaultWeight.MLW = 0;           
+DefaultWeight.Batt = 0;             
+DefaultWeight.EG = 0;              
+DefaultWeight.EM = 0;              
 DefaultWeight.EAP = 0;
 DefaultWeight.WairfCF = 1;
-% DefaultWeight.Fuel = 0;                    % regression
-% DefaultPropulsion.Arch = 'C';             *required*
-DefaultPropulsion.NumEngines = 2;           % good
+DefaultPropulsion.NumEngines = 2;         
 DefaultPropulsion.MDotCF = 1;
-%DefaultPropulsion.T_W.SLS = 0;                  % regression
-%DefaultPropulsion.Thrust.SLS = 0;           % regression
-%DefaultPropulsion.Thrust.Tko = DefaultPropulsion.Thrust.SLS;
-%DefaultPropulsion.Thrust.Crs = 0;           % regression
-% DefaultPropulsion.TSFC = 0.5;              % regression
-%DefaultPropulsion.Eta.Therm = 0.3;          % switch case
-%DefaultPropulsion.Eta.Prop = 0.85;          % switch case
-% DefaultPower.P_W.AC = 5;                    regression
-% DefaultPower.P_W.Batt =                     *calculated*
 DefaultPower.Eta.Propeller = 0.8;
 DefaultPower.LamDwn.SLS = 0;
 DefaultPower.LamDwn.Tko = 0;
@@ -311,12 +274,7 @@ DefaultPower.LamUps.Clb = 0;
 DefaultPower.LamUps.Crs = 0;
 DefaultPower.LamUps.Des = 0;
 DefaultPower.LamUps.Lnd = 0;
-DefaultPower.P_W.EG = 5;                      % good
-%DefaultPower.P_W.EM = 5;                     % EDC Projection
-% DefaultPower.SpecEnergy.Fuel = 4.32e7;               % if statement
-%DefaultPower.SpecEnergy.Batt = 0;                     % EDC Projection
-%DefaultPower.Eta.EM = 0.96;                 % switch case
-%DefaultPower.Eta.EG = 0.96;                 % switch case
+DefaultPower.P_W.EG = 5;                    
 DefaultPower.Battery.ParCells = NaN;
 DefaultPower.Battery.SerCells = NaN;
 DefaultPower.Battery.BegSOC   = NaN;

@@ -1,13 +1,13 @@
 function [Aircraft] = CeRAS()
 %
-% [Aircraft] = ERJ175LR()
-% originally written for E175 by Nawa Khailany
-% modified to E175LR by Paul Mokotoff, prmoko@umich.edu
-% last updated: 13 dec 2024
+% [Aircraft] = CeRAS()
+% originally written for E175 by Nawa Khailany and Paul Mokotoff
+% modified to CeRAS by Max Arnson, marnson@umich.edu
+% last updated: 19 nov 2025
 % 
-% Create a baseline model of the ERJ 175, long-range version (also known as
-% an ERJ 170-200). This version uses a conventional propulsion
-% architecture.
+% Models the CeRAS CSR-01, a notional single aisle (similar to A320). 
+% See https://ceras.ilr.rwth-aachen.de/tiki/tiki-index.php?page=CSR-01
+% for details.
 %
 % INPUTS:
 %     none
