@@ -71,7 +71,7 @@ Aircraft.Specs.Performance.TempInc = 1.25;
 Aircraft.Specs.Performance.MaxCont = 1 / 0.94;
 
 % design specific excess power loss ???
-Aircraft.Specs.Performance.PsLoss = 0.4136;
+Aircraft.Specs.Performance.PsLoss = 0.4378;
 
 % landing weight as a fraction of MTOW
 Aircraft.Specs.Performance.Wland_MTOW = 1;
@@ -149,6 +149,21 @@ ConstraintDiagramPkg.ConstraintDiagram(Aircraft);
 
 % add the existing sizing point
 hold on
-scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 48, "o", "MarkerEdgeColor", [0, 0.251, 0.478], "MarkerFaceColor", [0, 0.251, 0.478]);
-
+% scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 48, "o", "MarkerEdgeColor", [0, 0.251, 0.478], "MarkerFaceColor", [0, 0.251, 0.478]);
+xlim([0.03, 7])
+axis square
+grid on
+A = gca;
+A.GridAlpha = 0.5;
+A.Layer = "top";
+A.XMinorGrid = "on";
+A.YMinorGrid = "on";
+MyColor1 = [0.000, 0.086, 0.165];
+p1 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 96, "o", "MarkerEdgeColor", MyColor1, "MarkerFaceColor", MyColor1);
+L = legend(p1, "Baseline E9X", "Location", "northeast");
+% MyColor2 = [0.930, 0.490, 0.192];
+% p1 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 1 / (Aircraft.Specs.Power.P_W.SLS / 9.81 * 1000), 96, "o", "MarkerEdgeColor", MyColor1, "MarkerFaceColor", MyColor1);
+% p2 = scatter(Aircraft.Specs.Aero.W_S.SLS * 9.81 / 1000, 0.068, 96, "s", "MarkerEdgeColor", MyColor2, "MarkerFaceColor", MyColor2);
+% L = legend([p1, p2], "Baseline E9X", "Novel Req's.", "Location", "northeast");
+L.Color = [1; 1; 1];
 end
