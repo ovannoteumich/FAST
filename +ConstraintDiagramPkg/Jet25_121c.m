@@ -2,7 +2,7 @@ function [FAR] = Jet25_121c(W_S, T_W, Aircraft)
 %
 % [FAR] = Jet25_121c(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 19 sep 2025
+% last updated: 19 nov 2025
 %
 % derive the constraints for the enroute climb.
 %
@@ -71,7 +71,7 @@ if (Type == 0)
 elseif (Type == 1)
     
     % compute the climb gradient from a sigmoid curve
-    G = ConstraintDiagramPkg.Sigmoid(Aircraft, 0.5440, -18.0643, 0.5745, 1.1842);
+    G = ConstraintDiagramPkg.Sigmoid(Aircraft, 0.5337, -19.6881, 0.5987, 1.1878);
     
 else
     

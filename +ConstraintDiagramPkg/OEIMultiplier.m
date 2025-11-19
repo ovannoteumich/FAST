@@ -2,7 +2,7 @@ function [k] = OEIMultiplier(Aircraft)
 %
 % [k] = OEIMultiplier(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 25 aug 2025
+% last updated: 19 nov 2025
 %
 % return the appropriate multiplier for engine inoperative conditons,
 % either based on a discrete number of engines installed or a percent
@@ -34,8 +34,8 @@ elseif (Type == 1)
     % compute the percent specific excess power loss during nEI conditions
     PsLoss = Aircraft.Specs.Performance.PsLoss;
     
-    % compute the multiplier (derived cubic function)
-    k = 3.5054 .* PsLoss .^ 3 - 2.7530 .* PsLoss .^ 2 + 1.3449 .* PsLoss + 1;
+    % compute the multiplier (derived tangent function)
+    k = 0.4259 .* tan(0.0979 .* (PsLoss + 13.5966)) - 0.7471;
     
 else
     
