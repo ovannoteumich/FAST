@@ -2,10 +2,10 @@ function [] = ElysianE9X()
 %
 % [] = ElysianE9X()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 07 nov 2025
+% last updated: 20 nov 2025
 %
 % create a constraint diagram for a battery electric aircraft
-% representative of the elysian E9.
+% representative of the Elysian E9X.
 %
 % INPUTS:
 %     none
@@ -107,9 +107,9 @@ Aircraft.Specs.Aero.CD0.Crs = 0.0168;
 Aircraft.Specs.Aero.CD0.Lnd = 0.1068;
 
 % Oswald efficiency factors
-Aircraft.Specs.Aero.e.Crs = 0.8039;
-Aircraft.Specs.Aero.e.Tko = 0.7637;
-Aircraft.Specs.Aero.e.Lnd = 0.7235;
+Aircraft.Specs.Aero.e.Crs = 0.7861;
+Aircraft.Specs.Aero.e.Tko = 0.7468;
+Aircraft.Specs.Aero.e.Lnd = 0.7075;
 
 % ----------------------------------------------------------
 
