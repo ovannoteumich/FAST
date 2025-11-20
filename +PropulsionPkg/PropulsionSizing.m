@@ -2,7 +2,7 @@ function [Aircraft] = PropulsionSizing(Aircraft)
 %
 % [Aircraft] = PropulsionSizing(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 05 nov 2025
+% last updated: 20 nov 2025
 %
 % Split the total thrust/power throughout the powertrain and determine the
 % total power needed to size each component.
@@ -276,19 +276,17 @@ if (isfield(Aircraft.Specs.Propulsion.PropArch, "CableConns"  ) && ...
         % get the electric motor power
         Pem = Pdwn(EM);
         
+        % get the electric motor efficiencies
+        EtaEM = Aircraft.Specs.Propulsion.PropArch.EtaEM;
+        
         % get the transmitter architecture and operational matrices
-        TrnArch = Arch(  idx, idx);
-        TrnLam  = Splits(idx, idx);
+        TrnArch = Arch(idx, idx);
         
         % capture the electric generator-motor connections
         ArchEG2EM = TrnArch(EG, EM);
-        LamEM2EG  = TrnLam( EM, EG);
-        
-        % get the cable efficiencies
-        CabEta = Aircraft.Specs.Propulsion.PropArch.CableEta;
-        
+
         % compute the cable power
-        Pcab = Pem' .* (ArchEG2EM .* LamEM2EG' ./ CabEta);
+        Pcab = Pem' .* ArchEG2EM ./ EtaEM';
         
     end
    
