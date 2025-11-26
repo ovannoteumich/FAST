@@ -2,7 +2,7 @@ function [Plane] = CalcFanVals(Plane,unitsflag)
 %
 % [Plane] = CalcFanVals(Plane,units)
 % Written by Maxfield Arnson
-% Updated 10/19/2023
+% Updated 19 nov 2025
 %
 % This function takes an aircraft structure from the IDEAS database and
 % processes it to add additional fields that can be calculated from the raw
@@ -52,6 +52,7 @@ function [Plane] = CalcFanVals(Plane,unitsflag)
 % Monikers
 % Taper Ratio
 % Aspect Ratio
+% Airplane Design Group
 
 
 
@@ -253,12 +254,20 @@ switch unitsflag
         Plane.Specs.Power.SpecEnergy.Batt = NaN;
         Plane.Specs.Power.Eta.EM = NaN;
         Plane.Specs.Power.Eta.EG = NaN;
-        Plane.Specs.Power.Phi.SLS = 0.00;
-        Plane.Specs.Power.Phi.Tko = 0.00;
-        Plane.Specs.Power.Phi.Clb = 0.00;
-        Plane.Specs.Power.Phi.Crs = 0.00;
-        Plane.Specs.Power.Phi.Des = 0.00;
-        Plane.Specs.Power.Phi.Lnd = 0.00;
+
+        Plane.Specs.Power.LamDwn.SLS = 0;
+        Plane.Specs.Power.LamDwn.Tko = 0;
+        Plane.Specs.Power.LamDwn.Clb = 0;
+        Plane.Specs.Power.LamDwn.Crs = 0;
+        Plane.Specs.Power.LamDwn.Des = 0;
+        Plane.Specs.Power.LamDwn.Lnd = 0;
+        Plane.Specs.Power.LamUps.SLS = 0;
+        Plane.Specs.Power.LamUps.Tko = 0;
+        Plane.Specs.Power.LamUps.Clb = 0;
+        Plane.Specs.Power.LamUps.Crs = 0;
+        Plane.Specs.Power.LamUps.Des = 0;
+        Plane.Specs.Power.LamUps.Lnd = 0;
+
         Plane.Specs.Power.P_W.SLS = Plane.Specs.Propulsion.T_W.SLS*Plane.Specs.Performance.Vels.Tko;
         Plane.Specs.Power.P_W.EM = NaN;
         Plane.Specs.Power.P_W.EG = NaN;
@@ -407,12 +416,20 @@ switch unitsflag
         Plane.Specs.Power.SpecEnergy.Batt = "kWh/kg";
         Plane.Specs.Power.Eta.EM = "efficiency";
         Plane.Specs.Power.Eta.EG = "efficiency";
-        Plane.Specs.Power.Phi.SLS = "ratio";
-        Plane.Specs.Power.Phi.Tko = "ratio";
-        Plane.Specs.Power.Phi.Clb = "ratio";
-        Plane.Specs.Power.Phi.Crs = "ratio";
-        Plane.Specs.Power.Phi.Des = "ratio";
-        Plane.Specs.Power.Phi.Lnd = "ratio";
+
+        Plane.Specs.Power.LamDwn.SLS = "ratio";
+        Plane.Specs.Power.LamDwn.Tko = "ratio";
+        Plane.Specs.Power.LamDwn.Clb = "ratio";
+        Plane.Specs.Power.LamDwn.Crs = "ratio";
+        Plane.Specs.Power.LamDwn.Des = "ratio";
+        Plane.Specs.Power.LamDwn.Lnd = "ratio";
+        Plane.Specs.Power.LamUps.SLS = "ratio";
+        Plane.Specs.Power.LamUps.Tko = "ratio";
+        Plane.Specs.Power.LamUps.Clb = "ratio";
+        Plane.Specs.Power.LamUps.Crs = "ratio";
+        Plane.Specs.Power.LamUps.Des = "ratio";
+        Plane.Specs.Power.LamUps.Lnd = "ratio";
+        
         Plane.Specs.Power.P_W.AC = "W/kg";
         Plane.Specs.Power.P_W.EM = "kW/kg";
         Plane.Specs.Power.P_W.EG = "kW/kg";

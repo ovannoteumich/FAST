@@ -54,7 +54,6 @@ function  [DataMatrix,HyperParams] = BuildData(DataStruct,IOSpace,Weights)
 % ----------------------------------------------------------
 
 
-
 %% Build Data Matrix (OG)
 % This section builds a matrix of relevant data depending on the parameters
 % that are known for the RegressionPkg.
@@ -131,11 +130,3 @@ Weights = Weights./sum(Weights)*length(Weights);
 HyperParams(1:end-1) = HyperParams(1:end-1)./Weights;
 
 end
-
-
-
-
-
-
-
-

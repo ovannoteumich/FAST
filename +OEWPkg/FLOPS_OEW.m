@@ -1,53 +1,58 @@
-function [OEW] = FLOPS_OEW(Params,in2)
-% Params Order:
-%{
-1....Range
-2....Pax
-3....Neng
-4....Thrust
-5....Wing_Area
-6....Fuel_Weight
-7....Height
-8....Sweep
-9....Fus_Length
-10...Span
-11...Taper Ratio
-12...MTOW 
-13...Fan Diameter
-14...Length Engine
-15...Engine Dry Weight
-%}
+function [OEW] = FLOPS_OEW(Params)
+%
+% [OEW] = FLOPS_OEW(Params)
+% written by Maxfield Arnson,
+% last updated: 19 nov 2025
+%
+% This function calculates the OEW of the aircraft using FLOPS regressions
+% it is not currently used in FAST, but it is available for reference or for use if desired.
+%
+% INPUTS:
+%   Params - vector of input parameters
+%               size/type/units: 15-by-1 / double / [see below]
+%               1....Range (m) ** uncommon unit, but its what FAST uses internally
+%               2....Pax (unitless)
+%               3....Neng (unitless)
+%               4....Thrust (N)
+%               5....Wing_Area (m^2)
+%               6....Fuel_Weight (kg)
+%               7....Height (m)
+%               8....Sweep (degrees)
+%               9....Fus_Length (m)
+%               10...Span (m)
+%               11...Taper Ratio (unitless)
+%               12...MTOW (kg)
+%               13...Fan Diameter (m)
+%               14...Length Engine (m)
+%               15...Engine Dry Weight (kg)
+%
+% OUTPUTS:
+%   OEW - Operating Empty Weight
+%               size/type/units: 1-by-1 / double / kg
 
 
 
-% Bigger Calcs
+% Overall OEW Component Additions
 
 Structs = FLOPS_Structural(Params);
 Propulsion = FLOPS_Propulsion(Params);
 Systems = FLOPS_Systems(Params);
-
-
 Empty_Weight = Structs + Propulsion + Systems;
 
 Ops = FLOPS_Operational(Params);
 
+OEW = Empty_Weight + Ops;
 
-OEW = Empty_Weight +Ops;
+end % OEWPkg.FLOPS.FLOPS_OEW
 
-if nargin == 2
 
-    format long
-    calcs = [
-    Structs
-    Propulsion
-    Systems
-    Ops
-    OEW]
-    format short
 
-end
 
-end
+
+
+% ---------------------------------------------
+% ------------OEW Buildup Functions------------
+% ---------------------------------------------
 
 %% Structural
 function [EW] = FLOPS_Structural(Params)
@@ -390,15 +395,3 @@ Cargo_Containters = 175 * ceil(Pax * Cargo_Weight/950);
 WOp = Flight_Crew + Galley_Crew + Stewards + Unusable_Fuel +...
     Oil + Passenger_Service + Cargo_Containters; 
 end
-
-
-
-
-
-
-
-
-
-
-
-

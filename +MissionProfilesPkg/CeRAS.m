@@ -1,17 +1,35 @@
 function [Aircraft] = CeRAS(Aircraft)
 %
 % [Aircraft] = CeRAS(Aircraft)
-% translated from Aviary phase_info by Max Arnson, 
-% last updated: 26 Sep 2025
+% written by Maxfield Arnson
+% last updated: 19 nov 2025
 %
-% Parametric mission for a typical regional jet or narrowbody aircraft.
-% Phases: Pre-Mission (mass optimization), Climb, Cruise at 33k, Mid-Cruise Climb, Cruise at 35k, Descent.
+% nonparametric mission for a typical regional jet or narrowbody aircraft.
+% intended to be used with the CeRAS aircraft model.
+% see https://link.springer.com/article/10.1007/s13272-015-0177-9
+%
+% mission 1:          | mission 2: 1625 nmi range @ 35k ft 
+% 875 nmi range       |   
+% @ 33k ft            |    
+%                     | _____________________________________                
+%        ____________ |/                                     \
+%       /             |                                       \
+%      /              |                                        \
+%     /               |                                         \
+%    /                |                                          \
+% __/                 |                                           \___
+%
+% INPUTS:
+%     Aircraft - aircraft structure (without a mission profile).
+%                size/type/units: 1-by-1 / struct / []
+%
+% OUTPUTS:
+%     Aircraft - aircraft structure (with    a mission profile).
+%                size/type/units: 1-by-1 / struct / []
 %
 
 %% IMPORT THE PERFORMANCE PARAMETERS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 
 AltTko = 0;
 AltCrs33 = UnitConversionPkg.ConvLength(33000, 'ft', 'm');

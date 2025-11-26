@@ -47,7 +47,7 @@ function [] = README()
 %
 %       And look for example regression calls in
 %       DataStructPkg.SpecProcessing. The developers recommend looking at
-%       lines 413 and 414 in that code for a simple one-input one-output
+%       lines 379 and 380 in that code for a simple one-input one-output
 %       example.
 %       
 % 
