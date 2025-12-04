@@ -103,16 +103,43 @@ FPA = zeros(npoint, 1);
 % altitude------[npoint x 1]
 Alt = Aircraft.Mission.History.SI.Performance.Alt(SegBeg:SegEnd); % m
 
-% total mass in each time------[npoint x 1]
-Mass = repmat(MTOW, npoint, 1);
 
-% memory for the fuel and battery energy remaining
-Eleft_ES = zeros(npoint, 1);
 
-% get the energy source types
-Fuel = Aircraft.Specs.Propulsion.PropArch.SrcType == 1;
-Batt = Aircraft.Specs.Propulsion.PropArch.SrcType == 0;
-
+% if not first segment, get accumulated quantities
+if (SegBeg > 1)
+    
+    % initialize aircraft mass
+    Mass = repmat(Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg), npoint, 1);
+    
+    % get distance flown and time aloft
+    Dist(1) = Aircraft.Mission.History.SI.Performance.Dist(SegBeg);
+    Time(1) = Aircraft.Mission.History.SI.Performance.Time(SegBeg);
+    
+    % initialize fuel and battery energy remaining
+    Eleft_ES = repmat(Aircraft.Mission.History.SI.Energy.Eleft_ES(SegBeg, :), npoint, 1);
+    
+else
+    
+    % initialize aircraft mass: assume maximum takeoff weight
+    Mass = repmat(Aircraft.Specs.Weight.MTOW, npoint, 1);
+    
+    % check for any fuel
+    if (any(Fuel))
+        
+        % compute the fuel energy remaining
+        Eleft_ES(:, Fuel) = Aircraft.Specs.Power.SpecEnergy.Fuel * Aircraft.Specs.Weight.Fuel;
+        
+    end
+    
+    % check for any battery
+    if (any(Batt))
+        
+        % compute the battery energy remaining
+        Eleft_ES(:, Batt) = Aircraft.Specs.Power.SpecEnergy.Batt * Aircraft.Specs.Weight.Batt;
+        
+    end
+    
+end
 
 
 % check for any fuel

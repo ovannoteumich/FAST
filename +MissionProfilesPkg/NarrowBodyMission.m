@@ -57,59 +57,59 @@ Mission.Target.Type = ["Dist"; "Dist"; "Dist"; "Time"; NaN];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % define the segments
-Mission.Segs = ["DetailedTakeoff"; "Climb"; "Climb"; "Cruise";
+Mission.Segs = ["Taxi"; "DetailedTakeoff"; "Climb"; "Climb"; "Cruise";
     "Climb"; "Cruise"; 
     "Climb"; "Cruise"; "Descent"; 
     %"Cruise"; "Descent"; "Landing"];
-    "Cruise"; "Descent"; "Landing"; "EWheelTaxi"];
+    "Cruise"; "Descent"; "Landing"; "Taxi"];
 
 
 % define the mission id (segments in same mission must be consecutive)
-Mission.ID   = [ 1; 1; 1; 1;
+Mission.ID   = [ 1; 1; 1; 1; 1;
     2; 2;
     3; 3; 3;
     4; 4; 4; 5;];
 
 % define the starting/ending altitudes (in m)
-Mission.AltBeg = UnitConversionPkg.ConvLength([ 0; 0; 10000; 35000;
+Mission.AltBeg = UnitConversionPkg.ConvLength([0; 0; 0; 10000; 35000;
     35000; 37000;
     37000; 39000; 39000;
     1500; 1500; 0; 0;],'ft','m');
 
-Mission.AltEnd = UnitConversionPkg.ConvLength([ 0; 10000; 35000; 35000;
+Mission.AltEnd = UnitConversionPkg.ConvLength([ 0; 0; 10000; 35000; 35000;
     37000; 37000;
     39000; 39000; 1500;
     1500; 0; 0; 0;],'ft','m');
 
 % define the climb rate (in m/s)
-Mission.ClbRate = [ NaN; NaN; NaN; NaN;
+Mission.ClbRate = [ NaN; NaN; NaN; NaN; NaN;
     NaN; NaN;
     NaN; NaN; NaN;
     NaN; NaN; NaN; NaN];
 
 % define the starting/ending speeds
-Mission.VelBeg  = [ 0; UnitConversionPkg.ConvVel(150,'kts','m/s'); UnitConversionPkg.ConvVel(250,'kts','m/s'); 0.78;
+Mission.VelBeg  = [0; 0; UnitConversionPkg.ConvVel(150,'kts','m/s'); UnitConversionPkg.ConvVel(250,'kts','m/s'); 0.78;
     0.78; 0.78;
     0.78; 0.78; 0.78;
     0.3; 0.3; UnitConversionPkg.ConvVel(150,'kts','m/s'); 0;];
 
-Mission.VelEnd  = [UnitConversionPkg.ConvVel(150,'kts','m/s'); UnitConversionPkg.ConvVel(250,'kts','m/s'); 0.78; 0.78;
+Mission.VelEnd  = [10; UnitConversionPkg.ConvVel(150,'kts','m/s'); UnitConversionPkg.ConvVel(250,'kts','m/s'); 0.78; 0.78;
     0.78; 0.78;
     0.78; 0.78; 0.3;
     0.3; UnitConversionPkg.ConvVel(150,'kts','m/s'); 0; 10];
 
 % define the speed types
-Mission.TypeBeg = [ "TAS"; "TAS"; "TAS"; "Mach";
+Mission.TypeBeg = [ "TAS"; "TAS"; "TAS"; "TAS"; "Mach";
     "Mach"; "Mach";
     "Mach"; "Mach"; "Mach";
     "Mach"; "Mach"; "TAS"; "TAS";];
 
-Mission.TypeEnd = [ "TAS"; "TAS"; "Mach"; "Mach";
+Mission.TypeEnd = [ "TAS"; "TAS"; "TAS"; "Mach"; "Mach";
     "Mach"; "Mach";
     "Mach"; "Mach"; "Mach";
     "Mach"; "TAS"; "TAS"; "TAS"];
 
-Mission.TaxiTime = 20;
+Mission.TaxiTime = 15;
 Mission.MainMissEnd = 82;
 Mission.TkoRoll = 1600; %m;
 %% REMEMBER THE MISSION PROFILE %%

@@ -24,21 +24,6 @@ function [Aircraft] = EvalTaxi(Aircraft)
 %%%%%%%%%%%%%%%%%%%%
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                            %
-% info about the aircraft    %
-%                            %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% weight: get the maximum takeoff weight
-MTOW = Aircraft.Specs.Weight.MTOW; 
-
-% wing loading: get the wing loading
-W_S = Aircraft.Specs.Aero.W_S.SLS;
-
-% area: get the wing area
-S = MTOW / W_S;
-
 % ----------------------------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -72,6 +57,19 @@ vtype = Aircraft.Mission.Profile.TypeEnd(SegsID);
 
 %convert to seconds
 taxiT = Aircraft.Mission.Profile.TaxiTime .*60;
+
+if (SegBeg > 1)
+    
+    % initialize aircraft mass
+    Mass = Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg);
+    
+else
+    
+    % initialize aircraft mass: assume maximum takeoff weight
+    Mass = Aircraft.Specs.Weight.MTOW;
+    
+end
+
 
 % ----------------------------------------------------------
 
@@ -129,7 +127,7 @@ Aircraft = PropulsionPkg.PowerAvailable(Aircraft);
 % compute the friction force (assume coefficient of friction)
 % concrete friction
 Crr = .02;
-F = Crr.*MTOW.*g;
+F = Crr.*Mass.*g;
 
 % get force required to overcome friction
 DV = (F).* TAS;
@@ -140,7 +138,7 @@ Dist = Time.*TAS;
             
 % store variables in the mission history
 Aircraft.Mission.History.SI.Power.Req(       SegEnd) = Preq;
-Aircraft.Mission.History.SI.Weight.CurWeight(SegEnd) = MTOW;
+Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd) = Mass;
 Aircraft.Mission.History.SI.Performance.Time(SegEnd) = Time + Aircraft.Mission.History.SI.Performance.Time(SegBeg);
 
 % perform the propulsion analysis
@@ -152,6 +150,7 @@ Aircraft = PropulsionPkg.PropAnalysis(Aircraft);
 % performance metrics
 Aircraft.Mission.History.SI.Performance.Dist(SegEnd) = Dist + Aircraft.Mission.History.SI.Performance.Dist(SegBeg);
 Aircraft.Mission.History.SI.Performance.EAS( SegEnd) = TAS  ; % at takeoff this is the same
+
 
 % current segment
 Aircraft.Mission.History.Segment(SegBeg:SegEnd) = "Taxi";

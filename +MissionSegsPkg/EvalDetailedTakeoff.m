@@ -30,14 +30,11 @@ function [Aircraft] = EvalDetailedTakeoff(Aircraft)
 %                            %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% weight: get the maximum takeoff weight
-MTOW = Aircraft.Specs.Weight.MTOW; 
-
 % wing loading: get the wing loading
 W_S = Aircraft.Specs.Aero.W_S.SLS;
 
 % area: get the wing area
-S = MTOW / W_S;
+S = Aircraft.Specs.Weight.MTOW / W_S;
 
 AR = Aircraft.Specs.Aero.AR;
 
@@ -51,8 +48,8 @@ AR = Aircraft.Specs.Aero.AR;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % get the segment id
-%SegsID = Aircraft.Mission.Profile.SegsID;
-SegsID = 1;
+SegsID = Aircraft.Mission.Profile.SegsID;
+%SegsID = 1;
 
 % set number of points in the segment
 npoint = Aircraft.Mission.Profile.SegPts(SegsID);
@@ -76,20 +73,6 @@ TkoRoll = Aircraft.Mission.Profile.TkoRoll;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                            %
-% invariants                 %
-%                            %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% gravitational acceleration
-g = 9.81;
-
-% assume no temperature variation
-dISA = 0;
-
-% ----------------------------------------------------------
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                            %
 % allocate memory for the    %
 % mission history outputs    %
 %                            %
@@ -97,9 +80,6 @@ dISA = 0;
 
 % altitude
 Alt = repmat(Aircraft.Specs.Performance.Alts.Tko, npoint, 1);
-
-% total mass in each time
-Mass = repmat(MTOW, npoint, 1);
 
 % TAS
 TAS = zeros(npoint,1);
@@ -120,6 +100,43 @@ F = zeros(npoint,1);
 dV_dt = zeros(npoint, 1);
 
 Ps = zeros(npoint,1);
+
+% if not first segment, get accumulated quantities
+if (SegBeg > 1)
+    
+    % initialize aircraft mass
+    Mass = repmat(Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg), npoint, 1);
+    
+    % get distance flown and time aloft
+    distStart = Aircraft.Mission.History.SI.Performance.Dist(SegBeg);
+    timeStart = Aircraft.Mission.History.SI.Performance.Time(SegBeg);
+   
+    
+else
+    
+    % initialize aircraft mass: assume maximum takeoff weight
+    Mass = repmat(Aircraft.Specs.Weight.MTOW, npoint, 1);
+    
+   distStart = 0;
+    timeStart = 0;
+    
+end
+
+% ----------------------------------------------------------
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                            %
+% invariants                 %
+%                            %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% gravitational acceleration
+g = 9.81;
+
+% assume no temperature variation
+dISA = 0;
+
+
 
 % ----------------------------------------------------------
 
@@ -207,9 +224,9 @@ while dTkoRoll > EPS06 && i < 10
     for ipt = 1:npoint
     
         if ipt == 1
-            F = 0.02 .* (MTOW * g);
+            F = 0.02 .* (Mass(ipt) * g);
             T = Aircraft.Specs.Propulsion.SLSThrust(1);
-            dV_dt(ipt) = (T-F)/MTOW;
+            dV_dt(ipt) = (T-F)/Mass(ipt);
         else
             % compute the lift coefficient
             %CL = 2 * MTOW * g / (Rho * (TAS(ipt)^ 2) * S);
@@ -222,7 +239,7 @@ while dTkoRoll > EPS06 && i < 10
             L = 0.5 .* Rho .* TAS(ipt) .^ 2 .* CL .* S;
             
             % compute the friction force (assume coefficient of friction)
-            F = 0.02 .* (MTOW * g - L);
+            F = 0.02 .* (Mass(ipt) * g - L);
             
             % as liftoff occurs, L > W, so the frictional force is < 0 --- set it to 0
             if F < 0 
@@ -234,7 +251,7 @@ while dTkoRoll > EPS06 && i < 10
         
             DV(ipt) = (D+F).*TAS(ipt);
         
-            Ps(ipt) = (Pav(ipt) - DV(ipt)) ./ (MTOW .* g);
+            Ps(ipt) = (Pav(ipt) - DV(ipt)) ./ (Mass(ipt) .* g);
         
             dV_dt(ipt) = Ps(ipt).*g./TAS(ipt);
         end
@@ -306,6 +323,9 @@ Preq(1) = Pav(1);
 % propulsion analysis    %
 %                        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Time = Time + timeStart;
+%Dist = Dist + distStart;
         
 % store variables in the mission history
 Aircraft.Mission.History.SI.Power.Req(       SegBeg:SegEnd) = Preq;
