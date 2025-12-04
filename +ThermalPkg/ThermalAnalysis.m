@@ -8,11 +8,11 @@ ReturnSettings = [
     ];
 
 
-
 % Find which srcs are connected to what temps to give inlet temps
 CompSums = sum(ThermalSystem.Arch);
 NComps = length(CompSums);
 
+% TODO: Is this necessary or has it been deprecated?
 ThermalSystem.Analysis.ReqMDot = zeros(NComps,1);
 
 % Initialize components which are first in the loops by the temp of their
@@ -56,16 +56,17 @@ if ThermalSystem.Arch(end-3,end-1)
     ThermalSystem.Analysis.TempsOut(end-3) = ThermalSystem.Settings.Coolant.FuelPumpSink;
 end
 
+
+
+
+
 % Assign unknown temps
 for SinkIndices = NComps-1:NComps
     sendbackward(SinkIndices,ThermalSystem.Arch)
 end
 
-
-
-
-
-% Assign Outputs
+ThermalSystem.Analysis.TempsIn
+ThermalSystem.Analysis.TempsOut
 
 
 % Create nice labeled cell
