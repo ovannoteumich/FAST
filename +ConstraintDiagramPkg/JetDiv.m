@@ -2,7 +2,7 @@ function [FAR] = JetDiv(W_S, T_W, Aircraft)
 %
 % [FAR] = JetDiv(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 19 sep 2025
+% last updated: 04 dec 2025
 %
 % derive the constraints for diversion (cruise) performance.
 %
@@ -73,10 +73,20 @@ if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
     
 end
 
-if (ReqType == 0 || ReqType == 1)
+if (ReqType == 0 || ReqType == 1) % Roskam and Mattingly's equations match
+    
+    % check for turboprop/piston aircraft
+    if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
+        
+        % requirement is power-based, do not account for lapsing
+        FAR = q .* CD0 ./ W_S + W_S ./ (q .* pi .* AR .* e) - T_W;
 
-    % Roskam and Mattingly's equations match
-    FAR = (q .* CD0 ./ W_S + W_S ./ q ./ pi ./ AR ./ e) ./ RhoRatio ^ 0.6 - T_W;
+    else
+        
+        % requirement is thrust-based, account for engine lapsing
+        FAR = (q .* CD0 ./ W_S + W_S ./ (q .* pi .* AR .* e)) ./ RhoRatio ^ 0.6 - T_W;
+    
+    end
     
 elseif (ReqType == 2)
     
@@ -90,7 +100,6 @@ else
     
     % throw an error
     error("ERROR - JetDiv: ReqType must be either 0 (Roskam), 1 (Mattingly), or 2 (de Vries et al.).");
-    
     
 end
     
