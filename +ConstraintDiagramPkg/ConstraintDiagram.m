@@ -3,7 +3,7 @@ function [] = ConstraintDiagram(Aircraft)
 % ConstraintDiagram.m
 % written by Paul Mokotoff, prmoko@umich.edu
 % adapted from code used in AEROSP 481 as a GSI
-% last updated: 03 dec 2025
+% last updated: 04 dec 2025
 %
 % create a constraint diagram according to 14 CFR 23/25. for turbofans, a
 % T/W-W/S diagram is created using 14 CFR 25. for turboprops/piston, either
@@ -191,8 +191,21 @@ ylabel(VertLabel);
 xlim([Hrange(1), Hrange(end)]);
 ylim([Vrange(1), Vrange(end)]);
 
+% get the axis
+A = gca;
+
 % increase font size
-set(gca, "FontSize", 24);
+A.FontSize = 24;
+
+% add minor grid lines
+A.XMinorGrid = "on";
+A.YMinorGrid = "on";
+
+% add the grid on the top
+A.Layer = "top";
+
+% make the grid partially transparent
+A.GridAlpha = 0.5;
 
 % ----------------------------------------------------------
 
