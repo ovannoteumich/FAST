@@ -2,7 +2,7 @@ function [FAR] = JetTOFL(W_S, T_W, Aircraft)
 %
 % [FAR] = JetTOFL(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 16 sep 2025
+% last updated: 04 dec 2025
 %
 % derive the constraints for takeoff field length.
 %
@@ -46,15 +46,15 @@ RhoRwy = 0.95;
 
 % compute the takeoff parameter, based on FAR 25
 Top25 = BalFieldLen / 37.5;
-    
+
 % convert wing loading to english units
-W_S = W_S .* UnitConversionPkg.ConvMass(1, "kg", "lbm") ./ UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
+W_S = W_S .* 9.81 .* UnitConversionPkg.ConvForce(1, "N", "lbf") ./ UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
 
 % check for turboprop/piston aircraft
 if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
         
     % convert to T/W
-    T_W = 1 ./ (Vstall .* T_W);
+    T_W = 1 ./ (1.2 * Vstall .* T_W);
     
 end
 
