@@ -3,7 +3,7 @@ function [] = ConstraintDiagram(Aircraft)
 % ConstraintDiagram.m
 % written by Paul Mokotoff, prmoko@umich.edu
 % adapted from code used in AEROSP 481 as a GSI
-% last updated: 03 nov 2025
+% last updated: 03 dec 2025
 %
 % create a constraint diagram according to 14 CFR 23/25. for turbofans, a
 % T/W-W/S diagram is created using 14 CFR 25. for turboprops/piston, either
@@ -129,6 +129,9 @@ if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston")) && (CFRPart == 25
     % convert the horizontal grid and range to kN/m^2
     Hgrid  = Hgrid  .* 9.81 ./ 1000;
     Hrange = Hrange .* 9.81 ./ 1000;
+    
+    % update the label
+    HoriLabel = "Wing Loading (kN/m^2)";
     
 end
 
