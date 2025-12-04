@@ -2,7 +2,7 @@ function [FAR] = JetLFL(W_S, T_W, Aircraft)
 %
 % [FAR] = JetLFL(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 16 sep 2025
+% last updated: 04 dec 2025
 %
 % derive the constraints for landing field length.
 %
@@ -47,7 +47,7 @@ RhoRwy = 0.95;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % convert wing loading to english units
-W_S = W_S .* UnitConversionPkg.ConvMass(1, "kg", "lbm") ./ UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
+W_S = W_S .* 9.81 .* UnitConversionPkg.ConvForce(1, "N", "lbf") ./ UnitConversionPkg.ConvLength(1, "m", "ft") ^ 2;
 
 if (ReqType == 0)
     
