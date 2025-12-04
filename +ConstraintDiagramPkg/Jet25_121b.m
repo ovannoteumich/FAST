@@ -2,7 +2,7 @@ function [FAR] = Jet25_121b(W_S, T_W, Aircraft)
 %
 % [FAR] = Jet25_121b(W_S, T_W, Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 19 nov 2025
+% last updated: 04 dec 2025
 %
 % derive the constraints for the second segment climb.
 %
@@ -84,6 +84,17 @@ ks = 1.2;
 
 % return performance requirement as an inequality constraint
 if (ReqType == 0)
+    
+    % check for turboprop/piston aircraft
+    if (strcmpi(aclass, "Turboprop") || strcmpi(aclass, "Piston"))
+        
+        % get the airspeed and convert to m/s
+        V = ks * Vstall;
+        
+        % convert to T/W
+        T_W = 1 ./ (V .* T_W);
+        
+    end
     
     % use Roskam's equation
     FAR = CorrFactor * (ks ^ 2 * CD0 / CL + CL / ks ^ 2 / pi / AR / e + G) - T_W;
