@@ -8,10 +8,10 @@ function [Aircraft] = NarrowBodyMission(Aircraft)
 % define an A320(Neo) design mission
 % (see below).
 %
-% mission 1: Range/3 nmi climb and cruise  
+% mission 1: taxi, Range/3 nmi climb and cruise  
 % mission 2: Range/3 nmi climb and cruise
 % mission 3: Range/3 nmi climb and cruise and descent
-% mission 4: hold for desginated time, then taxi
+% mission 4: hold for desginated time
 %             |          |                   |
 %             |          | _________         |
 %             | _________|/         \        |
@@ -109,7 +109,7 @@ Mission.TypeEnd = [ "TAS"; "TAS"; "TAS"; "Mach"; "Mach";
     "Mach"; "Mach"; "Mach";
     "Mach"; "TAS"; "TAS";];
 
-Mission.TaxiTime = 30;
+Mission.TaxiTime = 60;
 Mission.MainMissEnd = 82;
 Mission.TkoRoll = 1600; %m;
 %% REMEMBER THE MISSION PROFILE %%

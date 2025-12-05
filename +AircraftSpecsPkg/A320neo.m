@@ -38,7 +38,7 @@ Aircraft.Specs.TLAR.Class = "Turbofan";
 
 % ** required **
 % approximate number of passengers 
-Aircraft.Specs.TLAR.MaxPax = 165;
+Aircraft.Specs.TLAR.MaxPax = 180;
 
 
 %% MODEL CALIBRATION FACTORS %%
@@ -50,11 +50,11 @@ Aircraft.Specs.Aero.L_D.CrsCF = 1;
 
 % fuel flow calibration factor
 %Aircraft.Specs.Propulsion.MDotCF = 1.06;
-Aircraft.Specs.Propulsion.MDotCF = 1.06;
+Aircraft.Specs.Propulsion.MDotCF = 1.0;
 
 % airframe weight calibration factor
 %Aircraft.Specs.Weight.WairfCF = 1.02;
- Aircraft.Specs.Weight.WairfCF = 1.02;
+ Aircraft.Specs.Weight.WairfCF = 1.0;
 
 %% VEHICLE PERFORMANCE %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -142,8 +142,8 @@ Aircraft.Specs.Propulsion.PropArch.Type = "C";
 
 % **required** for configurations using gas-turbine engines
 % get the engine model
-Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.PW_1100G_JM;
-%Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.LEAP_1A26;
+%Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.PW_1100G_JM;
+Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.LEAP_1A26;
 
 % number of engines
 Aircraft.Specs.Propulsion.NumEngines = 2;

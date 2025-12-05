@@ -91,11 +91,12 @@ else
             dwn(iGT) = dwn(iGT) - dwn(iEM);
         end
         dwn(iFan) = 0.5;
+        %{
         if Seg == 'Taxi'
             dwn(iGT)=[1,0];
             dwn(iFan)=[1,0];
         end
-        
+        %}
         % propagate through sgement points
         LamUps.Miss(Profile.SegBeg(i):Profile.SegEnd(i), :) = repmat(ups,npt,1);
         LamDwn.Miss(Profile.SegBeg(i):Profile.SegEnd(i), :) = repmat(dwn,npt,1);

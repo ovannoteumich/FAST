@@ -95,10 +95,10 @@ dISA = 0;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % TAS
-TAS = V_taxi;
+TAS = repmat(V_taxi,npoint,1);
 
 % time 
-Time = taxiT;
+Time = [0;taxiT];
 
 % ----------------------------------------------------------
 
@@ -112,9 +112,9 @@ Time = taxiT;
 [~, V_taxi, ~, ~, ~, Rho, ~] = MissionSegsPkg.ComputeFltCon( ...
                               AltEnd, dISA, vtype, V_taxi);
 
-Aircraft.Mission.History.SI.Performance.Rho(SegEnd) = Rho;
+Aircraft.Mission.History.SI.Performance.Rho(SegBeg:SegEnd) = Rho;
 
-Aircraft.Mission.History.SI.Performance.TAS(SegEnd) = TAS;
+Aircraft.Mission.History.SI.Performance.TAS(SegBeg:SegEnd) = TAS;
 
 % ----------------------------------------------------------------
 %% Eval Taxi %%
@@ -137,9 +137,9 @@ Preq = DV;
 Dist = Time.*TAS;
             
 % store variables in the mission history
-Aircraft.Mission.History.SI.Power.Req(       SegEnd) = Preq;
+Aircraft.Mission.History.SI.Power.Req(SegBeg:SegEnd) = Preq;
 Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd) = Mass;
-Aircraft.Mission.History.SI.Performance.Time(SegEnd) = Time + Aircraft.Mission.History.SI.Performance.Time(SegBeg);
+Aircraft.Mission.History.SI.Performance.Time(SegBeg:SegEnd) = Time + Aircraft.Mission.History.SI.Performance.Time(SegBeg);
 
 % perform the propulsion analysis
 Aircraft = PropulsionPkg.PropAnalysis(Aircraft);
@@ -148,8 +148,8 @@ Aircraft = PropulsionPkg.PropAnalysis(Aircraft);
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 % performance metrics
-Aircraft.Mission.History.SI.Performance.Dist(SegEnd) = Dist + Aircraft.Mission.History.SI.Performance.Dist(SegBeg);
-Aircraft.Mission.History.SI.Performance.EAS( SegEnd) = TAS  ; % at takeoff this is the same
+Aircraft.Mission.History.SI.Performance.Dist(SegBeg:SegEnd) = Dist + Aircraft.Mission.History.SI.Performance.Dist(SegBeg);
+Aircraft.Mission.History.SI.Performance.EAS(SegBeg:SegEnd) = TAS  ; % at takeoff this is the same
 
 
 % current segment

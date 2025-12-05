@@ -35,7 +35,7 @@ Engine.Mach = 0.05;
 Engine.Alt = 0;
 
 % Overall Pressure Ratio 
-Engine.OPR = 50;
+Engine.OPR = 31.7;
 
 % Fan Pressure Ratio
 % Estimated value based on PW GTF design
@@ -43,7 +43,7 @@ Engine.FPR = 1.65;
 
 % Bypass Ratio
 % Published BPR for PW1100G-JM is ~12.2
-Engine.BPR = 12.2;
+Engine.BPR = 12.3;
 
 % Combustion Temperature [K]
 Engine.Tt4Max = 2000;
