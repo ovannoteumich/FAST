@@ -109,8 +109,8 @@ Mission.TypeEnd = [ "TAS"; "TAS"; "TAS"; "Mach"; "Mach";
     "Mach"; "Mach"; "Mach";
     "Mach"; "TAS"; "TAS";];
 
-Mission.TaxiTime = 60;
-Mission.MainMissEnd = 82;
+Mission.TaxiTime = 30;
+Mission.MainMissEnd = 83;
 Mission.TkoRoll = 1600; %m;
 %% REMEMBER THE MISSION PROFILE %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

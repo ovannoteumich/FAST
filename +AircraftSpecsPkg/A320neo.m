@@ -52,7 +52,7 @@ Aircraft.Specs.Aero.L_D.CrsCF = 1;
 Aircraft.Specs.Propulsion.MDotCF = 1.06;
 
 % airframe weight calibration factor
-Aircraft.Specs.Weight.WairfCF = 1.02;
+Aircraft.Specs.Weight.WairfCF = 1.01;
 
 %% VEHICLE PERFORMANCE %%
 %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -70,7 +70,7 @@ Aircraft.Specs.Performance.Alts.Tko = 0;
 Aircraft.Specs.Performance.Alts.Crs = UnitConversionPkg.ConvLength(35000, "ft", "m");
 
 % design range (m)
-Aircraft.Specs.Performance.Range = 6500e3;
+Aircraft.Specs.Performance.Range = 6300e3;
 
 % maximum rate of climb (m/s), assumed 2,250 ft/min
 Aircraft.Specs.Performance.RCMax = UnitConversionPkg.ConvLength(2250/60, "ft", "m");
@@ -147,7 +147,7 @@ Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.PW1127GA_JM;
 Aircraft.Specs.Propulsion.NumEngines = 2;
 
 % thrust-weight ratio (if a turbojet/turbofan)
-Aircraft.Specs.Propulsion.T_W.SLS = 2.40e5 / (74000 * 9.81);
+Aircraft.Specs.Propulsion.T_W.SLS = 2.40e5 / (77500 * 9.81);
 
 % total sea-level static thrust available (N)
 Aircraft.Specs.Propulsion.Thrust.SLS = 2.40e5;

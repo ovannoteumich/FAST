@@ -331,7 +331,7 @@ grid on
 % ----------------------------------------------------------
 figure;
 plot(lams_clb, fburn)
-xlabel("Climb Power Split %")
+xlabel("Climb Power Code")
 ylabel("Fuel Burn(kg)")
 hold on
 yyaxis right
