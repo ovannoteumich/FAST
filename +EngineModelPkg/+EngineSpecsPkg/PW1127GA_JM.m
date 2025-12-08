@@ -1,6 +1,6 @@
-function [Engine] = PW_1100G_JM()
+function [Engine] = PW1127GA_JM()
 %
-% [Engine] = PW_1100G_JM()
+% [Engine] = PW1127G1_JM()
 % Written By: Emma Cassidy, emmasmit@umich.edu
 % Last Updated: 7/10/25
 %
@@ -35,7 +35,7 @@ Engine.Mach = 0.05;
 Engine.Alt = 0;
 
 % Overall Pressure Ratio 
-Engine.OPR = 50;
+Engine.OPR = 31.6575;
 
 % Fan Pressure Ratio
 % Estimated value based on PW GTF design
@@ -43,7 +43,7 @@ Engine.FPR = 1.65;
 
 % Bypass Ratio
 % Published BPR for PW1100G-JM is ~12.2
-Engine.BPR = 12.2;
+Engine.BPR = 12.2805;
 
 % Combustion Temperature [K]
 Engine.Tt4Max = 2000;
@@ -54,7 +54,7 @@ Engine.TempLimit.Type = NaN;
 
 % Design point thrust [N]
 % Max rated takeoff thrust for PW1133G (24,240 lbf)
-Engine.DesignThrust = 120430;
+Engine.DesignThrust = 120435;
 
 %% Architecture
 
@@ -104,10 +104,10 @@ Engine.EtaPoly.Mixing = 1;
 
 %% Offdesign coefficient of BADA equation 
 % currently same as Leap_1A26 because of similar thrust 
-Engine.Cff3    =  0.4006;
-Engine.Cff2    = -0.4323;
-Engine.Cff1    =  0.9946;
-Engine.Cffch   =  6.1*10^-7;
+Engine.Cff3    =  0.2352;
+Engine.Cff2    = -0.3066;
+Engine.Cff1    =  0.8738;
+Engine.Cffch   =  6.8*10^-7;
 Engine.HEcoeff =  1;
 
 end

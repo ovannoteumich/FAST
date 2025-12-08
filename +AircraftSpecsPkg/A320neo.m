@@ -142,7 +142,7 @@ Aircraft.Specs.Propulsion.PropArch.Type = "C";
 
 % **required** for configurations using gas-turbine engines
 % get the engine model
-Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.PW_1100G_JM;
+Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.PW1127G1_JM;
 %Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.LEAP_1A26;
 
 % number of engines
