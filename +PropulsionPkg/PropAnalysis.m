@@ -268,10 +268,10 @@ for ipnt = 1:npnt
 end
 
 if LamType==1
-errPreq = find(Preq(:,7)+Preq(:,8)-Preq(:,9)>1e-6);
-if any(errPreq)
-    Preq(errPreq,9) = Preq(errPreq,7)+Preq(errPreq,8);
-end
+    errPreq = find(Preq(:,7)+Preq(:,8)-Preq(:,9)>1e-6);
+    if any(errPreq)
+        Preq(errPreq,9) = Preq(errPreq,7)+Preq(errPreq,8);
+    end
 end
 % temporary power required array for iterating
 TempReq = Preq;
@@ -292,9 +292,11 @@ exceeds = find(PoutTest - PavTest > 1.0e-06);
 % if any exceed the power available, return only the power available
 if (any(exceeds))
     PoutTest(exceeds) = PavTest(exceeds);
+    %{
     if Aircraft.Specs.Propulsion.PropArch.Type == "PHE"
         PoutTest(:,[3,4]) = PavTest(:,[3,4]).*LamUps(:,[3,4]);
     end
+    %}
 end
 
 % set the required power as the output power

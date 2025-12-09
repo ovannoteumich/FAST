@@ -30,6 +30,25 @@ Aircraft2.Specs.Power.LamUps = rmfield(Aircraft2.Specs.Power.LamUps, 'Miss');
 Aircraft2.Specs.Power.LamDwn = rmfield(Aircraft2.Specs.Power.LamDwn, 'Miss');
 Aircraft2 = Main(Aircraft2, @MissionProfilesPkg.NarrowBodyMission);
 
+Aircraft = Aircraft2;
+%Aircraft = ans;
+Aircraft.Specs.Performance.Range = UnitConversionPkg.ConvLength(800, "naut mi", "m");
+Aircraft.Settings.Analysis.Type = -1;
+
+Aircraft.Specs.Weight.EM = 400;
+Aircraft.Specs.Weight.OEW = Aircraft.Specs.Weight.OEW + Aircraft.Specs.Weight.EM;
+
+Aircraft.Specs.Power.P_W.EM = 10*1000;
+
+Aircraft.Specs.Propulsion.SLSPower(:,[3,4]) = [200,200]*10*1000;
+Aircraft.Specs.Propulsion.SLSPower(:,[5,6]) = Aircraft.Specs.Propulsion.SLSPower(:,[5,6]) + Aircraft.Specs.Propulsion.SLSPower(:,[3,4]).*.99;% add EM to SLS power
+Aircraft.Specs.Propulsion.SLSThrust(:,[3,4]) = Aircraft.Specs.Propulsion.SLSPower(:,[3,4])/Aircraft.Specs.Performance.Vels.Tko;
+Aircraft.Specs.Propulsion.SLSThrust(:,[5,6]) = Aircraft.Specs.Propulsion.SLSThrust(:,[5,6]) + Aircraft.Specs.Propulsion.SLSThrust(:,[3,4]);
+Aircraft.Specs.Power.LamUps = [];
+Aircraft.Specs.Power.LamDwn = [];
+
+AircraftStruct = Aircraft;
+
 %%
 n = 50;
 n1 = 1;
@@ -38,6 +57,7 @@ lams_tko=0;
 lams_clb = linspace(0,.25,n);
 fburn = zeros(n,n1);
 batt = zeros(n,n1);
+crate = zeros(n,n1);
 SOC = zeros(n,n1);
 pass = zeros(n*n1,1);
 i=0;
@@ -50,21 +70,9 @@ for itko = 1:n1
         
         % check if cases must be run
         if (RunCases == 1)
-            Aircraft = Aircraft2;
+            Aircraft = AircraftStruct;
             %Aircraft = ans;
-            Aircraft.Specs.Performance.Range = UnitConversionPkg.ConvLength(800, "naut mi", "m");
-            Aircraft.Settings.Analysis.Type = -1;
             
-            Aircraft.Specs.Weight.EM = 400;
-            
-            Aircraft.Specs.Power.P_W.EM = 10;
-            
-            Aircraft.Specs.Propulsion.SLSPower(:,[3,4]) = [200,200]*10*1000; % EM weight x spec pow x watt/kw
-            Aircraft.Specs.Propulsion.SLSThrust(:,[3,4]) = Aircraft.Specs.Propulsion.SLSPower(:,[3,4])/Aircraft.Specs.Performance.Vels.Tko;
-            
-            Aircraft.Specs.Power.LamUps = [];
-            Aircraft.Specs.Power.LamDwn = [];
-            % upstream power splits
             Aircraft.Specs.Power.LamUps.SLS = lams_tko(itko);
 
             Aircraft.Specs.Power.LamUps.Tko = lams_tko(itko);
@@ -90,6 +98,7 @@ for itko = 1:n1
             % settings
             Aircraft.Settings.PowerStrat = -1;
             Aircraft.Settings.PowerOpt = 0;
+            Aircraft.Settings.PrintOut = 0;
             % -1 = prioritize downstream, go from fan back to energy sources
             
             Aircraft = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
@@ -115,6 +124,7 @@ for itko = 1:n1
         fburn(iclb,itko) = Aircraft.Specs.Weight.Fuel;
         batt(iclb,itko) = Aircraft.Specs.Weight.Batt;
         SOC(iclb, itko) = Aircraft.Mission.History.SI.Power.SOC(end,2);
+        crate(iclb, itko) = max(Aircraft.Mission.History.SI.Power.C_rate(:,2));
     end
 end
 
@@ -327,9 +337,9 @@ title("Electrified Aircraft - SLS Thrust per engine");
 xlabel("Power Split (%)");
 set(gca, "FontSize", 18);
 grid on
-
+%}
 % ----------------------------------------------------------
-figure;
+figure(1);
 plot(lams_clb, fburn)
 xlabel("Climb Power Code")
 ylabel("Fuel Burn(kg)")
@@ -337,7 +347,15 @@ hold on
 yyaxis right
 plot(lams_clb, batt)
 ylabel("Battery Weight (kg)")
-%}
+figure(2);
+plot(lams_clb, SOC)
+xlabel("Climb Power Code")
+ylabel("SOC")
+hold on
+yyaxis right
+plot(lams_clb, crate)
+ylabel("crate")
+%{
 [X,Y]= meshgrid(lams_tko, lams_clb);
 figure(1);
 hold on;
@@ -365,5 +383,5 @@ ylabel('Clb Power Split (%)');
 title('Final SOC Val (%) Colormap');
 grid on;
 hold off;
-
+%}
 end

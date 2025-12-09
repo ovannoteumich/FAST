@@ -57,7 +57,7 @@ Aircraft.Settings.Analysis.Type = -1;
 Aircraft.Specs.Weight.EM = 400;
 Aircraft.Specs.Weight.OEW = Aircraft.Specs.Weight.OEW + Aircraft.Specs.Weight.EM;
 
-Aircraft.Specs.Power.P_W.EM = 10;
+Aircraft.Specs.Power.P_W.EM = 10*1000;
 
 Aircraft.Specs.Propulsion.SLSPower(:,[3,4]) = [200,200]*10*1000;
 Aircraft.Specs.Propulsion.SLSPower(:,[5,6]) = Aircraft.Specs.Propulsion.SLSPower(:,[5,6]) + Aircraft.Specs.Propulsion.SLSPower(:,[3,4]).*.99;% add EM to SLS power
@@ -74,9 +74,9 @@ Aircraft.Specs.Power.LamUps.Des = 0;
 Aircraft.Specs.Power.LamUps.Lnd = 0;
 
 % downstream power splits
-Aircraft.Specs.Power.LamDwn.SLS = 0.13;
+Aircraft.Specs.Power.LamDwn.SLS = 0.08;
 Aircraft.Specs.Power.LamDwn.Tko = 0;
-Aircraft.Specs.Power.LamDwn.Clb = 0.13;
+Aircraft.Specs.Power.LamDwn.Clb = 0.08;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;

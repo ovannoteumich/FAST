@@ -67,9 +67,10 @@ DesPts = Aircraft.Settings.DesPoints;
 % number of points in the main mission
 npt = TkoPts + 3 * (ClbPts - 1) + CrsPts - 1 + 3 * (DesPts - 1);
 
-n1= 10;
+n1= 2;
 n2= 64;
-pts = [1:27,37:45,55:63];
+%pts = [1:27,37:45,55:63];
+pts = [n1:n2];
 % get starting point
 PC0 = Aircraft.Specs.Power.LamUps.Miss(pts, [1,3]);
 

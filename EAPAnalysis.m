@@ -444,7 +444,7 @@ if Type > -2 && iter > 7
  
              % Extract the max C-rate for each of the last 5 iterations
              for i = 1:5
-                 maxC_rates(i) = max(lastAircraft{i}.Mission.History.SI.Power.C_rate);
+                 maxC_rates(i) = max(lastAircraft{i}.Mission.History.SI.Power.C_rate(:,2));
              end
          end
  

@@ -78,9 +78,10 @@ LamDwn(isnan(LamDwn)) = 0;
 LamUps(isnan(LamUps)) = 0;
 
 % remember the power split
-Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = LamDwn;
-Aircraft.Specs.Power.LamDwn.Miss(SegBeg:SegEnd, :) = LamDwn;
-
+%if Aircraft.Settings.PowerOpt == 1 || Aircraft.Settings.Analysis.Type > 0
+    Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = LamDwn;
+    Aircraft.Specs.Power.LamDwn.Miss(SegBeg:SegEnd, :) = LamDwn;
+%end
 
 if Aircraft.Settings.PowerOpt == 0 && Aircraft.Settings.PowerStrat == 1
     Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :) = LamUps;

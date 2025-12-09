@@ -51,6 +51,10 @@ r_labor = 0.027;
 
 %% MRO Comparison
 
+%% EGT Plots
+
+
+
 
 
 end
