@@ -292,9 +292,10 @@ exceeds = find(PoutTest - PavTest > 1.0e-06);
 % if any exceed the power available, return only the power available
 if (any(exceeds))
     PoutTest(exceeds) = PavTest(exceeds);
-    %{
     if Aircraft.Specs.Propulsion.PropArch.Type == "PHE"
-        PoutTest(:,[3,4]) = PavTest(:,[3,4]).*LamUps(:,[3,4]);
+        checkLam = LamDwn(:,3) ~= 0;
+        PreqFan = PoutTest(checkLam, [5,6]).*(100/99);
+        PoutTest(checkLam,[3,4]) = PreqFan - PoutTest(checkLam,[1,2]);
     end
     %}
 end

@@ -1,16 +1,35 @@
 function [] = EGTDecay()
+n = 50;
+a = 2.3;
+d = linspace(0,.35,n);
+EGTi = 95 .*exp(d .* a);
+
+figure(1); clf;
+
+plot(d*100, EGTi, 'k-', 'LineWidth', 2.0);   % black line, thicker
+grid on;
+
+xlabel('Derate (%)', 'FontSize', 14, 'FontWeight', 'bold');
+ylabel('Initial EGT Margin (°C)', 'FontSize', 14, 'FontWeight', 'bold');
+title('PW1127G Initial EGT Margin vs Derate', 'FontSize', 16, 'FontWeight', 'bold');
+
+set(gca, 'FontSize', 14, 'LineWidth', 1);  % makes axes thicker + bigger tick labels
+
+
+
 EGT1000c = 10;
 EGT2000c = 17;
-ratec = 3;
+ratec = 5;
 EGTmax = 95;
-recover = .8;
+recover = .85;
 pts = 51;
 %FEC = linspace(0,50, pts)';
 FECa = [0;1;2];
-EGTArray = [95; 95-EGT1000c; 95-EGT2000c];
+EGTArray = [EGTmax; EGTmax-EGT1000c; EGTmax-EGT2000c];
 %EGT = 95;
 EGT = EGTArray(end);
 i = 3;
+deT = 1;
 
 while i < 50
 
@@ -20,11 +39,11 @@ while i < 50
 
     if rem((i),10) == 0
          EGT = EGT+ (EGTmax - EGT)*recover;
-         EGTArray = [EGTArray; EGT; EGT-EGT1000c*1.2; EGT-EGT2000c*1.2];
+         EGTArray = [EGTArray; EGT; EGT-EGT1000c; EGT-EGT2000c];
          FECa = [FECa; i; i+1; i+2];
-         recover = recover * .9;
-         EGT1000c = EGT1000c*1.1;
-         EGT2000c = EGT2000c*1.1;
+         recover = recover * .95;
+         %EGT1000c = EGT1000c*1.1;
+         %EGT2000c = EGT2000c*1.1;
          EGT = EGTArray(end);
          i = i +2;
     end
@@ -33,24 +52,65 @@ while i < 50
 
 end
 
+figure(2); clf;
 
-figure(1);
-plot(FECa, EGTArray)
+plot(FECa, EGTArray, 'k-', 'LineWidth', 2.0);   % black line, thicker
+grid on;
 
-figure(1);
-plot(fhs2, egtMarg2)
-xlabel("FEH")
-ylabel("EGT Margin Decay")
-hold on
-plot(fhs3, egtMarg3)
-plot(fhs4, egtMarg4)
-yline(100, "-r")
-yline(88, "-c")
-yline(70, "-m")
-scatter(dataCFM52(:,1),dataCFM52(:,2), "*")
-scatter(dataCFM53(:,1),dataCFM53(:,2), "o")
-scatter(dataCFM54(:,1),dataCFM54(:,2), "x")
-legend("-5C2", "-5C3", "-5C4", "Redline -5C2", "Redline -5C3", "Redline -5C4", "-5C2 Data", "-5C3 Data", "-5C4 Data")
+xlabel("FEC (x1000 cycles)", 'FontSize', 14, 'FontWeight', 'bold');
+ylabel('EGT Margin Decay (°C)', 'FontSize', 14, 'FontWeight', 'bold');
+title('PW1127G Initial EGT Margin vs Derate', 'FontSize', 16, 'FontWeight', 'bold');
+
+set(gca, 'FontSize', 14, 'LineWidth', 1);
+
+
+EGT1000c = 10;
+EGT2000c = 17;
+ratec = 4;
+EGTmax = 135;
+recover = .85;
+pts = 51;
+%FEC = linspace(0,50, pts)';
+FECa = [0;1;2];
+EGTArray = [EGTmax; EGTmax-EGT1000c; EGTmax-EGT2000c];
+%EGT = 95;
+EGT = EGTArray(end);
+i = 3;
+deT = 1;
+
+while i < 50
+
+    EGT = EGT - ratec;
+    EGTArray = [EGTArray; EGT];
+    FECa = [FECa; i];
+
+    if EGT<60*deT 
+        %|| rem((i),40) == 0
+         EGT = EGT+ (EGTmax - EGT)*recover;
+         EGTArray = [EGTArray; EGT; EGT-EGT1000c; EGT-EGT2000c];
+         FECa = [FECa; i; i+1; i+2];
+         recover = recover * .95;
+         EGT = EGTArray(end);
+         i = i +2;
+         deT = deT * .8;
+    end
+
+   i=i + 1;
+
+end
+
+
+figure(3); clf;
+
+plot(FECa, EGTArray, 'k-', 'LineWidth', 2.0);   % black line, thicker
+grid on;
+
+xlabel("FEC (x1000 cycles)", 'FontSize', 14, 'FontWeight', 'bold');
+ylabel('EGT Margin Decay (°C)', 'FontSize', 14, 'FontWeight', 'bold');
+title('PW1127G Initial EGT Margin vs Derate', 'FontSize', 16, 'FontWeight', 'bold');
+
+set(gca, 'FontSize', 14, 'LineWidth', 1);
+
 
 
 end

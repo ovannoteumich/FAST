@@ -74,9 +74,9 @@ Aircraft.Specs.Power.LamUps.Des = 0;
 Aircraft.Specs.Power.LamUps.Lnd = 0;
 
 % downstream power splits
-Aircraft.Specs.Power.LamDwn.SLS = 0.08;
+Aircraft.Specs.Power.LamDwn.SLS = 0.01;
 Aircraft.Specs.Power.LamDwn.Tko = 0;
-Aircraft.Specs.Power.LamDwn.Clb = 0.08;
+Aircraft.Specs.Power.LamDwn.Clb = 0.01;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;
@@ -123,10 +123,10 @@ Aircraft_Ups = Main(Aircraft, @MissionProfilesPkg.A320);
 
 %%
 figure;
-plot(Aircraft.Mission.History.SI.Performance.Time/60, Aircraft.Mission.History.SI.Power.LamUps(:,1))
-xlabel("Time (min)")
+plot(Aircraft.Mission.History.SI.Performance.Time/60/60, Aircraft.Mission.History.SI.Power.LamUps(:,1))
+xlabel("Time (hr)")
 ylabel("GT Throttle")
 hold on
 yyaxis right
-plot(Aircraft.Mission.History.SI.Performance.Time/60, Aircraft.Mission.History.SI.Power.Pout(:,3))
-ylabel("Power Out (W)")
+plot(Aircraft.Mission.History.SI.Performance.Time/60/60, Aircraft.Mission.History.SI.Performance.Alt)
+ylabel("Altitude (m)")
