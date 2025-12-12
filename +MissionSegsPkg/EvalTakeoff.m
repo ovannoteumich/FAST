@@ -103,7 +103,11 @@ FPA = zeros(npoint, 1);
 % altitude------[npoint x 1]
 Alt = Aircraft.Mission.History.SI.Performance.Alt(SegBeg:SegEnd); % m
 
+% memory for the fuel and battery energy remaining
+Eleft_ES = zeros(npoint, 1);
 
+Fuel = Aircraft.Specs.Propulsion.PropArch.SrcType == 1;
+Batt = Aircraft.Specs.Propulsion.PropArch.SrcType == 0;
 
 % if not first segment, get accumulated quantities
 if (SegBeg > 1)
@@ -141,22 +145,6 @@ else
     
 end
 
-
-% check for any fuel
-if (any(Fuel))
-    
-    % compute the fuel energy remaining
-    Eleft_ES(:, Fuel) = Aircraft.Specs.Power.SpecEnergy.Fuel * Aircraft.Specs.Weight.Fuel;
-    
-end
-
-% check for any battery
-if (any(Batt))
-    
-    % compute the battery energy remaining
-    Eleft_ES(:, Batt) = Aircraft.Specs.Power.SpecEnergy.Batt * Aircraft.Specs.Weight.Batt;
-    
-end
 
 % remember the power splits
 %Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :) = repmat(Aircraft.Specs.Power.LamDwn.Tko, SegEnd - SegBeg + 1, 1);
