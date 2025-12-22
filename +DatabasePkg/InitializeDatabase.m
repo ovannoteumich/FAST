@@ -1,37 +1,37 @@
-function [] = InitializeDatabase(AssumedM)
-% [] = InitalizeDatabase()
+function [DatabaseStruct] = InitializeDatabase()
+% [DatabaseStruct] = InitalizeDatabase()
 %
 % Written By Maxfield Arnson; marnson@umich.edu
-% Last updated 11/20/2023
+% Last updated 19 nov 2025
 %
 % This function reads in the IDEAS Lab database and writes the data to the
-% aircraft structures that are used in the FAST sizing code. These are 
-% stored in the DatabasesV2 package in IDEAS_DB.mat. In addition, it
+% aircraft structures that are used in the FAST sizing code. These are
+% stored in the DatabasesPkg directory in IDEAS_DB.mat. In addition, it
 % calculates useful ratios for the aircraft structures such as thrust to
-% weight and wingloading for each of the aircraft. It has no inputs and no
-% outputs.
+% weight and wingloading for each of the aircraft.
 %
 % It also creates excel files intended to be used as an inputs in the JMP
 % application for data analysis. These files are located in the
-% DatabasesV2 Package.
+% DatabasePkg directory.
 %
+% INPUTS:
 %
+%   none
+%
+% OUTPUTS:
+% 
+%   DatabaseStruct = structure containing the IDEAS Databases. This variable is created so that when the function 
+%    is called, the databases load into the workspace. This variable is identical to those output into the
+%    IDEAS_DB.mat file, which this function creates by default.
 
 
-clc; close all;
-
-switch nargin
-    case 1
-    case 0
-        AssumedM = 0.8;
-end
 
 %% Read in AC Data, assign variables
 
 % Fans
 [~,~,RawTF] = xlsread(fullfile("+DatabasePkg", "EAP_Databases_Offline.xlsx"),'Jet Aircraft');
 
-for ii = 8:size(RawTF,2) % change upper value later on
+for ii = 8:size(RawTF,2)
     if isnan(RawTF{2,ii})
         continue
     end
@@ -48,14 +48,14 @@ for ii = 8:size(RawTF,2) % change upper value later on
             case 2
                 TurbofanAC.(RawTF{2,ii}).(RawTF{jj,3}).(RawTF{jj,4}) = RawTF{jj,ii};
         end
-        
+
     end
 end
 
 % Props
 [~,~,RawTP] = xlsread(fullfile("+DatabasePkg", "EAP_Databases_Offline.xlsx"),'Propeller Aircraft');
 
-for ii = 8:size(RawTP,2) % change upper value later on
+for ii = 8:size(RawTP,2)
     if isnan(RawTP{2,ii})
         continue
     end
@@ -72,7 +72,7 @@ for ii = 8:size(RawTP,2) % change upper value later on
             case 2
                 TurbopropAC.(RawTP{2,ii}).(RawTP{jj,3}).(RawTP{jj,4}) = RawTP{jj,ii};
         end
-        
+
     end
 end
 
@@ -132,13 +132,22 @@ for ii = 5:size(RawTFE,2)
     end
 end
 
-% Add pressure per stage
+% Add pressure per stage and validation vs training
 
 FanEngineFields = fieldnames(TurbofanEngines);
 
 for ii = 1:length(FanEngineFields)
-TurbofanEngines.(FanEngineFields{ii}).PresPerStage = ...
-    TurbofanEngines.(FanEngineFields{ii}).OPR_SLS^(1/(TurbofanEngines.(FanEngineFields{ii}).FanStages+TurbofanEngines.(FanEngineFields{ii}).LPCStages+TurbofanEngines.(FanEngineFields{ii}).IPCStages+TurbofanEngines.(FanEngineFields{ii}).HPCStages+TurbofanEngines.(FanEngineFields{ii}).RCStages));
+    TurbofanEngines.(FanEngineFields{ii}).PresPerStage = ...
+        TurbofanEngines.(FanEngineFields{ii}).OPR_SLS^(1/(TurbofanEngines.(FanEngineFields{ii}).FanStages+TurbofanEngines.(FanEngineFields{ii}).LPCStages+TurbofanEngines.(FanEngineFields{ii}).IPCStages+TurbofanEngines.(FanEngineFields{ii}).HPCStages+TurbofanEngines.(FanEngineFields{ii}).RCStages));
+
+    DTindex = randi(100,1,1);
+
+    if DTindex > 90
+        TurbofanEngines.(FanEngineFields{ii}).DataTypeValidation = "Validation";
+    else
+        TurbofanEngines.(FanEngineFields{ii}).DataTypeValidation = "Training";
+    end
+
 end
 
 % Props
@@ -156,6 +165,20 @@ for ii = 5:size(RawTPE,2)
         end
         TurbopropEngines.(RawTPE{2,ii}).(RawTPE{jj,3}) = RawTPE{jj,ii};
     end
+end
+
+% validation vs training
+PropEngineFields = fieldnames(TurbopropEngines);
+
+for ii = 1:length(PropEngineFields)
+    DTindex = randi(100,1,1);
+
+    if DTindex > 95
+        TurbopropEngines.(PropEngineFields{ii}).DataTypeValidation = "Validation";
+    else
+        TurbopropEngines.(PropEngineFields{ii}).DataTypeValidation = "Training";
+    end
+
 end
 
 
@@ -183,7 +206,7 @@ for ii = 4:60
     if isnan(RawTFE{ii,3})
         continue
     end
-FanEngineUnits.(RawTFE{ii,3}) = RawTFE{ii,2};
+    FanEngineUnits.(RawTFE{ii,3}) = RawTFE{ii,2};
 end
 FanEngineUnits.PresPerStage = "ratio";
 
@@ -194,17 +217,9 @@ for ii = 4:66
     if isnan(RawTPE{ii,3})
         continue
     end
-PropEngineUnits.(RawTPE{ii,3}) = RawTPE{ii,2};
+    PropEngineUnits.(RawTPE{ii,3}) = RawTPE{ii,2};
 end
 
-%% Manual Touch ups
-
-% these aircraft were assigned the wrong units in the database
-TurbopropAC.D228_100.Specs.Performance.Vels.Crs = 0.4;%UnitConversionPkg.ConvLength(223,'naut mi','m')/3600;
-TurbopropAC.D228_101.Specs.Performance.Vels.Crs = 0.4;%UnitConversionPkg.ConvLength(223,'naut mi','m')/3600;
-TurbopropAC.D228_200.Specs.Performance.Vels.Crs = 0.4;%UnitConversionPkg.ConvLength(223,'naut mi','m')/3600;
-TurbopropAC.D228_201.Specs.Performance.Vels.Crs = 0.4;%UnitConversionPkg.ConvLength(223,'naut mi','m')/3600;
-TurbopropAC.D228_202.Specs.Performance.Vels.Crs = 0.4;%UnitConversionPkg.ConvLength(223,'naut mi','m')/3600;
 
 %% Calculated Values
 % Call functions that calculate all desired ratios from the data in the
@@ -213,11 +228,11 @@ TurbopropAC.D228_202.Specs.Performance.Vels.Crs = 0.4;%UnitConversionPkg.ConvLen
 
 % Fans
 for ll = 1:length(FanFields)
-    TurbofanAC.(FanFields{ll}) = DatabasePkg.CalcFanVals(TurbofanAC.(FanFields{ll}),"Vals",AssumedM);
+    TurbofanAC.(FanFields{ll}) = DatabasePkg.CalcFanVals(TurbofanAC.(FanFields{ll}),"Vals");
 end
 
 FanUnitsReference.Specs.Propulsion.Engine = FanEngineUnits;
-FanUnitsReference = DatabasePkg.CalcFanVals(FanUnitsReference,"Units",AssumedM);
+FanUnitsReference = DatabasePkg.CalcFanVals(FanUnitsReference,"Units");
 
 % Props
 
@@ -230,8 +245,7 @@ PropUnitsReference = DatabasePkg.CalcPropVals(PropUnitsReference,"Units");
 
 
 %% Create JMP Files
-% these are excel sheets 
-
+% these are excel sheets
 
 % Fans
 [JMPCellFans] = DatabasePkg.StructTreeSearch(FanUnitsReference);
@@ -266,13 +280,14 @@ writecell(JMPCellProps, fullfile("+DatabasePkg", "JMPInputSheetPROPS.xlsx"))
 
 save(fullfile("+DatabasePkg", "IDEAS_DB.mat"),'TurbofanAC','TurbofanEngines','TurbopropAC','TurbopropEngines','FanUnitsReference','PropUnitsReference')
 
+%Output to a Variable
+DatabaseStruct.TurbofanAC = TurbofanAC;
+DatabaseStruct.TurbofanEngines = TurbofanEngines;
+DatabaseStruct.FanUnitsReference = FanUnitsReference;
+DatabaseStruct.TurbopropAC = TurbopropAC;
+DatabaseStruct.TurbopropEngines = TurbopropEngines;
+DatabaseStruct.PropUnitsReference = PropUnitsReference;
+
 disp('Databases successfully initialized.')
 
 end
-
-
-
-
-
-
-

@@ -28,7 +28,7 @@ function [] = README()
 %     Michael Tsai
 %     Vaibhav Rau
 % 
-% README last updated: 08 Sep 2025
+% README last updated: 26 Nov 2025
 %
 % Learn More About FAST
 % For detailed information about FAST's features, visit our website: 
@@ -44,23 +44,99 @@ function [] = README()
 %
 % Please cite us when using FAST
 %
-% If you are using FAST in your work, please cite the following paper: 
-% Mokotoff, P., Arnson, M., Wang, Y. C., & Cinar, G. (2025). FAST: A Future
-% Aircraft Sizing Tool for Conventional and Electrified Aircraft Design.
-% In AIAA SciTech 2025 Forum (p. 2374).
+% If you are using FAST in your work, please cite the following papers.
+% Papers 1 and 2 may be cited for using FAST. Papers 3 and 4 may be cited
+% if you are only using FAST's regressions and/or Aerobase. Paper 5 may be
+% cited if you are only using FAST's integrated visualization capabilities.
+% Paper 6 may be cited for the graph-based methodology used in the
+% propulsion system analysis.
 %
-% A copy of this paper may be found at the following link: 
-% https://doi.org/10.2514/6.2025-2374
+% 1) Mokotoff, P., Arnson, M., Wang, Y. C., & Cinar, G. (2025). FAST: A
+%    Future Aircraft Sizing Tool for Conventional and Electrified Aircraft
+%    Design. Journal of Aircraft (article in advance).
+%    https://doi.org/10.2514/1.C038452
 %
-% Alternatively, you may use the information below when using BibTeX:
+% 2) Mokotoff, P., Arnson, M., Wang, Y. C., & Cinar, G. (2025). FAST: A
+%    Future Aircraft Sizing Tool for Conventional and Electrified Aircraft
+%    Design. In AIAA SciTech Forum (p. 2374).
+%    https://doi.org/10.2514/6.2025-2374
 %
-% @inproceedings{mokotoff2025fast,
+% 3) Acar, H., Arnson, M., Tsai, M., & Cinar, G. (2025). Historical Trends
+%    and Future Projections of Key Performance Parameters in Aircraft
+%    Design. Journal of Aircraft (article in advance).
+%    https://doi.org/10.2514/1.C038340
+%
+% 4) Arnson, M., Aljaber, R., & Cinar, G. (2025). Predicting Aircraft
+%    Design Parameters Using Gaussian Process Regressions on Historical
+%    Data. In AIAA SciTech Forum (p. 1287).
+%    https://doi.org/10.2514/6.2025-1287
+%
+% 5) Khailany, N., Mokotoff, P. R., & Cinar, G. (2025). Aircraft Geometry
+%    and Propulsion Architecture Visualization for the Future Aircraft
+%    Sizing Tool (FAST). In AIAA SciTech Forum (p. 1288).
+%    https://doi.org/10.2514/6.2025-1288
+%
+% 6) Mokotoff, P. R., & Cinar, G. (2025). A Graph-Based Framework for
+%    Advanced Aircraft Propulsion System Analysis. Aerospace Science and
+%    Technology, 168(110798). https://doi.org/10.1016/j.ast.2025.110798
+%
+% Alternatively, you may use the following BibTeX entries:
+%
+% @article{mokotoff2025afast,
+%   title={FAST: A Future Aircraft Sizing Tool for Conventional and Electrified Aircraft Design},
+%   author={Mokotoff, Paul R and Arnson, Maxfield and Wang, Yi-Chih and Cinar, Gokcin},
+%   journal={Journal of Aircraft},
+%   pages={1--18},
+%   year={2025},
+%   publisher={American Institute of Aeronautics and Astronautics},
+%   doi={https://doi.org/10.2514/1.C038452}
+% }
+%
+% @inproceedings{mokotoff2025bfast,
 %   title={FAST: A Future Aircraft Sizing Tool for Conventional and Electrified Aircraft Design},
 %   author={Mokotoff, Paul and Arnson, Maxfield and Wang, Yi-Chih and Cinar, Gokcin},
 %   booktitle={AIAA SciTech 2025 Forum},
 %   pages={2374},
 %   year={2025},
 %   doi={https://doi.org/10.2514/6.2025-2374}
+% }
+%
+% @article{acar2025historical,
+%   title={Historical Trends and Future Projections of Key Performance Parameters in Aircraft Design},
+%   author={Acar, Huseyin and Arnson, Maxfield and Tsai, Michael and Cinar, Gokcin},
+%   journal={Journal of Aircraft},
+%   pages={1--23},
+%   year={2025},
+%   publisher={American Institute of Aeronautics and Astronautics},
+%   doi={https://doi.org/10.2514/1.C038340}
+% }
+%
+% @inproceedings{arnson2025predicting,
+%   title={Predicting Aircraft Design Parameters Using Gaussian Process Regressions on Historical Data},
+%   author={Arnson, Maxfield G and Aljaber, Rawan and Cinar, Gokcin},
+%   booktitle={AIAA SciTech 2025 Forum},
+%   pages={1287},
+%   year={2025},
+%   doi={https://doi.org/10.2514/6.2025-1287}
+% }
+%
+% @inproceedings{khailany2025aircraft,
+%   title={Aircraft Geometry and Propulsion Architecture Visualization for the Future Aircraft Sizing Tool (FAST)},
+%   author={Khailany, Nawa and Mokotoff, Paul and Cinar, Gokcin},
+%   booktitle={AIAA SciTech 2025 Forum},
+%   pages={1288},
+%   year={2025},
+%   doi={https://doi.org/10.2514/6.2025-1288}
+% }
+%
+% @article{mokotoff2025graph,
+%   title={A graph-based framework for advanced aircraft propulsion system analysis},
+%   author={Mokotoff, Paul R and Cinar, Gokcin},
+%   journal={Aerospace Science and Technology},
+%   pages={110798},
+%   year={2025},
+%   publisher={Elsevier},
+%   doi={https://doi.org/10.1016/j.ast.2025.110798}
 % }
 % 
 % -------------------------------------------------------------------------

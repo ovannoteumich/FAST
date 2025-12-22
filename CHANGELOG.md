@@ -12,7 +12,31 @@ Principal Authors:
 - Paul Mokotoff, <prmoko@umich.edu>
 - Max Arnson, <marnson@umich.edu>
 
-Last Updated: 08 Sep 2025
+Last Updated: 26 Nov 2025
+
+## Version 0.3.0 - 26 Nov 2025
+
+### Added
+
+1. CeRAS CSR-01 aircraft added to aircraft specs with requisite engine and mission profile specifications.
+
+2. Database of hobby scale electric motors added, which consists of SunnySky brand motors.
+
+3. FLOPS OEW method added internally. Note that this would need to be integrated on the user side if it is to be used in place of the default OEW method (built-in regressions).
+
+4. New variables added to the database:     
+    - ``Aircraft.Specs.TLAR.ADG``: "Aircraft Design Group, which is used in airport planning to decide gate, runway, and taxiway requirements.
+    - ``Aircraft.Specs.TLAR.ADGPercent``: Ratio of aircraft wingspan or tail height to the maximum allowable wingspan or tail height for the given ADG.
+    - ``Aircraft.Specs.TLAR.ADGLimitor``: FLag to indicate whether the aircraft is limited by wingspan or tail height for the given ADG.
+
+5. ``RandomizeDB`` function added which randomizes the validation datatype variables in the database. This is useful for testing the robustness of the regression models with respect to the training and validation data. This function only affects the outputs of regressions if the the user has specifically downselected the training data to be used in a regression call.
+
+### Changed
+
+1. Internal regression restructuring.
+
+    - Separated the large data-matrix inversion from the main regression call, this allows it to be called during specification processing, saving computation time during iterations for known input-output pair regressions.
+    - Vectorized some internal calculations to improve regression performance. 
 
 ## Version 0.2.0 - 08 Sep 2025
 

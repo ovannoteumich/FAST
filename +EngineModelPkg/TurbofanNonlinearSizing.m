@@ -2,7 +2,7 @@ function [SizedEngine] = TurbofanNonlinearSizing(EngSpecFun,ElecPower)
 %
 % [SizedEngine] = TurbofanNonlinearSizing(EngSpecFun,Graphing)
 % Written by Maxfield Arnson
-% Updated 05/20/2024
+% Updated 19 nov 2025
 %
 % This function iterates on the design of a turbofan until the desired
 % thrust (specified in EngSpecFun) is reached. The iteration varies mass
@@ -108,12 +108,6 @@ end
 
 if SizedEngine.States.Station9.Mach > 1
     %warning('Core exhaust is supersonic')
-end
-
-if ~isfield(EngSpecFun,'Sizing')
-elseif EngSpecFun.Sizing == 1
-SizedEngine.OffDesignMap = EngineModelPkg.TF_OD_MapMaker(SizedEngine);
-SizedEngine.Specs.Sizing = 0;
 end
 
 
