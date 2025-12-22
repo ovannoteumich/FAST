@@ -14,3 +14,7 @@
 % IdempotentLaw     - SafetyPkg.IdempotentLaw is a function.
 % LawOfAbsorption   - SafetyPkg.LawOfAbsorption is a function.
 %
+% Packages
+% -------------------------------------------------------------------------
+% TestCasesPkg      - SafetyPkg.TestCasesPkg is a package.
+%
