@@ -2,12 +2,15 @@ function [Failures] = CreateCutSets(Arch, Components, icomp, ntrigger, ninput)
 %
 % [Failures] = CreateCutSets(Arch, Components, icomp, ntrigger, ninput)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 16 oct 2025
+% last updated: 22 dec 2025
 %
-% List out all components in the cut set for a system architecture. For
-% each function call, check whether an internal failure mode exists and if
-% there are any downstream components that need to be considered in this
-% cut set.
+% List out all components in the minimum cut sets for a given system
+% architecture. A [minimum] cut set is one (of possibly many) combinations 
+% of [minimum] component failures required to cause a system-level failure.
+%
+% To find the [minimum] cut sets, check whether an internal failure mode
+% exists and if there are any downstream components that need to be
+% considered in each cut set.
 %
 % INPUTS:
 %     Arch       - the architecture matrix representing the system
