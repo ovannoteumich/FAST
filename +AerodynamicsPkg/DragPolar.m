@@ -2,7 +2,7 @@ function [Aircraft] = DragPolar(Aircraft)
 %
 % [Aircraft] = DragPolar(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 19 jun 2025
+% last updated: 05 jan 2026
 %
 % combine the drag coefficients into a single drag coefficient for further
 % analysis. the zero-lift and lift-dependent drag coefficients are scaled
@@ -55,17 +55,20 @@ CD_Compress = AerodynamicsPkg.CompressibilityDrag(Aircraft);
 CD_Pressure = AerodynamicsPkg.LiftDependentDrag(Aircraft);
 CD_Induced  = AerodynamicsPkg.InducedDrag(Aircraft);
 
-% check for windmilling drag
-D = AerodynamicsPkg.WindmillDrag(Aircraft);
+% compute the windmilling drag
+Aircraft = AerodynamicsPkg.WindmillDrag(Aircraft);
+
+% check for nonzero windmilling drag
+Dwm = Aircraft.Mission.History.SI.Aero.Dwm(SegBeg:SegEnd);
 
 % compute the drag coefficient contribution from the windmilling drag
-if (any(D))
+if (any(Dwm))
     
     % get the wing area
     S = Aircraft.Specs.Aero.S;
     
     % compute the drag coefficient contribution
-    CD_Windmilling = D ./ (0.5 .* Rho .* TAS .^ 2 .* S);
+    CD_Windmilling = Dwm ./ (0.5 .* Rho .* TAS .^ 2 .* S);
     
 else
     
@@ -74,8 +77,11 @@ else
     
 end
 
+% compute the trim drag
+CD_Trim = AerodynamicsPkg.TrimDrag(Aircraft);
+
 % compute CD0 (zero-lift drag coefficient)
-CD0 = CD_SkinFric + CD_Compress + CD_Windmilling;
+CD0 = CD_SkinFric + CD_Compress + CD_Windmilling + CD_Trim;
 
 % compute CDI (lift-dependent drag coefficient)
 CDI = CD_Pressure + CD_Induced;
