@@ -2,7 +2,7 @@ function [Aircraft] = InitMissionHistory(Aircraft)
 %
 % [Aircraft] = InitMissionHistory(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 15 aug 2025
+% last updated: 05 jan 2026
 %
 % Initialize all arrays to zeros in the mission history for both SI and
 % English units (although only SI units are currently used).
@@ -74,7 +74,8 @@ Performance = struct("Time", ZeroScalar, ...
 % aerodynamics sub-structure
 Aero = struct("CL" , ZeroScalar, ...
               "CD" , ZeroScalar, ...
-              "L_D", ZeroScalar) ;
+              "L_D", ZeroScalar, ...
+              "Dwm", ZeroScalar) ;
                  
 % propulsion sub-structure
 Propulsion = struct("TSFC"    , ZeroTrn, ...
