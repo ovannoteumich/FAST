@@ -1,8 +1,8 @@
-function [D] = WindmillDrag(Aircraft)
+function [Aircraft] = WindmillDrag(Aircraft)
 %
-% [D] = WindmillDrag(Aircraft)
+% [Aircraft] = WindmillDrag(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 23 jun 2025
+% last updated: 05 jan 2026
 %
 % estimate the windmilling drag from any failed engines.
 %
@@ -12,8 +12,9 @@ function [D] = WindmillDrag(Aircraft)
 %                size/type/units: 1-by-1 / struct / []
 %
 % OUTPUTS:
-%     D        - drag due to windmilling engines.
-%                size/type/units: n-by-1 / double / []
+%     Aircraft - data structure with the windmilling drag in the mission
+%                history.
+%                size/type/units: 1-by-1 / struct / []
 %
 
 
@@ -37,6 +38,9 @@ if (~any(CurWindmill))
     
     % return an array of zeros
     D = zeros(npnt, 1);
+    
+    % remember the windmilling drag
+    Aircraft.Mission.History.SI.Aero.Dwm(SegBeg:SegEnd) = D;
     
     % stop running this function
     return
@@ -100,6 +104,9 @@ TotCD = ThrCD - DelCD;
 
 % compute drag from all windmilling engines
 D = sum(TotCD, 2) .* 0.5 .* Rho .* TAS .^ 2 .* Ainlet .* neng .* ScaleWnd;
+
+% return the windmilling drag
+Aircraft.Mission.History.SI.Aero.Dwm(SegBeg:SegEnd) = D;
 
 % ----------------------------------------------------------
 
