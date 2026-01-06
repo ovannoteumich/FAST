@@ -2,7 +2,7 @@ function [dCD0] = TrimDrag(Aircraft)
 %
 % [dCD0] = TrimDrag(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 05 jan 2026
+% last updated: 06 jan 2026
 %
 % estimate the trim drag from any failed engines.
 %
@@ -47,7 +47,7 @@ lv = Aircraft.Specs.Aero.Vtail.VArm;
 
 % compute the wingspan and vertical tailspan
 bw = sqrt(ARw * Sw);
-bv = sqrt(ARv * Sv) / 2;
+bv = sqrt(ARv * Sv / 2);
 
 % get the segment id
 SegsID = Aircraft.Mission.Profile.SegsID;
@@ -88,7 +88,7 @@ end
 Nv = (Tsls + Dwm) * Arm;
 
 % compute the yaw moment coefficent
-Cn = Nv / (q * Sw * bw);
+Cn = Nv ./ (q * Sw * bw);
 
 % compute the vertical tail pitch airfoil derivative
 Clav = 2 * pi * TAF;
