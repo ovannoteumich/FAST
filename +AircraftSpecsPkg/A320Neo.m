@@ -3,7 +3,7 @@ function [Aircraft] = A320Neo()
 % [Aircraft] = A320Neo()
 % written by Max Arnson, marnson@umich.edu and Yi-Chih Wang,
 % ycwangd@umich.edu
-% last updated: 16 dec 2024
+% last updated: 06 jan 2026
 % 
 % create a baseline model of the A320neo WV054. this version uses a 
 % conventional propulsion architecture.
@@ -134,10 +134,23 @@ Aircraft.Specs.Aero.Wing.TR = 0.2702; % 1.64 / 6.07
 % check option for extreme taper ratios
 Aircraft.Specs.Aero.Wing.Redux = 0;
 
+% get the vertical tail geometry
+Aircraft.Specs.Aero.Vtail.AR = 3.38;
+Aircraft.Specs.Aero.Vtail.e = 1;
+Aircraft.Specs.Aero.Vtail.S = 22.7550;
+Aircraft.Specs.Aero.Vtail.Eta = 1;
+Aircraft.Specs.Aero.Vtail.TAF = 0.9;
+Aircraft.Specs.Aero.Vtail.VArm = 17.24;
+
+% get the rudder geometry
+Aircraft.Specs.Aero.Rudder.S = 6.519;
+Aircraft.Specs.Aero.Rudder.b = 6.068;
+
 % get the fuselage geometry
 Aircraft.Specs.Aero.Fuse.Area = 13.4614; % pi * (4.14 / 2) ^ 2;
 Aircraft.Specs.Aero.Fuse.Len_Diam = 9.0749; % 37.57 / 4.14;
 Aircraft.Specs.Aero.Fuse.Diam_Span = 0.1156; % 4.14 / 35.80;
+Aircraft.Specs.Aero.Fuse.DistToEng = 5.701; % m
 
 % get the base area
 Aircraft.Specs.Aero.BaseArea = 0;

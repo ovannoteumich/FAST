@@ -3,7 +3,7 @@ function [Aircraft] = ERJ175LR()
 % [Aircraft] = ERJ175LR()
 % originally written for E175 by Nawa Khailany
 % modified to E175LR by Paul Mokotoff, prmoko@umich.edu
-% last updated: 15 agu 2025
+% last updated: 06 jan 2026
 % 
 % Create a baseline model of the ERJ 175, long-range version (also known as
 % an ERJ 170-200). This version uses a conventional propulsion
@@ -131,10 +131,23 @@ Aircraft.Specs.Aero.Wing.TR = 0.2441; % 1.35 / 5.53;
 % check option for extreme taper ratios
 Aircraft.Specs.Aero.Wing.Redux = 0;
 
+% get the vertical tail geometry
+Aircraft.Specs.Aero.Vtail.AR = 3.23;
+Aircraft.Specs.Aero.Vtail.e = 1;
+Aircraft.Specs.Aero.Vtail.S = 17.3102;
+Aircraft.Specs.Aero.Vtail.Eta = 1;
+Aircraft.Specs.Aero.Vtail.TAF = 0.9;
+Aircraft.Specs.Aero.Vtail.VArm = 14.6485;
+
+% get the rudder geometry
+Aircraft.Specs.Aero.Rudder.S = 4.2353;
+Aircraft.Specs.Aero.Rudder.b = 5.25;
+
 % get the fuselage geometry
 Aircraft.Specs.Aero.Fuse.Area = 9.8980; % pi * (3.55 / 2) ^ 2;
 Aircraft.Specs.Aero.Fuse.Len_Diam = 8.9239; % 31.68 / 3.55;
 Aircraft.Specs.Aero.Fuse.Diam_Span = 0.1235; % 3.55 / 28.74;
+Aircraft.Specs.Aero.Fuse.DistToEng = 3.8688; % m
 
 % get the base area
 Aircraft.Specs.Aero.BaseArea = 0;
