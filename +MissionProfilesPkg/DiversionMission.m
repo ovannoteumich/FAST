@@ -1,8 +1,8 @@
-function [Aircraft] = DiversionMission(Aircraft)
+function [Aircraft] = DiversionMission(Aircraft, dV)
 %
 % [Aircraft] = DiversionMission(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 11 aug 2025
+% last updated: 07 jan 2026
 %
 % after an engine failure, climb to 3,000 ft at takeoff speed. then,
 % accelerate to 250 kts and climb to 10,000 ft. cruise at 250 kts before
@@ -18,6 +18,9 @@ function [Aircraft] = DiversionMission(Aircraft)
 %     Aircraft - aircraft structure (without a mission profile).
 %                size/type/units: 1-by-1 / struct / []
 %
+%     dV       - difference between takeoff and climb speeds.
+%                size/type/units: 1-by-1 / double / [kts]
+%
 % OUTPUTS:
 %     Aircraft - aircraft structure (with    a mission profile).
 %                size/type/units: 1-by-1 / struct / []
@@ -27,11 +30,16 @@ function [Aircraft] = DiversionMission(Aircraft)
 %% PRE-PROCESSING %%
 %%%%%%%%%%%%%%%%%%%%
 
+% check for a second argument, otherwise default to no speed difference
+if (nargin < 2)
+    dV = 0;
+end
+
 % get the takeoff speed
 Vtko = Aircraft.Specs.Performance.Vels.Tko;
 
 % transition speed (add 0/10/20 kts)
-Vtrn = Vtko + UnitConversionPkg.ConvVel(50, "kts", "m/s");
+Vtrn = Vtko + UnitConversionPkg.ConvVel(dV, "kts", "m/s");
 
 % cruise speed estimate
 Vcrs = UnitConversionPkg.ConvVel(250, "kts", "m/s");
