@@ -33,8 +33,11 @@ function [Aircraft] = RegionalTurbopropMission(Aircraft)
 %% DEFINE THE MISSION TARGETS %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% get the design range
+Range = Aircraft.Specs.Performance.Range;
+
 % define the targets (in m or min)
-Mission.Target.Valu = [750e+3; 150e+3; 30];
+Mission.Target.Valu = [Range; 150e+3; 30];
 
 % define the target types ("Dist" or "Time")
 Mission.Target.Type = ["Dist"; "Dist"; "Time"];
@@ -51,10 +54,12 @@ AltDiv = 3500;
 % lower altitude for constant EAS climb/descent segments (m)
 AltClb = 900;
 
-% takeoff and cruise speeds
+% takeoff and diversion speeds
 VelTko = 63   ; % m/s TAS
-VelCrs =  0.60; % Mach
 VelDiv =  0.40; % Mach
+
+% cruise speed (Mach)
+VelCrs = Aircraft.Specs.Performance.Vels.Crs;
 
 % define an approach speed (m/s TAS, approximately 30% faster than takeoff
 % speed)
