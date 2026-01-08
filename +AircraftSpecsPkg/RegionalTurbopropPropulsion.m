@@ -2,7 +2,7 @@ function [Aircraft] = RegionalTurbopropPropulsion(Aircraft, iarch)
 %
 % [Aircraft] = RegionalTurbopropPropulsion(Aircraft, iarch)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 23 dec 2025
+% last updated: 08 jan 2026
 %
 % define the propulsion system architectures and power management
 % strategies for a regional turboprop aircraft.
@@ -15,16 +15,18 @@ function [Aircraft] = RegionalTurbopropPropulsion(Aircraft, iarch)
 %                management strategy remains fixed for this sizing study.
 %                the following system architectures are available:
 %
-%                    a) 1 = turboelectric architecture - one gas turbine
+%                    a) 0 = architecture to be defined later.
+%
+%                    b) 1 = turboelectric architecture - one gas turbine
 %                           engine powering two electric motors (one per
 %                           wing).
 %
-%                    b) 2 = hybrid turboelectric architecture - one gas
+%                    c) 2 = hybrid turboelectric architecture - one gas
 %                           turbine engine powering two electric motors
 %                           one per wing). the electric motor output power
 %                           is supplemented by a battery.
 %
-%                    c) 3 = distributed turboelectric architecture - one
+%                    d) 3 = distributed turboelectric architecture - one
 %                           gas turbine engine powers six electric motors
 %                           (three per wing).
 %
@@ -35,6 +37,11 @@ function [Aircraft] = RegionalTurbopropPropulsion(Aircraft, iarch)
 %                system and its operation added.
 %                size/type/units: 1-by-1 / struct / []
 %
+
+% check if a propulsion system should be made
+if (iarch == 0)
+    return
+end
 
 
 %% COMPONENT EFFICIENCY DEFINITIONS %%
@@ -266,116 +273,69 @@ elseif (iarch == +2)
     
 elseif (iarch == +3)
     
+    % get the number of propulsors
+    ndte = Aircraft.Specs.Propulsion.NumDTE;
+    
     % define the architecture matrix: 
     %     1) fuel --> gas turbine engine --> electric generator --> electric motors --> propellers --> sink
     Arch = [ ...
-      0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; ... % fuel to gas turbine engine
-      0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; ... % gas turbine engine to electric generator
-      0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0; ... % electric generator to electric motors
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0; ... % electric motor 1 to propeller 1
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0; ... % electric motor 2 to propeller 2
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0; ... % electric motor 3 to propeller 3
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0; ... % electric motor 4 to propeller 4
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0; ... % electric motor 5 to propeller 5
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0; ... % electric motor 6 to propeller 6
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1; ... % propeller 1 to the sink
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1; ... % propeller 2 to the sink
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1; ... % propeller 3 to the sink
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1; ... % propeller 4 to the sink
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1; ... % propeller 5 to the sink
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1; ... % propeller 6 to the sink
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; ... % no connections past the sink
+      0, 1, 0,        zeros(   1, ndte), zeros(   1, ndte),             0 ; ... % fuel to gas turbine engine
+      0, 0, 1,        zeros(   1, ndte), zeros(   1, ndte),             0 ; ... % gas turbine engine to electric generator
+      0, 0, 0,        ones(    1, ndte), zeros(   1, ndte),             0 ; ... % electric generator to electric motors
+      zeros(ndte, 3), zeros(ndte, ndte), eye(  ndte, ndte), zeros(ndte, 1); ... % electric motors to propellers
+      zeros(ndte, 3), zeros(ndte, ndte), zeros(ndte, ndte), ones( ndte, 1); ... % propellers to the sink
+      0, 0, 0,        zeros(   1, ndte), zeros(   1, ndte),             0 ; ... % no connections past the sink
     ];
 
     % upstream operational matrix, assume an even power distribution among
     % the electric motors/propellers
     OperUps = @() [ ...
-      0, 1, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0, 0, 0, 0, 0, 0, 0; ... % fuel to gas turbine engine
-      0, 0, 1, 0  , 0  , 0  , 0  , 0  , 0  , 0, 0, 0, 0, 0, 0, 0; ... % gas turbine engine to electric generator
-      0, 0, 0, 1/6, 1/6, 1/6, 1/6, 1/6, 1/6, 0, 0, 0, 0, 0, 0, 0; ... % electric generator to electric motors
-      0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 1, 0, 0, 0, 0, 0, 0; ... % electric motor 1 to propeller 1
-      0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0, 1, 0, 0, 0, 0, 0; ... % electric motor 2 to propeller 2
-      0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0, 0, 1, 0, 0, 0, 0; ... % electric motor 3 to propeller 3
-      0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0, 0, 0, 1, 0, 0, 0; ... % electric motor 4 to propeller 4
-      0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0, 0, 0, 0, 1, 0, 0; ... % electric motor 5 to propeller 5
-      0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0, 0, 0, 0, 0, 1, 0; ... % electric motor 6 to propeller 6
-      0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0, 0, 0, 0, 0, 0, 1; ... % propeller 1 to the sink
-      0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0, 0, 0, 0, 0, 0, 1; ... % propeller 2 to the sink
-      0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0, 0, 0, 0, 0, 0, 1; ... % propeller 3 to the sink
-      0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0, 0, 0, 0, 0, 0, 1; ... % propeller 4 to the sink
-      0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0, 0, 0, 0, 0, 0, 1; ... % propeller 5 to the sink
-      0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0, 0, 0, 0, 0, 0, 1; ... % propeller 6 to the sink
-      0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0, 0, 0, 0, 0, 0, 0; ... % sink requests power from the propellers
+      0, 1, 0,        zeros(           1, ndte), zeros(   1, ndte),             0 ; ... % fuel to gas turbine engine
+      0, 0, 1,        zeros(           1, ndte), zeros(   1, ndte),             0 ; ... % gas turbine engine to electric generator
+      0, 0, 0,        repmat(1 / ndte, 1, ndte), zeros(   1, ndte),             0 ; ... % electric generator to electric motors
+      zeros(ndte, 3), zeros(     ndte,    ndte), eye(  ndte, ndte), zeros(ndte, 1); ... % electric motors to propellers
+      zeros(ndte, 3), zeros(     ndte,    ndte), zeros(ndte, ndte), ones( ndte, 1); ... % propellers to the sink
+      0, 0, 0,        zeros(           1, ndte), zeros(   1, ndte),             0 ; ... % no connections past the sink
     ];
 
     % downstream operational matrix, assume an even power distribution
     % among the electric motors/propellers
     OperDwn = @() [ ...
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0; ... % no connections past the fuel
-      1, 0, 0, 0, 0, 0, 0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0; ... % gas turbine requests fuel
-      0, 1, 0, 0, 0, 0, 0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0; ... % electric generator requests power from the gas turbine engine
-      0, 0, 1, 0, 0, 0, 0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0; ... % electric motor 1 requests power from the electric generator
-      0, 0, 1, 0, 0, 0, 0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0; ... % electric motor 2 requests power from the electric generator
-      0, 0, 1, 0, 0, 0, 0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0; ... % electric motor 3 requests power from the electric generator
-      0, 0, 1, 0, 0, 0, 0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0; ... % electric motor 4 requests power from the electric generator
-      0, 0, 1, 0, 0, 0, 0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0; ... % electric motor 5 requests power from the electric generator
-      0, 0, 1, 0, 0, 0, 0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0; ... % electric motor 6 requests power from the electric generator
-      0, 0, 0, 1, 0, 0, 0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0; ... % propeller 1 requests power from electric motor 1
-      0, 0, 0, 0, 1, 0, 0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0; ... % propeller 2 requests power from electric motor 2
-      0, 0, 0, 0, 0, 1, 0, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0; ... % propeller 3 requests power from electric motor 3
-      0, 0, 0, 0, 0, 0, 1, 0, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0; ... % propeller 4 requests power from electric motor 4
-      0, 0, 0, 0, 0, 0, 0, 1, 0, 0  , 0  , 0  , 0  , 0  , 0  , 0; ... % propeller 5 requests power from electric motor 5
-      0, 0, 0, 0, 0, 0, 0, 0, 1, 0  , 0  , 0  , 0  , 0  , 0  , 0; ... % propeller 6 requests power from electric motor 6
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 1/6, 1/6, 1/6, 1/6, 1/6, 1/6, 0; ... % no connections past the sink
+      0, 0,                       0 , zeros(   1, ndte), zeros(           1, ndte),             0 ; ... % no connections past the fuel
+      1, 0,                       0 , zeros(   1, ndte), zeros(           1, ndte),             0 ; ... % gas turbine requests fuel
+      0, 1,                       0 , zeros(   1, ndte), zeros(           1, ndte),             0 ; ... % electric generator requests power from the gas turbine engine
+      zeros(ndte, 2), ones( ndte, 1), zeros(ndte, ndte), zeros(     ndte,    ndte), zeros(ndte, 1); ... % electric motors request power from the electric generator
+      zeros(ndte, 2), zeros(ndte, 1), eye(  ndte, ndte), zeros(     ndte,    ndte), zeros(ndte, 1); ... % propellers request power from electric motors
+      0, 0,                       0 , zeros(   1, ndte), repmat(1 / ndte, 1, ndte),             0 ; ... % no connections past the sink
     ];
 
     % upstream efficiency matrix (if two components are connected, use the
     % component efficiency from the one in the column)
     EtaUps = [ ...
-        1, 1, 1    , 1    , 1    , 1    , 1    , 1    , 1    , 1      , 1      , 1      , 1      , 1      , 1      , 1; ... % fuel to gas turbine engine
-        1, 1, EtaEG, 1    , 1    , 1    , 1    , 1    , 1    , 1      , 1      , 1      , 1      , 1      , 1      , 1; ... % gas turbine engine to electric generator
-        1, 1, 1    , EtaEM, EtaEM, EtaEM, EtaEM, EtaEM, EtaEM, 1      , 1      , 1      , 1      , 1      , 1      , 1; ... % electric generator to electric motors
-        1, 1, 1    , 1    , 1    , 1    , 1    , 1    , 1    , EtaProp, 1      , 1      , 1      , 1      , 1      , 1; ... % electric motor 1 to propeller 1
-        1, 1, 1    , 1    , 1    , 1    , 1    , 1    , 1    , 1      , EtaProp, 1      , 1      , 1      , 1      , 1; ... % electric motor 2 to propeller 2
-        1, 1, 1    , 1    , 1    , 1    , 1    , 1    , 1    , 1      , 1      , EtaProp, 1      , 1      , 1      , 1; ... % electric motor 3 to propeller 3
-        1, 1, 1    , 1    , 1    , 1    , 1    , 1    , 1    , 1      , 1      , 1      , EtaProp, 1      , 1      , 1; ... % electric motor 4 to propeller 4
-        1, 1, 1    , 1    , 1    , 1    , 1    , 1    , 1    , 1      , 1      , 1      , 1      , EtaProp, 1      , 1; ... % electric motor 5 to propeller 5
-        1, 1, 1    , 1    , 1    , 1    , 1    , 1    , 1    , 1      , 1      , 1      , 1      , 1      , EtaProp, 1; ... % electric motor 6 to propeller 6
-        1, 1, 1    , 1    , 1    , 1    , 1    , 1    , 1    , 1      , 1      , 1      , 1      , 1      , 1      , 1; ... % propeller 1 to the sink
-        1, 1, 1    , 1    , 1    , 1    , 1    , 1    , 1    , 1      , 1      , 1      , 1      , 1      , 1      , 1; ... % propeller 2 to the sink
-        1, 1, 1    , 1    , 1    , 1    , 1    , 1    , 1    , 1      , 1      , 1      , 1      , 1      , 1      , 1; ... % propeller 3 to the sink
-        1, 1, 1    , 1    , 1    , 1    , 1    , 1    , 1    , 1      , 1      , 1      , 1      , 1      , 1      , 1; ... % propeller 4 to the sink
-        1, 1, 1    , 1    , 1    , 1    , 1    , 1    , 1    , 1      , 1      , 1      , 1      , 1      , 1      , 1; ... % propeller 5 to the sink
-        1, 1, 1    , 1    , 1    , 1    , 1    , 1    , 1    , 1      , 1      , 1      , 1      , 1      , 1      , 1; ... % propeller 6 to the sink
-        1, 1, 1    , 1    , 1    , 1    , 1    , 1    , 1    , 1      , 1      , 1      , 1      , 1      , 1      , 1; ... % sink requests power from the propellers
+        1, 1, 1      , ones(            1, ndte), ones(   1, ndte)                                  ,            1 ; ... % fuel to gas turbine engine
+        1, 1, EtaEG  , ones(            1, ndte), ones(   1, ndte)                                  ,            1 ; ... % gas turbine engine to electric generator
+        1, 1, 1      , repmat(EtaEM,    1, ndte), ones(   1, ndte)                                  ,            1 ; ... % electric generator to electric motors
+        ones(ndte, 3), ones(         ndte, ndte), ones(ndte, ndte) - (1 - EtaProp) * eye(ndte, ndte), ones(ndte, 1); ... % electric motors to propellers
+        ones(ndte, 3), ones(         ndte, ndte), ones(ndte, ndte)                                  , ones(ndte, 1); ... % propellers to the sink
+        1, 1, 1      , ones(            1, ndte), ones(   1, ndte)                                  ,            1 ; ... % sink requests power from the propellers
     ];
 
     % downstream efficiency matrix (if two components are connected, use
     % the component efficiency from the one in the row)
     EtaDwn = [ ...
-        1, 1    , 1    , 1      , 1      , 1      , 1      , 1      , 1      , 1, 1, 1, 1, 1, 1, 1; ... % no connections past the fuel
-        1, 1    , 1    , 1      , 1      , 1      , 1      , 1      , 1      , 1, 1, 1, 1, 1, 1, 1; ... % gas turbine requests fuel
-        1, EtaEG, 1    , 1      , 1      , 1      , 1      , 1      , 1      , 1, 1, 1, 1, 1, 1, 1; ... % electric generator requests power from the gas turbine engine
-        1, 1    , EtaEM, 1      , 1      , 1      , 1      , 1      , 1      , 1, 1, 1, 1, 1, 1, 1; ... % electric motor 1 requests power from the electric generator
-        1, 1    , EtaEM, 1      , 1      , 1      , 1      , 1      , 1      , 1, 1, 1, 1, 1, 1, 1; ... % electric motor 2 requests power from the electric generator
-        1, 1    , EtaEM, 1      , 1      , 1      , 1      , 1      , 1      , 1, 1, 1, 1, 1, 1, 1; ... % electric motor 3 requests power from the electric generator
-        1, 1    , EtaEM, 1      , 1      , 1      , 1      , 1      , 1      , 1, 1, 1, 1, 1, 1, 1; ... % electric motor 4 requests power from the electric generator
-        1, 1    , EtaEM, 1      , 1      , 1      , 1      , 1      , 1      , 1, 1, 1, 1, 1, 1, 1; ... % electric motor 5 requests power from the electric generator
-        1, 1    , EtaEM, 1      , 1      , 1      , 1      , 1      , 1      , 1, 1, 1, 1, 1, 1, 1; ... % electric motor 6 requests power from the electric generator
-        1, 1    , 1    , EtaProp, 1      , 1      , 1      , 1      , 1      , 1, 1, 1, 1, 1, 1, 1; ... % propeller 1 requests power from electric motor 1
-        1, 1    , 1    , 1      , EtaProp, 1      , 1      , 1      , 1      , 1, 1, 1, 1, 1, 1, 1; ... % propeller 2 requests power from electric motor 2
-        1, 1    , 1    , 1      , 1      , EtaProp, 1      , 1      , 1      , 1, 1, 1, 1, 1, 1, 1; ... % propeller 3 requests power from electric motor 3
-        1, 1    , 1    , 1      , 1      , 1      , EtaProp, 1      , 1      , 1, 1, 1, 1, 1, 1, 1; ... % propeller 4 requests power from electric motor 4
-        1, 1    , 1    , 1      , 1      , 1      , 1      , EtaProp, 1      , 1, 1, 1, 1, 1, 1, 1; ... % propeller 5 requests power from electric motor 5
-        1, 1    , 1    , 1      , 1      , 1      , 1      , 1      , EtaProp, 1, 1, 1, 1, 1, 1, 1; ... % propeller 6 requests power from electric motor 6
-        1, 1    , 1    , 1      , 1      , 1      , 1      , 1      , 1      , 1, 1, 1, 1, 1, 1, 1; ... % no connections past the sink
+        1, 1         ,                     1 , ones(   1, ndte)                                  , ones(   1, ndte),            1 ; ... % no connections past the fuel
+        1, 1         ,                     1 , ones(   1, ndte)                                  , ones(   1, ndte),            1 ; ... % gas turbine requests fuel
+        1, EtaEG     ,                     1 , ones(   1, ndte)                                  , ones(   1, ndte),            1 ; ... % electric generator requests power from the gas turbine engine
+        ones(ndte, 2), repmat(EtaEM, ndte, 1), ones(ndte, ndte)                                  , ones(ndte, ndte), ones(ndte, 1); ... % electric motors request power from the electric generator
+        ones(ndte, 2), ones(         ndte, 1), ones(ndte, ndte) - (1 - EtaProp) * eye(ndte, ndte), ones(ndte, ndte), ones(ndte, 1); ... % propellers request power from electric motors
+        1, 1         ,                     1 , ones(   1, ndte)                                  , ones(   1, ndte),            1 ; ... % no connections past the sink
     ];
 
     % declare the source type (1 = fuel, 0 = battery)
     SrcType = 1;
     
     % declare the transmitter type (1 = engine, 0 = electric motor, 2 = propeller/fan, 3 = electric generator, 4 = cables)
-    TrnType = [1, 3, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2];
+    TrnType = [1, 3, zeros(1, ndte), repmat(2, 1, ndte)];
     
     % define the downstream power management strategy (none because there
     % are no inputs to the downstream operational matrix)

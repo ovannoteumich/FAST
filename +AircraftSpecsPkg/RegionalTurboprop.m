@@ -2,7 +2,7 @@ function [Aircraft] = RegionalTurboprop(iarch)
 %
 % [Aircraft] = RegionalTurboprop()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 23 dec 2025
+% last updated: 08 jan 2026
 % 
 % specifications for a 90-passenger regional turboprop configuration.
 %
@@ -100,6 +100,11 @@ Aircraft.Specs.Weight.MTOW = 30500;
 
 %% PROPULSION %%
 %%%%%%%%%%%%%%%%
+
+% set the number of distributed propulsors, if necessary
+if (iarch == 3)
+    Aircraft.Specs.Propulsion.NumDTE = 6;
+end
 
 % function to create propulsion system
 Aircraft = AircraftSpecsPkg.RegionalTurbopropPropulsion(Aircraft, iarch);
