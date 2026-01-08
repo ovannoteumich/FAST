@@ -2,7 +2,7 @@ function [dCD0] = TrimDrag(Aircraft)
 %
 % [dCD0] = TrimDrag(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 06 jan 2026
+% last updated: 08 jan 2026
 %
 % estimate the trim drag from any failed engines.
 %
@@ -15,6 +15,34 @@ function [dCD0] = TrimDrag(Aircraft)
 %     dCD0     - parasite drag increment from trim drag.
 %                size/type/units: n-by-1 / double / []
 %
+
+
+%% CHECK FOR WINDMILLING DRAG BEFORE PROCEEDING %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% get the segment id
+SegsID = Aircraft.Mission.Profile.SegsID;
+
+% get the beginning and ending control point indices
+SegBeg = Aircraft.Mission.Profile.SegBeg(SegsID);
+SegEnd = Aircraft.Mission.Profile.SegEnd(SegsID);
+
+% get the windmilling drag
+Dwm = Aircraft.Mission.History.SI.Aero.Dwm(SegBeg:SegEnd);
+
+% check for windmilling drag
+if (~any(Dwm))
+    
+    % get the number of control points
+    npnt = SegEnd - SegBeg + 1;
+    
+    % return an array of zeros
+    dCD0 = zeros(npnt, 1);
+
+    % exit the program
+    return
+    
+end
 
 
 %% PRE-PROCESSING %%
@@ -49,19 +77,9 @@ lv = Aircraft.Specs.Aero.Vtail.VArm;
 bw = sqrt(ARw * Sw);
 bv = sqrt(ARv * Sv / 2);
 
-% get the segment id
-SegsID = Aircraft.Mission.Profile.SegsID;
-
-% get the beginning and ending control point indices
-SegBeg = Aircraft.Mission.Profile.SegBeg(SegsID);
-SegEnd = Aircraft.Mission.Profile.SegEnd(SegsID);
-
 % get the density and airspeed
 Rho = Aircraft.Mission.History.SI.Performance.Rho(SegBeg:SegEnd);
 TAS = Aircraft.Mission.History.SI.Performance.TAS(SegBeg:SegEnd);
-
-% get the windmilling drag
-Dwm = Aircraft.Mission.History.SI.Aero.Dwm(SegBeg:SegEnd);
 
 % compute the dynamic pressure
 q = 0.5 .* Rho .* TAS .^ 2;
@@ -69,20 +87,6 @@ q = 0.5 .* Rho .* TAS .^ 2;
 
 %% COMPUTE THE PARASITE DRAG INCREMENT %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% check for windmilling drag
-if (~any(Dwm))
-    
-    % get the number of control points
-    npnt = SegEnd - SegBeg + 1;
-    
-    % return an array of zeros
-    dCD0 = zeros(npnt, 1);
-
-    % exit the program
-    return
-    
-end
     
 % compute the required yaw moment from the vertical tail
 Nv = (Tsls + Dwm) * Arm;
