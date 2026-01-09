@@ -164,18 +164,12 @@ for iset = 1:nset
     % scatterplot of fuel burn and MTOW
     s1 = scatter(Fuel(1:msamp), MTOW(1:msamp), 18, "o", "MarkerEdgeColor", "black", "MarkerFaceColor", "black");
     
-    % plot a box of the data within the confidence intervals
-    p1 = plot([BoundsFuel(1), BoundsFuel(2), BoundsFuel(2), BoundsFuel(1), BoundsFuel(1)], ...
-        [BoundsMTOW(1), BoundsMTOW(1), BoundsMTOW(2), BoundsMTOW(2), BoundsMTOW(1)], ...
-        "--", "LineWidth", 2, "Color", "blue");
-    
     % format the plot
     title(sprintf("%d Samples", n(iset)));
     xlabel(sprintf("Fuel Burn (kg, +/- %.2f)", CIRangeFuel));
     ylabel(sprintf("MTOW (kg, +/- %.2f)", CIRangeMTOW));
     grid on
     set(gca, "FontSize", 18);
-    legend([s1, p1], "Data", "95% CI");
     
 end
 
