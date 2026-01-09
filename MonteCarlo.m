@@ -2,7 +2,7 @@ function [] = MonteCarlo()
 %
 % [] = MonteCarlo()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 05 jan 2026
+% last updated: 09 jan 2026
 %
 % vary multiple technological parameters and identify the expected fuel
 % burn and MTOW.
@@ -30,24 +30,24 @@ n = [10, 100, 500, 1000, 1500, 2000];
 % get the maximum number of samples
 nsamp = max(n);
 
-% select random number between 0 and 1 (normally distributed)
-x = randn(4, nsamp);
+% select random number between 0 and 1 (unif. distributed)
+x = rand(4, nsamp);
 
-% vary the distributed propulsion L/D benefit
-% mean = 4, standard deviation = 1
-LDMult = 1 .* x(1, :) + 4;
+% vary the distributed propulsion L/D benefit (%)
+% lower bound = 2, nominal value = 4, upper bound = 6
+LDMult = 4 + 2 .* x(1, :);
 
 % vary the battery specific energy (kWh/kg)
-% mean = 0.360, standard deviation = 0.1
-BSE = 0.1 .* x(2, :) + 0.360;
+% lower bound = 0.240, nominal value = 0.360, upper bound = 0.480
+BSE = 0.360 + 0.12 .* x(2, :);
 
 % vary the electric motor power-to-weight ratio (kW/kg)
-% mean = 5, standard deviation = 1.0
-P_Wem = 1.0 .* x(3, :) + 5;
+% lower bound = 3, nominal value = 5, upper bound = 7
+P_Wem = 5 + 2 .* x(3, :);
 
 % vary the electric generator power-to-weight ratio (kW/kg)
-% mean = 5, standard deviation = 2.0
-P_Weg = 2.0 .* x(4, :) + 5;
+% lower bound = 3, nominal value = 5, upper bound = 7
+P_Weg = 5 + 2 .* x(4, :);
 
 
 %% RUN MONTE CARLO %%
@@ -59,30 +59,47 @@ MTOW = zeros(nsamp, 1);
 
 % run a monte-carlo simulation
 parfor isamp = 1:nsamp
-    
-    % get the aircraft
-    Aircraft = AircraftSpecsPkg.RegionalTurboprop(3);
-    
-    % update the L/D benefit
-    Aircraft.Specs.Aero.L_D.Crs = 24.00 * (1 + LDMult(isamp) / 100);
-    Aircraft.Specs.Aero.L_D.Clb = 19.20 * (1 + LDMult(isamp) / 100);
-    Aircraft.Specs.Aero.L_D.Des = 19.20 * (1 + LDMult(isamp) / 100);
 
-    % update the battery specific energy
-    Aircraft.Specs.Power.SpecEnergy.Batt = BSE(isamp);
-    
-    % update the electric generator and motor power-to-weight ratios
-    Aircraft.Specs.Power.P_W.EM = P_Wem(isamp);
-    Aircraft.Specs.Power.P_W.EG = P_Weg(isamp);
-    
-    % size the aircraft
-    OutAC = Main(Aircraft, @MissionProfilesPkg.RegionalTurbopropMission);
-    
-    % get the fuel burn and MTOW
-    Fuel(isamp) = OutAC.Specs.Weight.Fuel;
-    MTOW(isamp) = OutAC.Specs.Weight.MTOW;
-    
+    try
+        % get the aircraft
+        Aircraft = AircraftSpecsPkg.RegionalTurboprop(3);
+
+        % update the L/D benefit
+        Aircraft.Specs.Aero.L_D.Crs = 24.00 * (1 + LDMult(isamp) / 100);
+        Aircraft.Specs.Aero.L_D.Clb = 19.20 * (1 + LDMult(isamp) / 100);
+        Aircraft.Specs.Aero.L_D.Des = 19.20 * (1 + LDMult(isamp) / 100);
+
+        % update the battery specific energy
+        Aircraft.Specs.Power.SpecEnergy.Batt = BSE(isamp);
+
+        % update the electric generator and motor power-to-weight ratios
+        Aircraft.Specs.Power.P_W.EM = P_Wem(isamp);
+        Aircraft.Specs.Power.P_W.EG = P_Weg(isamp);
+
+        % size the aircraft
+        OutAC = Main(Aircraft, @MissionProfilesPkg.RegionalTurbopropMission);
+
+        % get the fuel burn and MTOW
+        Fuel(isamp) = OutAC.Specs.Weight.Fuel;
+        MTOW(isamp) = OutAC.Specs.Weight.MTOW;
+
+    catch
+
+        Fuel(isamp) = NaN;
+        MTOW(isamp) = NaN;
+
+    end    
 end
+
+% remove NaNs
+Fuel(isnan(Fuel)) = [];
+MTOW(isnan(MTOW)) = [];
+
+% get the maximum number samples available
+maxn = length(Fuel);
+
+% save the results
+save("MonteCarloSized.mat", "Fuel", "MTOW");
 
 
 %% POST-PROCESSING %%
@@ -93,19 +110,22 @@ nset = length(n);
 
 % loop through all sets
 for iset = 1:nset
+
+    % get the number of samples
+    msamp = min(n(iset), maxn);
     
     % compute the expected values
-    EFuel = sum(Fuel(1:n(iset))) / n(iset);
-    EMTOW = sum(MTOW(1:n(iset))) / n(iset);
+    EFuel = sum(Fuel(1:msamp)) / msamp;
+    EMTOW = sum(MTOW(1:msamp)) / msamp;
 
     % compute the standard deviation
-    STDFuel = std(Fuel(1:n(iset)));
-    STDMTOW = std(MTOW(1:n(iset)));
+    STDFuel = std(Fuel(1:msamp));
+    STDMTOW = std(MTOW(1:msamp));
 
     % compute the confidence interval ranges
     % (use a z-score of 1.96 for a 95% confidence interval)
-    CIRangeFuel = 1.96 * STDFuel / sqrt(n(iset));
-    CIRangeMTOW = 1.96 * STDMTOW / sqrt(n(iset));
+    CIRangeFuel = 1.96 * STDFuel / sqrt(msamp);
+    CIRangeMTOW = 1.96 * STDMTOW / sqrt(msamp);
     
     % compute the bounds of the confidence intervals
     BoundsFuel = EFuel + [-CIRangeFuel, +CIRangeFuel];
@@ -115,7 +135,7 @@ for iset = 1:nset
     figure;
     
     % plot histogram of fuel burn
-    histogram(Fuel(1:n(iset)));
+    histogram(Fuel(1:msamp));
     
     % format the plot
     title(sprintf("%d Samples, Expected Fuel Burn = %.2f kg", n(iset), EFuel));
@@ -127,7 +147,7 @@ for iset = 1:nset
     figure;
     
     % plot histogram of MTOW
-    histogram(MTOW(1:n(iset)));
+    histogram(MTOW(1:msamp));
     
     % format the plot
     title(sprintf("%d Samples, Expected MTOW = %.2f kg", n(iset), EMTOW));
@@ -142,7 +162,7 @@ for iset = 1:nset
     hold on
     
     % scatterplot of fuel burn and MTOW
-    s1 = scatter(Fuel(1:n(iset)), MTOW(1:n(iset)), 18, "o", "MarkerEdgeColor", "black", "MarkerFaceColor", "black");
+    s1 = scatter(Fuel(1:msamp), MTOW(1:msamp), 18, "o", "MarkerEdgeColor", "black", "MarkerFaceColor", "black");
     
     % plot a box of the data within the confidence intervals
     p1 = plot([BoundsFuel(1), BoundsFuel(2), BoundsFuel(2), BoundsFuel(1), BoundsFuel(1)], ...
