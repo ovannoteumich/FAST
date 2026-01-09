@@ -2,7 +2,7 @@ function [] = MorrisScreening()
 %
 % [] = MorrisScreening()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 08 jan 2026
+% last updated: 09 jan 2026
 %
 % adapted from code written by Forrester and Sobester from their
 % "Engineering Design via Surrogate Modelling: A Practical Guide" textbook
@@ -158,11 +158,11 @@ X(idx, :) = [];
 f(idx, :) = [];
 
 % create a screening plot
-screening_plotPM(X, f, xi, p, ...
-    {'\bf Pax','\bf R','\bf M_{Crs}','\bf R/C','\bf e_{batt}', ...
-     '\bf P/W_{(EM)}', '\bf P/W_{(EG)}', '\bf A', '\bf CiS', ...
-     '\bf \lambda_{Tko}', '\bf \lambda_{Clb}', '\bf n_{prop}', ...
-     '\bf k_{(L/D)}', '\bf L/D_{Crs}', '\bf L/D_{Clb}' ...
+screening_plot(X, f, xi, p, ...
+    {'Pax','R','M_{Crs}','R/C','e_{batt}', ...
+     'P/W_{(EM)}', 'P/W_{(EG)}', 'A', 'CiS', ...
+     '\lambda_{Tko}', '\lambda_{Clb}', 'n_{prop}', ...
+     'k_{(L/D)}', 'L/D_{Crs}', 'L/D_{Clb}' ...
     });
 
 % ----------------------------------------------------------
@@ -277,74 +277,7 @@ end
 % ----------------------------------------------------------
 % ----------------------------------------------------------
 
-function screening_plot(X, Objhandle, Range, xi, p, Labels)
-% Generates a variable elementary effect screening plot
-%
-% Inputs:
-%       X - screening plan built within a [0,1]^k box (e.g. with
-%           screening_plan.m)
-%       Objhandle - name of the objective function
-%       Range - 2xk matrix (k - number of design variables) of lower bounds
-%               (first row) and upper bounds (second row) on each variable.
-%       xi- elementery effect step length factor
-%       p - number of discreet levels along each dimension
-%       Labels - 1xk cell array containing the names of the variables
-%
-% Copyright 2007 A Sobester
-%
-% This program is free software: you can redistribute it and/or modify  it
-% under the terms of the GNU Lesser General Public License as published by
-% the Free Software Foundation, either version 3 of the License, or any
-% later version.
-% 
-% This program is distributed in the hope that it will be useful, but
-% WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser
-% General Public License for more details.
-% 
-% You should have received a copy of the GNU General Public License and GNU
-% Lesser General Public License along with this program. If not, see
-% <http://www.gnu.org/licenses/>.
-
-k = size(X,2);
-r = size(X,1)/(k+1);
-
-
-for i=1:size(X,1)
-    X(i,:) = Range(1,:) + X(i,:).*(Range(2,:)-Range(1,:));
-    t(i) = feval(Objhandle,X(i,:));
-end
-
-for i=1:r
-    for j = (i-1)*(k+1)+1:(i-1)*(k+1)+k
-       F(find(X(j,:)-X(j+1,:)~=0),i) = (t(j+1)-t(j))/(xi/(p-1));
-    end
-end
-
-% Compute statistical measures
-for i=1:k
-    ssd(i) = std(F(i,:));
-    sm(i)  = mean(F(i,:));
-end
- 
-figure, hold on
- 
-for i=1:k
-    text(sm(i),ssd(i),Labels(i),'FontSize',25)
-end
- 
-axis([min(sm) max(sm) min(ssd) max(ssd)]);
-xlabel('Sample means')
-ylabel('Sample standard deviations')
-set(gca,'FontSize',14)   
-
-end
-
-% ----------------------------------------------------------
-% ----------------------------------------------------------
-% ----------------------------------------------------------
-
-function screening_plotPM(X, t, xi, p, Labels)
+function screening_plot(X, t, xi, p, Labels)
 % Generates a variable elementary effect screening plot
 %
 % Inputs:
@@ -394,72 +327,9 @@ for i=1:k
     text(sm(i),ssd(i),Labels(i),'FontSize',25)
 end
  
-axis([min(sm) max(sm) min(ssd) max(ssd)]);
+axis([min(sm-25) max(sm+100) min(ssd-25) max(ssd+50)]);
 xlabel('Sample means')
 ylabel('Sample standard deviations')
 set(gca,'FontSize',14)   
 
-end
-
-% ----------------------------------------------------------
-% ----------------------------------------------------------
-% ----------------------------------------------------------
-
-function W = liftsurfw(design)
-% W = liftsurfw(design)
-% 
-% S_w    = design(1);
-% W_fw   = design(2);
-% A      = design(3);
-% Lambda = design(4)*pi/180;
-% q      = design(5);  
-% lambda = design(6);
-% tc     = design(7);   
-% N_z    = design(8); 
-% W_dg   = design(9);
-% W_p    = design(10); 
-%
-% Symbol  Parameter      Typical light aircraft value (C172)
-% S_w    -Wing area (ft^2)                              174
-% W_fw   -Weight of fuel in the wing (lb)               252
-% A      -aspect ratio                                 7.52
-% Lambda -quarter-chord sweep (deg)                       0
-% q      -dynamic pressure at cruise (lb/ft^2)           34
-% lambda -taper ratio                                 0.672
-% tc     -aerofoil thickness to chord ratio            0.12
-% N_z    -ultimate load factor (1.5x limit load factor) 3.8
-% W_dg   -flight design gross weight (lb)             ~2000
-% W_p    -paint weight (lb/ft^2)                     ~0.064
-% *********************************************************
-% W      -wing weight lbs (est. by the eq./actual)  245/236
-%
-% Copyright 2007 A Sobester
-%
-% This program is free software: you can redistribute it and/or modify  it
-% under the terms of the GNU Lesser General Public License as published by
-% the Free Software Foundation, either version 3 of the License, or any
-% later version.
-% 
-% This program is distributed in the hope that it will be useful, but
-% WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser
-% General Public License for more details.
-% 
-% You should have received a copy of the GNU General Public License and GNU
-% Lesser General Public License along with this program. If not, see
-% <http://www.gnu.org/licenses/>.
-
-S_w    = design(1);
-W_fw   = design(2);
-A      = design(3);
-Lambda = design(4)*pi/180;
-q      = design(5);  
-lambda = design(6);
-tc     = design(7);   
-N_z    = design(8); 
-W_dg   = design(9);
-W_p    = design(10); 
-
-W = 0.036*S_w^0.758*W_fw^0.0035*(A/cos(Lambda)^2)^0.6*q^0.006*lambda^0.04*...
-    (100*tc/cos(Lambda))^-0.3*(N_z*W_dg)^0.49 + S_w*W_p;
 end
