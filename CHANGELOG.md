@@ -14,7 +14,7 @@ Principal Authors:
 
 Last Updated: 12 Dec 2025
 
-## Version 0.3.1 - 12 Dec 2025
+## Version 0.4.0 - 12 Dec 2025
 
 ### Added
 
@@ -26,7 +26,9 @@ Last Updated: 12 Dec 2025
 
 1. Reorganized battery (dis)charging model and broke into seperate files for readibility.
 
-2. Fixed C rate assumption error and batery resizing error. 
+### Fixed
+
+1. Fixed C rate assumption error and batery resizing error. 
 
 ## Version 0.3.0 - 26 Nov 2025
 
