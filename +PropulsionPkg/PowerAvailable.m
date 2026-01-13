@@ -68,8 +68,6 @@ EtaUps = Aircraft.Specs.Propulsion.PropArch.EtaUps;
 % get the operational matrices
 OperUps = Aircraft.Specs.Propulsion.PropArch.OperUps;
 
-% get the power split type to prioritize
-
 % get the upstream power splits
 LamUps = Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :);
 
@@ -167,22 +165,22 @@ idx = (nsrc + 1) : ncomp;
 for ipnt = 1:npnt
     
     % evaluate the function handles for the current splits
-    %if Aircraft.Settings.PowerOpt == 1
-        Lambda = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
-    %else
-        %Lambda = PropulsionPkg.EvalSplit(OperUps, ones(1, ntrn-2));
-    %end
+    Lambda = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
     
+    % find all upstream transmitters and propellers
+    UpTrn = find(sum(Lambda(itrn, itrn), 1) > 0 | (TrnType == 2));
+    
+    % assume no power available at the propellers yet (need to propagate)
+    PowerAv(ipnt, UpTrn) = 0;
+
     % get the initial power available
     Pav(ipnt, :) = [zeros(1, nsrc), PowerAv(ipnt, :), zeros(1, nsnk)];
         
     % propagate the power upstream
-    PavTemp = PropulsionPkg.PowerFlow(Pav(ipnt, idx)', Arch(idx, idx), Lambda(idx, idx), EtaUps(idx, idx), +1)';
-
-    Pav(ipnt, end-2:end)=PavTemp(end-2:end);
+    Pav(ipnt, idx) = PropulsionPkg.PowerFlow(Pav(ipnt, idx)', Arch(idx, idx), Lambda(idx, idx), EtaUps(idx, idx), +1)';
+    
     % check that the component is not overloaded
     Overload = Pav(ipnt, itrn) > SLSPower;
-    %Overload = 0;
     
     % suppress component overloads
     if (any(Overload))

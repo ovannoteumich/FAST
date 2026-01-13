@@ -167,7 +167,7 @@ Dist = Time.*TAS;
 Aircraft.Mission.History.SI.Power.Req(SegBeg:SegEnd) = Preq;
 Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd) = Mass;
 Aircraft.Mission.History.SI.Performance.Time(SegBeg:SegEnd) = Time + Aircraft.Mission.History.SI.Performance.Time(SegBeg);
-Aircraft.Mission
+
 % perform the propulsion analysis
 Aircraft = PropulsionPkg.PropAnalysis(Aircraft);
 

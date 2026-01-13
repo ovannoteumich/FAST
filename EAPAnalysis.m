@@ -179,10 +179,10 @@ if Type < 0
         Aircraft.Specs.Weight.Batt;
 end
 
-if Type > -2
-    % initialize the mission history
-    Aircraft = DataStructPkg.InitMissionHistory(Aircraft);
-end
+
+% initialize the mission history
+Aircraft = DataStructPkg.InitMissionHistory(Aircraft);
+
 
 % print initial size
 if Aircraft.Settings.PrintOut == 1
@@ -211,9 +211,6 @@ end
 % Initialize storage for Aircraft structure history
 AircraftHistory = cell(MaxIter, 1); 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% assume a maximum c-rate
-MaxAllowCRate = Aircraft.Specs.Battery.MaxAllowCRate;
 
 % iterate until convergence
 while (iter < MaxIter)
@@ -418,6 +415,9 @@ if Type > -2 && iter > 7
      if Aircraft.Specs.Weight.Batt < 5
          % if conventional aircraft, do nothing
      else
+         % assume a maximum c-rate
+         MaxAllowCRate = Aircraft.Specs.Battery.MaxAllowCRate;
+
          % Check the number of iterations in AircraftHistory
          numIterations = length(AircraftHistory);
  

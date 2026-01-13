@@ -46,11 +46,11 @@ Arch = Aircraft.Specs.Propulsion.PropArch.Arch;
 
 % get the downstream operational matrix
 OperDwn = Aircraft.Specs.Propulsion.PropArch.OperDwn;
-OperUps = Aircraft.Specs.Propulsion.PropArch.OperUps;
+%OperUps = Aircraft.Specs.Propulsion.PropArch.OperUps;
 
 % get the downstream efficiency matrix
 EtaDwn = Aircraft.Specs.Propulsion.PropArch.EtaDwn;
-EtaUps = Aircraft.Specs.Propulsion.PropArch.EtaUps;
+%EtaUps = Aircraft.Specs.Propulsion.PropArch.EtaUps;
 
 % get the number of sources and transmitters
 nsrc = length(SrcType);
@@ -101,9 +101,6 @@ SegEnd = Aircraft.Mission.Profile.SegEnd(SegsID);
 % mission ID
 MissID = Aircraft.Mission.Profile.MissID;
 
-% power split type
-LamType = Aircraft.Settings.PowerStrat;
-
 % ----------------------------------------------------------
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -120,7 +117,7 @@ Pav = Aircraft.Mission.History.SI.Power.Pav(SegBeg:SegEnd, :);
 
 % get the necessary splits
 LamDwn = Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :);
-LamUps = Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :);
+%LamUps = Aircraft.Mission.History.SI.Power.LamUps(SegBeg:SegEnd, :);
 
 % aircraft weight
 Mass = Aircraft.Mission.History.SI.Weight.CurWeight(SegBeg:SegEnd);
@@ -245,34 +242,15 @@ for ipnt = 1:npnt
         % no need to multiply matrices, so continue on
         continue
         
-    elseif LamType == -1
+    else
         % evaluate the function handles for the current splits
         SplitDwn = PropulsionPkg.EvalSplit(OperDwn, LamDwn(ipnt, :));
     
         % propagate the power downstream to the transmitters
         Preq(ipnt, TrnSnkIdx) = PropulsionPkg.PowerFlow(Preq(ipnt, TrnSnkIdx)', Arch(TrnSnkIdx, TrnSnkIdx)', SplitDwn(TrnSnkIdx, TrnSnkIdx), EtaDwn(TrnSnkIdx, TrnSnkIdx), -1)';
-    
-    elseif LamType == 1
-        % evaluate the function handles for the current splits
-        SplitUps = PropulsionPkg.EvalSplit(OperUps, LamUps(ipnt, :));
-    
-        % propagate the power downstream to the transmitters
-        %Preq(ipnt, TrnSnkIdx) = PropulsionPkg.PowerFlow(Preq(ipnt, TrnSnkIdx)', Arch(TrnSnkIdx, TrnSnkIdx)', SplitUps(TrnSnkIdx, TrnSnkIdx), EtaUps(TrnSnkIdx, TrnSnkIdx), 1);
-        
-        PavTemp = PropulsionPkg.PowerFlow(Preq(ipnt, TrnSnkIdx)', Arch(TrnSnkIdx, TrnSnkIdx), SplitUps(TrnSnkIdx, TrnSnkIdx), EtaUps(TrnSnkIdx, TrnSnkIdx), +1)';
-
-        Preq(ipnt, [3,4]) = LamUps(ipnt,[1,2]) .* Pav(ipnt,[3,4]);
-        Preq(ipnt, [5,6]) = LamUps(ipnt,[3,4]) .* Pav(ipnt,[5,6]);
-        Preq(ipnt, [7,8])=(Preq(ipnt,[3,4])+Preq(ipnt,[5,6]))*.99;
     end
 end
 
-if LamType==1
-    errPreq = find(Preq(:,7)+Preq(:,8)-Preq(:,9)>1e-6);
-    if any(errPreq)
-        Preq(errPreq,9) = Preq(errPreq,7)+Preq(errPreq,8);
-    end
-end
 % temporary power required array for iterating
 TempReq = Preq;
 
@@ -305,10 +283,10 @@ Pout(:, TrnSnkIdx) = PoutTest;
 Aircraft.Mission.History.SI.Power.Pout(SegBeg:SegEnd, :) = Pout;
  if Aircraft.Specs.Propulsion.PropArch.Type == "PHE"
     Aircraft = PropulsionPkg.RecomputeSplits(Aircraft, SegBeg, SegEnd);
+    LamDwn = Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :);
  end
-LamDwn = Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :);
-% loop through points to propagate power to the sources
 
+% loop through points to propagate power to the sources
 for ipnt = 1:npnt
         
     % evaluate the function handles for the current splits

@@ -2,7 +2,14 @@
 %
 % 
 
-%% test one-switch on design mission
+%% size conventional aircraft on design mission
+
+Aircraft = AircraftSpecsPkg.A320neo;
+Aircraft.Settings.PowerStrat = -1;
+Aircraft.Settings.PowerOpt = 0;
+AircraftOG1 = Main(Aircraft, @MissionProfilesPkg.A320);
+
+%% size convential arcraft as PHE with 0 EM and batt
 
 Aircraft = AircraftSpecsPkg.A320neo;
 Aircraft.Specs.Propulsion.PropArch.Type = "PHE";
