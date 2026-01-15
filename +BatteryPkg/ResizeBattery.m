@@ -180,7 +180,7 @@ if (Aircraft.Settings.DetailedBatt == 1)
 
     % resize the battery if the C-rate is exceeded
     if (any(ExceedCRate))
-        
+        disp('crate exceed')
         % get the maximum C-rate
         MaxCrate = max(abs(C_rate));
         

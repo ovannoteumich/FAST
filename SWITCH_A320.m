@@ -64,7 +64,8 @@ Aircraft.Settings.Analysis.Type = -1;
 Aircraft.Specs.Weight.EM = 400;
 Aircraft.Specs.Weight.OEW = Aircraft.Specs.Weight.OEW + Aircraft.Specs.Weight.EM;
 
-Aircraft.Specs.Power.P_W.EM = 10*1000;
+
+Aircraft.Specs.Power.P_W.EM = 10*1000; % specprocessng doesnt get called
 
 Aircraft.Specs.Propulsion.SLSPower(:,[3,4]) = [200,200]*10*1000;
 Aircraft.Specs.Propulsion.SLSPower(:,[5,6]) = Aircraft.Specs.Propulsion.SLSPower(:,[5,6]) + Aircraft.Specs.Propulsion.SLSPower(:,[3,4]).*.99;% add EM to SLS power
