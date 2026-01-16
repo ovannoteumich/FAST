@@ -52,7 +52,7 @@ MTOW = zeros(nexp, 1);
 %%%%%%%%%%%%%%%%%%%%%
 
 % loop through all the samples
-parfor iexp = 1:10
+parfor iexp = 1:nexp
     
     % try to run it
     try
