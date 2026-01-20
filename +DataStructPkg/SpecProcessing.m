@@ -291,7 +291,8 @@ DefaultSettings.Analysis.Type = 1;       % 1 = on design. -1 = off design
 DefaultSettings.Plotting = 0;            % 1 = plot 0 = no plots
 DefaultSettings.Table = 0;
 DefaultSettings.VisualizeAircraft = 0;
-
+DefaultSettings.PrintOut = 1;
+DefaultSettings.Degradation = 0;
 % directory
 DefaultSettings.Dir.Size = pwd;
 

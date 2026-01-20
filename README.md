@@ -28,7 +28,7 @@ Additional Contributors:
 - Michael Tsai
 - Vaibhav Rau
 
-README last updated: 26 Nov 2025
+README last updated: 20 Jan 2026
 
 ## Learn More About FAST
 
@@ -140,6 +140,7 @@ For additional documentation, see package-specific README files. These READMEs w
 
 - **+AircraftSpecsPkg**: This package contains specific aircraft initialization files. The documentation will guide a user to create their own files for repeated studies.
 - **+BatteryPkg**: This package contains the battery model which is called during the mission analysis for fully or hybrid electric aircraft.
+- **+CostPkg**: This packages contains functions for estimating aircraft related costs.
 - **+DatabasePkg**: This package contains the IDEAS Lab historical database. It also contains functions which help convert the original database format (MS Excel sheet) into the FAST format (Matlab data structures).
 - **+DataStructPkg**: This package contains functions which process aircraft data structures when calling FAST.
 - **+EngineModelPkg**: This package contains the gas turbine engine models used while running FAST. It is one of the largest packages and inspecting additional documentation is recommended if a user has more questions regarding the gas turbine engine models.
@@ -198,7 +199,7 @@ FAST performs on- and off-design analysis of a user-prescribed aircraft on a use
     - Select whether or not a geometry of the aircraft should be created. This is controlled by the variable: "Aircraft.Settings.VisualizeAircraft". The default is 0 (no geometry created).
     - Prescribe an aircraft architecture by either using a preset one (given in "CreatePropArch" within the "PropulsionPkg") or define their own. To learn more about how to define a propulsion architecture, the user should refer to the examples in "CreatePropArch" and the following paper:
 
-        > Mokotoff, P. and Cinar, G. (2025). [Graph Theory-based propulsion system analysis](https://doi.org/10.1016/j.ast.2025.110798). Aerospace Science and Technology, in press.
+        > Mokotoff, P. and Cinar, G. (2025). [Graph Theory-based propulsion system analysis](https://doi.org/10.1016/j.ast.2025.110798). Aerospace Science and Technology, 110798.
 
     It is acceptable if some information is unknown about the aircraft. The user can either set the value to `NaN` or omit it. During the analysis preprocessing, any unknown information about the aircraft will be estimated using historical regressions from a database of over 450 aircraft.
 
@@ -243,6 +244,7 @@ Should additional support be needed (beyond reporting bugs or issues with the so
 3. During the mission evaluation, the thrust (for a turbojet or turbofan) or power (for a turboprop or piston aircraft) is lapsed by a power of the density ratio (density at altitude to density at sea level). For turbojets and turbofans, this exponent is set to 1. For turboprops or piston aircraft, this exponent is set to 0 (no lapse). Currently, the user is unable to specify the exponent. However, it can be modified inside the "EngineLapse" function, which is housed in the "PropulsionPkg" folder.
 4. The "OptimizationPkg" is currently deprecated and only runs on previous versions of FAST.
 5. Currently, we are in the process of switching to a new off-design engine model. As a result of that, some of the engines provided in the "+EngineModelPkg\+EngineSpecsPkg" are not fully up to date. The engines that currently work are the LEAP-1A26, CF34-8E5, and any turboprop engine. If you want to use a turbofan engine not listed above, please refer to "+EngineModelPkg\SimpleOffDesign" for the necessary coefficients that need to be provided to use the fuel flow equation. Additionally, due to this switch, please refrain from using the "+EngineModelPkg\TurbofanOffDesign" function or any functions that it calls within its routine.
+6. We are still expanding the battery state of health model so using degredation on analysis for battery may be inaccurate.
 
 # (IX) Testing FAST:
 

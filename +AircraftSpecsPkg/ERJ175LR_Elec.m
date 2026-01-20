@@ -1,14 +1,15 @@
-function [Aircraft] = ERJ175LR()
+function [Aircraft] = ERJ175LR_Elec()
 %
-% [Aircraft] = ERJ175LR()
+% [Aircraft] = ERJ175LR_Elec()
 % originally written for E175 by Nawa Khailany
 % modified to E175LR by Paul Mokotoff, prmoko@umich.edu
-% last updated: 13 dec 2024
+% modified to E175LR_Elec by Yipeng Liu
+% last updated: 08 jan 2026
 % 
-% Create a baseline model of the ERJ 175, long-range version (also known as
-% an ERJ 170-200). This version uses a conventional propulsion
-% architecture.
-%
+% Create a baseline model of the ERJ 175, long-range (also known as
+% an ERJ 170-200) and electrified version. This version uses a parallel 
+% hybrid propulsion architecture.
+% 
 % INPUTS:
 %     none
 %
@@ -120,7 +121,7 @@ Aircraft.Specs.Weight.Batt = 0;
 %     (5) "PHE" = parallel hybrid electric
 %     (6) "SHE" = series hybrid electric
 %     (7) "O"   = other architecture (specified by the user)
-Aircraft.Specs.Propulsion.PropArch.Type = "C";
+Aircraft.Specs.Propulsion.PropArch.Type = "PHE";
 
 % get the engine
 Aircraft.Specs.Propulsion.Engine = EngineModelPkg.EngineSpecsPkg.CF34_8E5;
@@ -145,35 +146,97 @@ Aircraft.Specs.Propulsion.Eta.Prop = 0.8;
 Aircraft.Specs.Power.SpecEnergy.Fuel = 12;
 
 % gravimetric specific energy of battery (kWh/kg), not used here
-Aircraft.Specs.Power.SpecEnergy.Batt = NaN;
+Aircraft.Specs.Power.SpecEnergy.Batt = 0.25;
 
 % downstream power splits
-Aircraft.Specs.Power.LamDwn.SLS = 0;
-Aircraft.Specs.Power.LamDwn.Tko = 0;
+Aircraft.Specs.Power.LamDwn.SLS = 0.1;
+Aircraft.Specs.Power.LamDwn.Tko = 0.1;
 Aircraft.Specs.Power.LamDwn.Clb = 0;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;
 
 % upstream power splits
-Aircraft.Specs.Power.LamUps.SLS = 0;
-Aircraft.Specs.Power.LamUps.Tko = 0;
+Aircraft.Specs.Power.LamUps.SLS = 1;
+Aircraft.Specs.Power.LamUps.Tko = 1;
 Aircraft.Specs.Power.LamUps.Clb = 0;
 Aircraft.Specs.Power.LamUps.Crs = 0;
 Aircraft.Specs.Power.LamUps.Des = 0;
 Aircraft.Specs.Power.LamUps.Lnd = 0;
 
 % electric motor and generator efficiencies, not used here just in HEA one
-Aircraft.Specs.Power.Eta.EM = NaN;
-Aircraft.Specs.Power.Eta.EG = NaN;
+Aircraft.Specs.Power.Eta.EM = 0.96;
+Aircraft.Specs.Power.Eta.EG = 0.96;
 
 % power-weight ratio for the aircraft (kW/kg, if a turboprop)
 Aircraft.Specs.Power.P_W.SLS = NaN;
 
 % power-weight ratio for the electric motor and generator (kW/kg)
 % leave as NaN if an electric motor or generator isn't in the powertrain
-Aircraft.Specs.Power.P_W.EM = NaN;
+Aircraft.Specs.Power.P_W.EM = 10;
 Aircraft.Specs.Power.P_W.EG = NaN;
+
+% battery cells in series and parallel
+Aircraft.Specs.Power.Battery.ParCells = 100; % 100;
+Aircraft.Specs.Power.Battery.SerCells = 62; % 62;
+
+% initial battery SOC (commented value used for electrified aircraft)
+Aircraft.Specs.Power.Battery.BegSOC = 100;%100;
+
+% nominal cell voltage [V]
+Aircraft.Specs.Battery.NomVolCell = 3.6;
+
+% maxinum extracted voltage [V]
+Aircraft.Specs.Battery.MaxExtVolCell = 4.0880;
+
+% maxinum cell capacity [Ah]
+Aircraft.Specs.Battery.CapCell = 3;
+
+% internal resistance [Ohm]
+Aircraft.Specs.Battery.IntResist = 0.0199;
+
+% exponential voltage [V]
+Aircraft.Specs.Battery.ExpVol = 0.0986;
+
+% exponential capacity [(Ah)^-1]
+Aircraft.Specs.Battery.ExpCap = 30;
+
+% acceptable SOC threshold
+Aircraft.Specs.Battery.MinSOC = 20;
+
+% intitial SOC
+Aircraft.Specs.Battery.BegSOC = 100;
+
+% acceptable max c-rate during discharging
+Aircraft.Specs.Battery.MaxAllowCRate = 5;
+
+% charging rate 
+Aircraft.Specs.Battery.Charging = 500*1000;
+
+%%%% battery degradation effect analysis %%%
+Aircraft.Specs.Battery.Degradation = 0; % 1 = analysis with degradation effect; 0 = without degradation effect
+
+if Aircraft.Specs.Battery.Degradation == 1
+    
+    % battery chemistry material (ONLY "NMC" or "LFP" FOR NOW)
+    Aircraft.Specs.Battery.Chem = 1; % NMC: 1    LFP:2
+    
+    % Charging time 
+    Aircraft.Specs.Battery.ChrgTime = 60*60; % in sec
+    
+    % charging rate (can be an array or scalar, or a function with output of a scalar or array)
+    Aircraft.Specs.Battery.Cpower = -500*1000; % charging means negative rate in W
+    
+    % battery Full Equivalent Cycles (FECs)
+    Aircraft.Specs.Battery.FEC = 0; % start with 0
+    
+    % battery State of Health (SoH)
+    Aircraft.Specs.Battery.SOH = 100; 
+
+    % battery operation temperature (for analysis only, will remove)
+    Aircraft.Specs.Battery.OpTemp = 35; % [°C]
+end
+
 
 %% SETTINGS (LEAVE AS NaN FOR DEFAULTS) %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
