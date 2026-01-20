@@ -28,7 +28,7 @@ function [] = README()
 %     Michael Tsai
 %     Vaibhav Rau
 % 
-% README last updated: 26 Nov 2025
+% README last updated: 20 Jan 2026
 %
 % Learn More About FAST
 % For detailed information about FAST's features, visit our website: 
@@ -364,7 +364,7 @@ function [] = README()
 %
 %                     Mokotoff, P. and Cinar, G. (2025). Graph Theory-based
 %                     propulsion system analysis. Aerospace Science and
-%                     Technology, in press. https://doi.org/10.1016/j.ast.2025.110798
+%                     Technology, 110798. https://doi.org/10.1016/j.ast.2025.110798
 %
 %         It is okay if some information is unknown about the aircraft. The
 %         user can either set the value to NaN or just not include it.

@@ -28,7 +28,7 @@ Additional Contributors:
 - Michael Tsai
 - Vaibhav Rau
 
-README last updated: 26 Nov 2025
+README last updated: 20 Jan 2026
 
 ## Learn More About FAST
 
@@ -199,7 +199,7 @@ FAST performs on- and off-design analysis of a user-prescribed aircraft on a use
     - Select whether or not a geometry of the aircraft should be created. This is controlled by the variable: "Aircraft.Settings.VisualizeAircraft". The default is 0 (no geometry created).
     - Prescribe an aircraft architecture by either using a preset one (given in "CreatePropArch" within the "PropulsionPkg") or define their own. To learn more about how to define a propulsion architecture, the user should refer to the examples in "CreatePropArch" and the following paper:
 
-        > Mokotoff, P. and Cinar, G. (2025). [Graph Theory-based propulsion system analysis](https://doi.org/10.1016/j.ast.2025.110798). Aerospace Science and Technology, in press.
+        > Mokotoff, P. and Cinar, G. (2025). [Graph Theory-based propulsion system analysis](https://doi.org/10.1016/j.ast.2025.110798). Aerospace Science and Technology, 110798.
 
     It is acceptable if some information is unknown about the aircraft. The user can either set the value to `NaN` or omit it. During the analysis preprocessing, any unknown information about the aircraft will be estimated using historical regressions from a database of over 450 aircraft.
 
