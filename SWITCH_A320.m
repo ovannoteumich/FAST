@@ -1,6 +1,7 @@
 %function [Aircraft] = SWITCH_A320()
 %
 % 
+%% sizing battery is off fix that it allows the EM to be over its limits
 
 %% size conventional aircraft on design mission
 
@@ -82,9 +83,9 @@ Aircraft.Specs.Power.LamUps.Des = 0;
 Aircraft.Specs.Power.LamUps.Lnd = 0;
 
 % downstream power splits
-Aircraft.Specs.Power.LamDwn.SLS = 0.01;
+Aircraft.Specs.Power.LamDwn.SLS = 0.1;
 Aircraft.Specs.Power.LamDwn.Tko = 0;
-Aircraft.Specs.Power.LamDwn.Clb = 0.01;
+Aircraft.Specs.Power.LamDwn.Clb = 0.1;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;
@@ -109,8 +110,50 @@ Aircraft = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
 %end
 
 
-%%
+%% no battery hybrid aircraft run
 
+Aircraft = Aircraft2;
+%Aircraft = ans;
+Aircraft.Specs.Performance.Range = UnitConversionPkg.ConvLength(800, "naut mi", "m");
+Aircraft.Settings.Analysis.Type = -1;
+
+Aircraft.Specs.Weight.EM = 400;
+Aircraft.Specs.Weight.OEW = Aircraft.Specs.Weight.OEW + Aircraft.Specs.Weight.EM;
+
+
+Aircraft.Specs.Power.P_W.EM = 10*1000; % specprocessng doesnt get called
+
+Aircraft.Specs.Propulsion.SLSPower(:,[3,4]) = [200,200]*10*1000;
+Aircraft.Specs.Propulsion.SLSPower(:,[5,6]) = Aircraft.Specs.Propulsion.SLSPower(:,[5,6]) + Aircraft.Specs.Propulsion.SLSPower(:,[3,4]).*.99;% add EM to SLS power
+Aircraft.Specs.Propulsion.SLSThrust(:,[3,4]) = Aircraft.Specs.Propulsion.SLSPower(:,[3,4])/Aircraft.Specs.Performance.Vels.Tko;
+Aircraft.Specs.Propulsion.SLSThrust(:,[5,6]) = Aircraft.Specs.Propulsion.SLSThrust(:,[5,6]) + Aircraft.Specs.Propulsion.SLSThrust(:,[3,4]);
+Aircraft.Specs.Power.LamUps = [];
+Aircraft.Specs.Power.LamDwn = [];
+% upstream power splits
+Aircraft.Specs.Power.LamUps.SLS = 1;
+Aircraft.Specs.Power.LamUps.Tko = 0;
+Aircraft.Specs.Power.LamUps.Clb = 1;
+Aircraft.Specs.Power.LamUps.Crs = 0;
+Aircraft.Specs.Power.LamUps.Des = 0;
+Aircraft.Specs.Power.LamUps.Lnd = 0;
+
+% downstream power splits
+Aircraft.Specs.Power.LamDwn.SLS = 0.3;
+Aircraft.Specs.Power.LamDwn.Tko = 0;
+Aircraft.Specs.Power.LamDwn.Clb = 0.3;
+Aircraft.Specs.Power.LamDwn.Crs = 0;
+Aircraft.Specs.Power.LamDwn.Des = 0;
+Aircraft.Specs.Power.LamDwn.Lnd = 0;
+
+
+% settings
+Aircraft.Settings.PowerStrat = -1;
+Aircraft.Settings.PowerOpt = 0;
+% -1 = prioritize downstream, go from fan back to energy sources
+
+Aircraft_nobatt = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
+
+%%
 Aircraft.Settings.Analysis.Type = -2;
 
 Aircraft22 = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);

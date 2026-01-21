@@ -32,6 +32,8 @@ Batt = Aircraft.Specs.Propulsion.PropArch.SrcType == 0;
 
 % if there is no battery, return a zero battery weight
 if (all(~Batt, "all"))
+% get 0 battery weight every time for a test
+%if Aircraft.Settings.PowerOpt ==0
     
     % return zero battery weight
     Aircraft.Specs.Weight.Batt = 0;

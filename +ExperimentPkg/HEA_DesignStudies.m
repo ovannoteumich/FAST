@@ -1,6 +1,16 @@
 function [] = HEA_DesignStudies(RunCases)
+% function to perform hybridization studies on A30neo
 
+%% check inputs and setup
 
+if nargin<1
+    % run cases if no input
+    RunCases = 1;
+end
+
+% skip all initial sizing if just loading aircraft
+if RunCases == 1
+%% Size conventional aircraft
 
 Aircraft = AircraftSpecsPkg.A320neo;
 Aircraft.Specs.Propulsion.PropArch.Type = "PHE";
@@ -20,9 +30,10 @@ Aircraft.Specs.Power.Battery.BegSOC = 100;
 
 AircraftOG = Main(Aircraft, @MissionProfilesPkg.A320);
 
-%% test 2 
+%% off-design run of conventional on shorter mission
 
 Aircraft2 = AircraftOG;
+Aircraft2.Specs.Weight.Payload = Aircraft2.Specs.Weight.Payload + 500; %500 kg of reserve fuel so dont have to fly reserve mission
 Aircraft2.Specs.Performance.Range = UnitConversionPkg.ConvLength(800, "naut mi", "m");
 Aircraft2.Settings.Analysis.Type = -1;
 
@@ -30,14 +41,14 @@ Aircraft2.Specs.Power.LamUps = rmfield(Aircraft2.Specs.Power.LamUps, 'Miss');
 Aircraft2.Specs.Power.LamDwn = rmfield(Aircraft2.Specs.Power.LamDwn, 'Miss');
 Aircraft2 = Main(Aircraft2, @MissionProfilesPkg.NarrowBodyMission);
 
+%% Set up hybridization and add EMs
+
 Aircraft = Aircraft2;
-%Aircraft = ans;
-Aircraft.Specs.Performance.Range = UnitConversionPkg.ConvLength(800, "naut mi", "m");
 Aircraft.Settings.Analysis.Type = -1;
 
+% add in EMs and weight
 Aircraft.Specs.Weight.EM = 400;
 Aircraft.Specs.Weight.OEW = Aircraft.Specs.Weight.OEW + Aircraft.Specs.Weight.EM;
-
 Aircraft.Specs.Power.P_W.EM = 10*1000;
 
 Aircraft.Specs.Propulsion.SLSPower(:,[3,4]) = [200,200]*10*1000;
@@ -48,20 +59,34 @@ Aircraft.Specs.Power.LamUps = [];
 Aircraft.Specs.Power.LamDwn = [];
 
 AircraftStruct = Aircraft;
+end
 
-%%
-n = 50;
+%% Sizing Iteration
+
+% set up iteration variables
+n = 20;
 n1 = 1;
 lams_tko=0;
 %lams_tko = linspace(0,.5,n1);
-lams_clb = linspace(0,.25,n);
+lams_clb = linspace(0,.4,n);
+
+%designate space for results
 fburn = zeros(n,n1);
 batt = zeros(n,n1);
 crate = zeros(n,n1);
 SOC = zeros(n,n1);
+Energy = zeros(n,n1);
 pass = zeros(n*n1,1);
 i=0;
 
+% create results folder if not one already
+folderName = 'A320neo_nobatt';
+
+if ~exist(folderName, 'dir')
+    mkdir(folderName);
+end
+
+% iterate over power splits for sizing HEA
 for itko = 1:n1
     for iclb = 1:n
         i=i+1;
@@ -104,12 +129,12 @@ for itko = 1:n1
             Aircraft = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
                 
             % save the aircraft
-            save(MyMat, "Aircraft");
+            save(fullfile(folderName, MyMat), "Aircraft");
             
         else
             
                 % get the .mat file
-            foo = load(MyMat);
+            foo = load(fullfile(folderName, MyMat));
             
             % get the sized aircraft
             Aircraft = foo.Aircraft;
@@ -124,7 +149,8 @@ for itko = 1:n1
         fburn(iclb,itko) = Aircraft.Specs.Weight.Fuel;
         batt(iclb,itko) = Aircraft.Specs.Weight.Batt;
         SOC(iclb, itko) = Aircraft.Mission.History.SI.Power.SOC(end,2);
-        crate(iclb, itko) = max(Aircraft.Mission.History.SI.Power.C_rate(:,2));
+        Energy(iclb, itko) = Aircraft.Mission.History.SI.Energy.E_ES(end,2);
+        %crate(iclb, itko) = max(Aircraft.Mission.History.SI.Power.C_rate(:,2));
     end
 end
 
@@ -339,14 +365,18 @@ set(gca, "FontSize", 18);
 grid on
 %}
 % ----------------------------------------------------------
+ 
+
 figure(1);
 plot(lams_clb, fburn)
 xlabel("Climb Power Code")
 ylabel("Fuel Burn(kg)")
 hold on
 yyaxis right
-plot(lams_clb, batt)
-ylabel("Battery Weight (kg)")
+plot(lams_clb, Energy./1e8)
+ylabel("Battery Energy (MJ)")
+
+%{
 figure(2);
 plot(lams_clb, SOC)
 xlabel("Climb Power Code")
@@ -355,7 +385,7 @@ hold on
 yyaxis right
 plot(lams_clb, crate)
 ylabel("crate")
-%{
+
 [X,Y]= meshgrid(lams_tko, lams_clb);
 figure(1);
 hold on;
