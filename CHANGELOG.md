@@ -12,15 +12,31 @@ Principal Authors:
 - Paul Mokotoff, <prmoko@umich.edu>
 - Max Arnson, <marnson@umich.edu>
 
-Last Updated: 22 Dec 2025
+Last Updated: 28 Jan 2026
 
-## Version 0.4.0 - 22 Nov 2025
+## Version 0.5.0 - 28 Jan 2026
 
 ### Added
 
 1. Created the +ConstraintDiagramPkg, which allows users to generate constraint diagrams for turboprop or turbofan configurations under FAA Part 25 regulations. Users can also generate custom constraints to add to their constraint diagram.
 
 1. Created the +SafetyPkg, which enables users to execute a Fault Tree Analysis to identify the failure probability and failure modes for a given system architecture.
+
+## Version 0.4.0 - 20 Jan 2026
+
+### Added
+
+1. CostPkg with a battery replacement cost estimation model.
+
+2. Battery state of health model to capture long term effects of using a battery during flight operations.
+
+### Changed
+
+1. Reorganized battery (dis)charging model and broke into seperate files for readibility.
+
+### Fixed
+
+1. Fixed C-rate assumption error and battery resizing error. 
 
 ## Version 0.3.0 - 26 Nov 2025
 
