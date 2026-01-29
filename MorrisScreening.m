@@ -2,7 +2,7 @@ function [] = MorrisScreening()
 %
 % [] = MorrisScreening()
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 09 jan 2026
+% last updated: 29 jan 2026
 %
 % adapted from code written by Forrester and Sobester from their
 % "Engineering Design via Surrogate Modelling: A Practical Guide" textbook
@@ -16,6 +16,9 @@ function [] = MorrisScreening()
 % OUTPUTS:
 %     none
 %
+
+% seed the random number generator for repeatable outcomes
+rng(16);
 
 % define the range of values for each variable
 Range = [ ...
@@ -64,7 +67,8 @@ X = Range(1, :) + (Range(2, :) - Range(1, :)) .* UnifX;
 X(:, [1, 8, 9, 12]) = round(X(:, [1, 8, 9, 12]));
 
 % allocate memory for the function evaluations
-f = zeros(nsamp, 1);
+F = zeros(nsamp, 1);
+W = zeros(nsamp, 1);
 
 % loop through all the samples
 parfor isamp = 1:nsamp
@@ -140,25 +144,39 @@ parfor isamp = 1:nsamp
         ACOut = Main(AC, @MissionProfilesPkg.RegionalTurbopropMission);
         
         % get the fuel burn
-        f(isamp) = ACOut.Specs.Weight.Fuel;
+        F(isamp) = ACOut.Specs.Weight.Fuel;
+        W(isamp) = ACOut.Specs.Weight.MTOW;
         
     catch
         
         % sample failed
-        f(isamp) = NaN;
+        F(isamp) = NaN;
+        W(isamp) = NaN;
         
     end    
 end
 
 % filter out NaN
-idx = isnan(f);
+idx = isnan(F) | isnan(W);
 
 % remove all NaN
 X(idx, :) = [];
-f(idx, :) = [];
+F(idx, :) = [];
+W(idx, :) = [];
 
-% create a screening plot
-screening_plot(X, f, xi, p, ...
+% save the data
+save("MorrisScreening.mat", "X", "F", "W");
+
+% create a screening plot for fuel burn
+screening_plot(X, F, xi, p, ...
+    {'Pax','R','M_{Crs}','R/C','e_{batt}', ...
+     'P/W_{(EM)}', 'P/W_{(EG)}', 'A', 'CiS', ...
+     '\lambda_{Tko}', '\lambda_{Clb}', 'n_{prop}', ...
+     'k_{(L/D)}', 'L/D_{Crs}', 'L/D_{Clb}' ...
+    });
+
+% create a screening plot for MTOW
+screening_plot(X, W, xi, p, ...
     {'Pax','R','M_{Crs}','R/C','e_{batt}', ...
      'P/W_{(EM)}', 'P/W_{(EG)}', 'A', 'CiS', ...
      '\lambda_{Tko}', '\lambda_{Clb}', 'n_{prop}', ...
