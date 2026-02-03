@@ -2,7 +2,7 @@ function [Aircraft] = PowerAvailable(Aircraft)
 %
 % [Aircraft] = PowerAvailable(Aircraft)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 05 sep 2025
+% last updated: 19 jan 2026
 %
 % For a given propulsion architecture, compute the power available.
 %
@@ -129,7 +129,7 @@ for jtrn = 1:ntrn
     elseif (TrnType(jtrn) == 0) % electric motor
         
         % once available, input an electric motor model here
-        
+
     elseif (TrnType(jtrn) == 2) % fuel cell
         
         % once available, input a fuel cell model here

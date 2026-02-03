@@ -28,7 +28,7 @@ function [] = README()
 %     Michael Tsai
 %     Vaibhav Rau
 % 
-% README last updated: 26 Nov 2025
+% README last updated: 20 Jan 2026
 %
 % Learn More About FAST
 % For detailed information about FAST's features, visit our website: 
@@ -192,85 +192,89 @@ function [] = README()
 %                    This package contains the battery model which is
 %                    called during the mission analysis for fully or hybrid
 %                    electric aircraft.
+%
+%             (c) +CostPkg
+%                    This packages contains functions for estimating
+%                    aircraft related costs.
 % 
-%             (c) +DatabasePkg
+%             (d) +DatabasePkg
 %                    This package contains the IDEAS Lab historical
 %                    database. It also contains functions which help
 %                    convert the original database format (MS Excel sheet)
 %                    into the FAST format (Matlab data structures).
 % 
-%             (d) +DataStructPkg
+%             (e) +DataStructPkg
 %                    This package contains functions which process aircraft
 %                    data structures when calling FAST.
 % 
-%             (e) +EngineModelPkg
+%             (f) +EngineModelPkg
 %                    This package contains the gas turbine engine models
 %                    used while running FAST. It is one of the largest
 %                    packages and inspecting additional documentation is
 %                    recommended if a user has more questions regarding the
 %                    gas turbine engine models.
 % 
-%             (f) +MissionProfilesPkg
+%             (g) +MissionProfilesPkg
 %                    This package is analagous to the AircraftSpecsPkg, as
 %                    it contains specific mission profiles. The
 %                    documentation will guide users in calling pre-made
 %                    mission profiles 
 % 
-%             (g) +MissionSegsPkg
+%             (h) +MissionSegsPkg
 %                    This package is responsible for all aircraft
 %                    performance-related functionality while performing the
 %                    mission analysis (i.e., processing and flying the
 %                    mission).
 %
-%             (h) +OEWPkg
+%             (i) +OEWPkg
 %                    This package determines the aircraft's airframe and 
 %                    propulsion system weights.
 % 
-%             (i) +OptimizationPkg
+%             (j) +OptimizationPkg
 %                    This package contains information about running EAP
 %                    power management optimization, which is focused on
 %                    optimizing in the sizing loop to determine the optimum
 %                    electrified powertrain component sizes and usage
 %                    during flight.
 % 
-%             (j) +PlotPkg
+%             (k) +PlotPkg
 %                    This package contains information about plotting the
 %                    mission history upon the user's request. It creates
 %                    subplots to show the time-based history of multiple
 %                    aircraft performance and system-level parameters.
 % 
-%             (k) +ProjectionPkg
+%             (l) +ProjectionPkg
 %                    This package contains code to project the value of
 %                    certain Key Performance Parameters (KPP) into the
 %                    future using S-curves.
 % 
-%             (l) +PropulsionPkg
+%             (m) +PropulsionPkg
 %                    This package is responsible for creating the user's
 %                    desired propulsion architecture and evaluating the
 %                    propulsion system's performance during the mission
 %                    analysis. It connects to the EngineModelPkg for
 %                    evaluating an actual engine's performance.
 % 
-%             (m) +RegressionPkg
+%             (n) +RegressionPkg
 %                    This package contains code that creates regressions to
 %                    predict any unknown parameters about the aircraft
 %                    configuration being designed.
 % 
-%             (n) +RetrofitPkg
+%             (o) +RetrofitPkg
 %                    This package contains code to run retrofit studies on
 %                    an aircraft by electrifying its powertrain and
 %                    replacing part of the payload with batteries.
 %
-%             (o) +TutorialsPkg
+%             (p) +TutorialsPkg
 %                     This package contains Matlab scripts to accompany all
 %                     the playlist of YouTube tutorial videos, which can be
 %                     accessed using this link: https://www.youtube.com/playlist?list=PLNbQSl1VumqhNHgNOq9oxm4_Toi4_7v3-
 % 
-%             (p) +UnitConversionPkg
+%             (q) +UnitConversionPkg
 %                    This package contains functions which perform unit
 %                    conversions for use in FAST.
 % 
-%             (q) +VisualizationPkg
+%             (r) +VisualizationPkg
 %                    This package contains information about visualizing
 %                    both the aicraft's outer mold line(as a wireframe) and
 %                    its propulsion architecture (in a schematic).
@@ -360,7 +364,7 @@ function [] = README()
 %
 %                     Mokotoff, P. and Cinar, G. (2025). Graph Theory-based
 %                     propulsion system analysis. Aerospace Science and
-%                     Technology, in press. https://doi.org/10.1016/j.ast.2025.110798
+%                     Technology, 110798. https://doi.org/10.1016/j.ast.2025.110798
 %
 %         It is okay if some information is unknown about the aircraft. The
 %         user can either set the value to NaN or just not include it.
