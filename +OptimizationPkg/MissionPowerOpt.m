@@ -76,7 +76,7 @@ PC0 = Aircraft.Specs.Power.LamUps.Miss(pts, [1,3]);
 
 b = size(PC0);
 lb = zeros(b);
-ub = ones(b).*[.85,1];
+ub = ones(b).*[.9,1];
 
 % save storage values
 PClast=[];

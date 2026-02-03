@@ -105,8 +105,8 @@ LLPcost = 2800.*labor_cost+LLPc;
 
 % monitoring cost per FH estimate
 monFH_eng = 100; % engine monitor per FH
-monFH_batt = 20; % batt monitor per FH
-monFH_EM = 10;   % EM monitor per FH
+monFH_BMS = 10; % batt monitor per FH
+monFH_EM = 0;   % EM monitor per FH
 
 %% Acquisition Cost %%
 %%%%%%%%%%%%%%%%%%%%%%
@@ -131,7 +131,7 @@ monC = FHy .* monFH_eng;
 
 % check for electronic engine components 
 if Aircraft.Specs.Weight.Batt > 0
-    monbatt = FHy.*monFH_batt; % battery monitoring cost estimate
+    monbatt = FHy.*monFH_BMS; % battery monitoring cost estimate
     monC = monbatt + monC;
 end
 
@@ -143,21 +143,24 @@ end
 
 %% MRO Comparison and EGT 
 % assumed EGT decay per cylc
-rEGT = 5/1000; % conventional
-% EGT_rateC = 4/1000; % hybrid derate (85%)
+%rEGT = 5/1000; % conventional
+rEGT = 4/1000; % hybrid derate (85%)
 
 % max FEC between engine SVs
-maxFEC = 10000; %for conventional
+%maxFEC = 10000; %for conventional
 LLPfec = 20000; % max cycles for LLP replacement
-% maxFEC = 20000; % for hybrid 
+maxFEC = 20000; % for hybrid 
 
 % assumed EGT drop first 2000 cycles
 EGT2000c = 17; % conventional ac
 % EGT2000c = 17;
 
 % max EGT for new engine
-maxEGT = 95; % for conventional
+maxEGT = 135;%95; % for conventional
 % maxEGT = 135; % for hybrid 
+
+% lowest EGT margin
+EGTthres = 25;
 
 % get flight thrust rating
 Aircraft.Settings.PowerStrat = 1;
@@ -210,8 +213,8 @@ for i = 2:n
         EGTend = EGTpstSV - (FECend-lastSV).*rEGT;
     
      % check if EGT margin lower than safe
-    elseif EGTend < 0.2*maxEGT
-        EGTpreSV = 0.2.*maxEGT;
+    elseif EGTend < EGTthres
+        EGTpreSV = EGTthres;
         % determine SV FEC based on EGT 
         lastSV = (EGTbeg - EGTpreSV)./rEGT + FECbeg;
         % recover EGT margin for post SV
@@ -240,6 +243,12 @@ idx = idx(~isnan(idx));
 
 SVcost(idx) = SVcost(idx)+LLPcost;
 
+EGTmarg = [0, maxEGT; FCye, EGTe_year; SV(:,[1,2]); SV(:, [1,3])];
+EGTmarg = sortrows(EGTmarg,1);
+figure;
+plot(EGTmarg(:,1), EGTmarg(:,2));
+
+
 %% Flight Operating Cost %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -249,6 +258,7 @@ eBatt = Aircraft.Mission.History.SI.Energy.E_ES(end,2)./3.6e6;
 
 % battery energy cost
 eBatt_cost = eBatt.*r_Elect;
+efuel_cost = eFuel .*r_JetFuel;
 
 % cummulative fuel burn each year
 fuelb_year = zeros(size(oy)); % kg
@@ -308,11 +318,11 @@ battC = eBatt_cost .* FCye;
 fuelC_year = fuelb_year.*r_JetFuel.*jetfuelspecE;
 
 % full energy cost
-eCost = fuelC_year + battC;
+eCost = cumsum(fuelC_year) + battC;
 %% EGT Plots
 
 figure;
-plot(FECy, fuelC_year)
+plot(FCye, fuelC_year)
 
 %% Outputs %%
 %%%%%%%%%%%%% 

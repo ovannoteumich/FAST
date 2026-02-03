@@ -201,3 +201,44 @@ hold on
 yyaxis right
 plot(Aircraft.Mission.History.SI.Performance.Time/60/60, Aircraft.Mission.History.SI.Performance.Alt)
 ylabel("Altitude (m)")
+
+%% size ideal a320neo hea
+
+Aircraft = AircraftSpecsPkg.A320neo;
+Aircraft.Specs.Propulsion.PropArch.Type = "PHE";
+Aircraft.Specs.Propulsion.PropArch.TrnType = [];
+Aircraft.Settings.PowerStrat = -1;
+
+% gravimetric specific energy of battery (kWh/kg), not used here
+Aircraft.Specs.Power.SpecEnergy.Batt = .25;
+Aircraft.Settings.PowerOpt = 0;
+
+Aircraft.Specs.Power.LamUps.SLS = 1;
+Aircraft.Specs.Power.LamUps.Tko = 1;
+Aircraft.Specs.Power.LamUps.Clb = 1;
+Aircraft.Specs.Power.LamUps.Crs = 0;
+Aircraft.Specs.Power.LamUps.Des = 0;
+Aircraft.Specs.Power.LamUps.Lnd = 0;
+
+% downstream power splits
+Aircraft.Specs.Power.LamDwn.SLS = 0.1;
+Aircraft.Specs.Power.LamDwn.Tko = 0.1;
+Aircraft.Specs.Power.LamDwn.Clb = 0.05;
+Aircraft.Specs.Power.LamDwn.Crs = 0;
+Aircraft.Specs.Power.LamDwn.Des = 0;
+Aircraft.Specs.Power.LamDwn.Lnd = 0;
+
+
+% settings
+Aircraft.Settings.PowerStrat = -1;
+
+% battery cells in series and parallel 
+Aircraft.Specs.Power.Battery.ParCells = 100;
+Aircraft.Specs.Power.Battery.SerCells = 62;
+
+% initial battery SOC
+Aircraft.Specs.Power.Battery.BegSOC = 100;
+
+
+
+Aircraft_HEAideal = Main(Aircraft, @MissionProfilesPkg.A320);

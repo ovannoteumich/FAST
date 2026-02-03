@@ -55,13 +55,7 @@ end
 figure(2); clf;
 
 plot(FECa, EGTArray, 'k-', 'LineWidth', 2.0);   % black line, thicker
-grid on;
-
-xlabel("FEC (x1000 cycles)", 'FontSize', 14, 'FontWeight', 'bold');
-ylabel('EGT Margin Decay (°C)', 'FontSize', 14, 'FontWeight', 'bold');
-title('PW1127G Initial EGT Margin vs Derate', 'FontSize', 16, 'FontWeight', 'bold');
-
-set(gca, 'FontSize', 14, 'LineWidth', 1);
+hold on
 
 
 EGT1000c = 10;
@@ -100,15 +94,14 @@ while i < 50
 end
 
 
-figure(3); clf;
-
-plot(FECa, EGTArray, 'k-', 'LineWidth', 2.0);   % black line, thicker
+plot(FECa, EGTArray, 'b-', 'LineWidth', 2.0);   % black line, thicker
 grid on;
 
 xlabel("FEC (x1000 cycles)", 'FontSize', 14, 'FontWeight', 'bold');
 ylabel('EGT Margin Decay (°C)', 'FontSize', 14, 'FontWeight', 'bold');
-title('PW1127G Initial EGT Margin vs Derate', 'FontSize', 16, 'FontWeight', 'bold');
-
+title('PW1127G EGT Margin Decay with Shop Visit Restoration', 'FontSize', 16, 'FontWeight', 'bold');
+lgd = legend("0%", "15%");
+title(lgd,'Engine Derate','FontSize',12)
 set(gca, 'FontSize', 14, 'LineWidth', 1);
 
 
