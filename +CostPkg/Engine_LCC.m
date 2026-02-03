@@ -15,7 +15,7 @@ function [EngineCostTable] = Engine_LCC(Aircraft)
 % Cost categories (rows)
 CostCategory= {
     'Acquisition'
-    'Flight Costs'
+    'Flight Energy Costs'
     'Management'
     'MRO'
     'End of Life'
@@ -247,15 +247,16 @@ eFuel = Aircraft.Mission.History.SI.Energy.E_ES(end,1)./3.6e6;
 fuelb = Aircraft.Specs.Weight.Fuel;
 eBatt = Aircraft.Mission.History.SI.Energy.E_ES(end,2)./3.6e6;
 
+% battery energy cost
+eBatt_cost = eBatt.*r_Elect;
 
 % cummulative fuel burn each year
 fuelb_year = zeros(size(oy)); % kg
 
-% new engine 1 cycle fuel burn cost
-fuelC = eFuel.*JetFuelkwh_Cost.*fpd.*365;
-
 % FEC per year
 FECy = fpd .* 365;
+
+
 
 % SFC increases 0.1% for every 1-degree-C EGT margin lost
 % iterate overyears and take average fuel burn for that year
@@ -300,8 +301,14 @@ for i = 1:n
 
 end
 
+% battery energy cost cumalitive
+battC = eBatt_cost .* FCye;
+
 % convert fule burn to fuel energy and costs
 fuelC_year = fuelb_year.*r_JetFuel.*jetfuelspecE;
+
+% full energy cost
+eCost = fuelC_year + battC;
 %% EGT Plots
 
 figure;
@@ -316,8 +323,8 @@ EngineCostTable.Total(1) = AcqC;
 EngineCostTable.Average(1) = AcqC;
 
 % flight costs
-EngineCostTable.Total(2) = fuelC_year(end);
-EngineCostTable.Average(2) = fuelb;
+EngineCostTable.Total(2) = eCost(end);
+EngineCostTable.Average(2) = eCost(1);
 
 % monitoring costs
 EngineCostTable.Total(3) = monC(end);
