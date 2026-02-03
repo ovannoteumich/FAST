@@ -72,7 +72,7 @@ else
             lamseg = 'Des';
         elseif Seg == 'Landing'
             lamseg = 'Lnd';
-        elseif Seg == 'Taxi'
+        elseif Seg == 'Taxi'|| (Seg == 'EWheelTaxi')
             lamseg = 'Tko';
         end
 
@@ -85,8 +85,8 @@ else
 
         ups(iEM) = LamUps.(lamseg);
         % the rest of the ups will be determined later, assumes 1 for now
-
         dwn(iEM) = LamDwn.(lamseg);
+
         if ~isempty(iEM)
             dwn(iGT) = dwn(iGT) - dwn(iEM);
         end
@@ -100,7 +100,15 @@ else
         % propagate through sgement points
         LamUps.Miss(Profile.SegBeg(i):Profile.SegEnd(i), :) = repmat(ups,npt,1);
         LamDwn.Miss(Profile.SegBeg(i):Profile.SegEnd(i), :) = repmat(dwn,npt,1);
+    
+        %{
+        if Profile.SegBeg(i) == 11
+            LamDwn.Miss(11,[3,4]) = [0,0];
+            LamDwn.Miss(11,[1,2]) = [1,1];
 
+            LamUps.Miss(11,[3,4]) = [0,0];
+        end
+        %}
     end
 
 

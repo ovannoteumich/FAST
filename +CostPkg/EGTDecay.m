@@ -41,7 +41,7 @@ while i < 50
          EGT = EGT+ (EGTmax - EGT)*recover;
          EGTArray = [EGTArray; EGT; EGT-EGT1000c; EGT-EGT2000c];
          FECa = [FECa; i; i+1; i+2];
-         recover = recover * .95;
+         recover = recover * .9;
          %EGT1000c = EGT1000c*1.1;
          %EGT2000c = EGT2000c*1.1;
          EGT = EGTArray(end);

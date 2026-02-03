@@ -64,11 +64,11 @@ end
 %% Sizing Iteration
 
 % set up iteration variables
-n = 20;
+n = 35;
 n1 = 1;
 lams_tko=0;
 %lams_tko = linspace(0,.5,n1);
-lams_clb = linspace(0,.4,n);
+lams_clb = linspace(0,.35,n);
 
 %designate space for results
 fburn = zeros(n,n1);
@@ -80,7 +80,7 @@ pass = zeros(n*n1,1);
 i=0;
 
 % create results folder if not one already
-folderName = 'A320neo_nobatt';
+folderName = 'A320neo_hybrid2';
 
 if ~exist(folderName, 'dir')
     mkdir(folderName);
@@ -367,7 +367,16 @@ grid on
 % ----------------------------------------------------------
  
 
-figure(1);
+figure;
+plot(lams_clb, fburn)
+xlabel("Climb Power Code")
+ylabel("Fuel Burn(kg)")
+hold on
+yyaxis right
+plot(lams_clb, batt)
+ylabel("Battery Weight (kg)")
+
+figure;
 plot(lams_clb, fburn)
 xlabel("Climb Power Code")
 ylabel("Fuel Burn(kg)")

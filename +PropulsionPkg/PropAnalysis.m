@@ -282,7 +282,7 @@ end
 % set the required power as the output power
 Pout(:, TrnSnkIdx) = PoutTest;
 Aircraft.Mission.History.SI.Power.Pout(SegBeg:SegEnd, :) = Pout;
- if Aircraft.Specs.Propulsion.PropArch.Type == "PHE"
+if Aircraft.Specs.Propulsion.PropArch.Type == "PHE"
     Aircraft = PropulsionPkg.RecomputeSplits(Aircraft, SegBeg, SegEnd);
     LamDwn = Aircraft.Mission.History.SI.Power.LamDwn(SegBeg:SegEnd, :);
  end

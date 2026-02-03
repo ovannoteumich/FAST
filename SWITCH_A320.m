@@ -83,9 +83,9 @@ Aircraft.Specs.Power.LamUps.Des = 0;
 Aircraft.Specs.Power.LamUps.Lnd = 0;
 
 % downstream power splits
-Aircraft.Specs.Power.LamDwn.SLS = 0.1;
+Aircraft.Specs.Power.LamDwn.SLS = 0.02;
 Aircraft.Specs.Power.LamDwn.Tko = 0;
-Aircraft.Specs.Power.LamDwn.Clb = 0.1;
+Aircraft.Specs.Power.LamDwn.Clb = 0.02;
 Aircraft.Specs.Power.LamDwn.Crs = 0;
 Aircraft.Specs.Power.LamDwn.Des = 0;
 Aircraft.Specs.Power.LamDwn.Lnd = 0;
@@ -108,7 +108,9 @@ Aircraft.Settings.PowerOpt = 0;
 
 Aircraft = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
 %end
-
+b = Aircraft.Mission.History.SI.Power.Pav - Aircraft.Mission.History.SI.Power.Pout;
+pav = Aircraft.Mission.History.SI.Power.Pav;
+pout = Aircraft.Mission.History.SI.Power.Pout;
 
 %% no battery hybrid aircraft run
 
@@ -158,6 +160,24 @@ Aircraft.Settings.Analysis.Type = -2;
 
 Aircraft22 = Main(Aircraft, @MissionProfilesPkg.NarrowBodyMission);
 
+%% get lamups splits after sizing
+Aircraft.Settings.PowerStrat = 1;
+Aircraft = PropulsionPkg.RecomputeSplits(Aircraft, 1, 102);
+
+%% Aircraft
+Aircraft1 = Aircraft22;
+n = 10;
+fuel = zeros(n,1);
+egt = linspace(0,50,n);
+fuel(1) = Aircraft1.Specs.Weight.Fuel;
+for i = 2:n
+    sfcIn = (egt(i)-egt(i-1))/1000;
+    Aircraft1.Specs.Propulsion.MDotCF = Aircraft1.Specs.Propulsion.MDotCF .* (1+sfcIn);
+    Aircraft1 = Main(Aircraft1, @MissionProfilesPkg.NarrowBodyMission);
+    fuel(i)=Aircraft1.Specs.Weight.Fuel;
+end
+figure;
+plot(egt, fuel)
 %% test 2 
 
 %{

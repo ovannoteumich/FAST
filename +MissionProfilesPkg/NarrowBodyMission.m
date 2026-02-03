@@ -57,7 +57,7 @@ Mission.Target.Type = ["Dist"; "Dist"; "Dist"; "Time";];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % define the segments
-Mission.Segs = ["Taxi"; "DetailedTakeoff"; "Climb"; "Climb"; "Cruise";
+Mission.Segs = ["EWheelTaxi"; "DetailedTakeoff"; "Climb"; "Climb"; "Cruise";
     "Climb"; "Cruise"; 
     "Climb"; "Cruise"; "Descent"; 
     %"Cruise"; "Descent"; "Landing"];

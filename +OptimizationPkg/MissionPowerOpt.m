@@ -51,7 +51,7 @@ Aircraft.Settings.PrintOut = 0;
 % turn off FAST internal SOC constraint
 Aircraft.Settings.PowerOpt = 1;
 
-Aircraft.Settings.PowerStrat = 1;
+Aircraft.Settings.PowerStrat = -1;
 
 % no mission history table
 Aircraft.Settings.Table = 0;
