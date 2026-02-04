@@ -129,7 +129,8 @@ Aircraft.Mission.History.SI.Performance.Time(SegEnd) = Time + Aircraft.Mission.H
 
 % perform the propulsion analysis
 %Aircraft = PropulsionPkg.PropAnalysis(Aircraft);
-SOC   = Aircraft.Mission.History.SI.Power.SOC(SegBeg:SegEnd,2);
+%SOC   = Aircraft.Mission.History.SI.Power.SOC(SegBeg:SegEnd,2);
+SOC = [100; 100];
 
 % battery: get battery cell arrangement
 SerCells = Aircraft.Specs.Power.Battery.SerCells;

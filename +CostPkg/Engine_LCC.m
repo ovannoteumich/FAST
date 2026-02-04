@@ -98,23 +98,25 @@ r_labor = 0.027;
 LLPc = 4.2e6;
 
 % base shop visit cost (no LLP replacement)
-baseSVCost = svLabor + 1e6;
+baseSVCost = svLabor + 1.6e6;
 
 % major SV cost w/ LLP replacements
 LLPcost = 2800.*labor_cost+LLPc;
 
 % monitoring cost per FH estimate
 monFH_eng = 100; % engine monitor per FH
-monFH_BMS = 10; % batt monitor per FH
+monFH_BMS = 15; % batt monitor per FH
 monFH_EM = 0;   % EM monitor per FH
 
 %% Acquisition Cost %%
 %%%%%%%%%%%%%%%%%%%%%%
 AcqC = Initial_Cost; % initial engine cost
-
+BattC = 0;
 % check for electronic engine components 
 if Aircraft.Specs.Weight.Batt > 0
-    AcqC = AcqC + Aircraft.Specs.Weight.Batt.*battC_kg; % battery weight estimate
+    BattC = Aircraft.Specs.Weight.Batt.*battC_kg;
+    AcqC = AcqC + BattC; % battery weight estimate
+    LLPcost = LLPcost + BattC;
 end
 
 if Aircraft.Specs.Weight.EM > 0
@@ -136,7 +138,7 @@ if Aircraft.Specs.Weight.Batt > 0
 end
 
 if Aircraft.Specs.Weight.EM > 0
-    monEM = monC + FHy.*monFH_EM; % EM monitoring cost estimate
+    monEM = FHy.*monFH_EM; % EM monitoring cost estimate
      monC = monEM + monC;
 end
 
@@ -144,7 +146,10 @@ end
 %% MRO Comparison and EGT 
 % assumed EGT decay per cylc
 %rEGT = 5/1000; % conventional
-rEGT = 4/1000; % hybrid derate (85%)
+rEGT = 5/1000; % hybrid derate (85%)
+
+% max EGT for new engine
+maxEGT = 120;%95; % for conventional
 
 % max FEC between engine SVs
 %maxFEC = 10000; %for conventional
@@ -155,12 +160,8 @@ maxFEC = 20000; % for hybrid
 EGT2000c = 17; % conventional ac
 % EGT2000c = 17;
 
-% max EGT for new engine
-maxEGT = 135;%95; % for conventional
-% maxEGT = 135; % for hybrid 
-
 % lowest EGT margin
-EGTthres = 25;
+EGTthres = 15;
 
 % get flight thrust rating
 Aircraft.Settings.PowerStrat = 1;
@@ -197,8 +198,23 @@ for i = 2:n
     % final EGT margin
     EGTend = EGTbeg - (FECend-FECbeg).*rEGT;
 
+         % check if EGT margin lower than safe
+    if EGTend < EGTthres
+        EGTpreSV = EGTthres;
+        % determine SV FEC based on EGT 
+        lastSV = (EGTbeg - EGTpreSV)./rEGT + FECbeg;
+        % recover EGT margin for post SV
+        EGTpstSV = EGTpreSV+ (maxEGT - EGTpreSV)*recoverSV;
+        % reduce EGT recovery after every SV
+        recoverSV = 0.9 .* recoverSV;
+        % save SV information
+        SV = [SV; [lastSV, EGTpreSV, EGTpstSV]];
+        % final EGT margin
+        EGTend = EGTpstSV - (FECend-lastSV).*rEGT;
+    
+
     % check if end year FEC > maxFEC for SVs
-    if FECend - lastSV > maxFEC 
+    elseif FECend - lastSV > maxFEC 
         % SV FECs
         lastSV = lastSV + maxFEC;
         % egt margin before SV
@@ -212,19 +228,6 @@ for i = 2:n
         % final EGT margin
         EGTend = EGTpstSV - (FECend-lastSV).*rEGT;
     
-     % check if EGT margin lower than safe
-    elseif EGTend < EGTthres
-        EGTpreSV = EGTthres;
-        % determine SV FEC based on EGT 
-        lastSV = (EGTbeg - EGTpreSV)./rEGT + FECbeg;
-        % recover EGT margin for post SV
-        EGTpstSV = EGTpreSV+ (maxEGT - EGTpreSV)*recoverSV;
-        % reduce EGT recovery after every SV
-        recoverSV = 0.9 .* recoverSV;
-        % save SV information
-        SV = [SV; [lastSV, EGTpreSV, EGTpstSV]];
-        % final EGT margin
-        EGTend = EGTpstSV - (FECend-lastSV).*rEGT;
     end
     % save EGT margin for next year
     EGTe_year(i)=EGTend;
@@ -254,6 +257,7 @@ plot(EGTmarg(:,1), EGTmarg(:,2));
 
 eFuel = Aircraft.Mission.History.SI.Energy.E_ES(end,1)./3.6e6;
 fuelb = Aircraft.Specs.Weight.Fuel;
+fuelb = (1-((maxEGT-95)/2000))*fuelb;
 eBatt = Aircraft.Mission.History.SI.Energy.E_ES(end,2)./3.6e6;
 
 % battery energy cost
@@ -265,8 +269,6 @@ fuelb_year = zeros(size(oy)); % kg
 
 % FEC per year
 FECy = fpd .* 365;
-
-
 
 % SFC increases 0.1% for every 1-degree-C EGT margin lost
 % iterate overyears and take average fuel burn for that year
