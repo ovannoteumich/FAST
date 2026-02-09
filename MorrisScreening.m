@@ -1,8 +1,8 @@
-function [] = MorrisScreening()
+function [] = MorrisScreening(RunDOE)
 %
-% [] = MorrisScreening()
+% [] = MorrisScreening(RunDOE)
 % written by Paul Mokotoff, prmoko@umich.edu
-% last updated: 29 jan 2026
+% last updated: 09 feb 2026
 %
 % adapted from code written by Forrester and Sobester from their
 % "Engineering Design via Surrogate Modelling: A Practical Guide" textbook
@@ -11,161 +11,183 @@ function [] = MorrisScreening()
 % variables in the aircraft sizing process.
 %
 % INPUTS:
-%     none
+%     RunDOE - flag to indicate whether the DOE should be run (1) or if
+%              only the results should be analyzed (0).
+%              size/type/units: 1-by-1 / integer / []
 %
 % OUTPUTS:
 %     none
 %
 
+% assume the DOE is not run
+if (nargin < 1)
+    RunDOE = 0;
+end
+
 % seed the random number generator for repeatable outcomes
 rng(16);
-
-% define the range of values for each variable
-Range = [ ...
-     80    , 100    ; ... % passengers, discrete
-    650    , 850    ; ... % design range (m), continuous
-      0.55 ,   0.65 ; ... % cruise speed (mach), continuous
-      8    ,  12    ; ... % maximum r/c (m/s), continuous
-      0.120,   0.600; ... % battery specific energy (kWh/kg), continuous
-      3    ,   7    ; ... % electric motor power-to-weight ratio (kW/kg), continuous
-      3    ,   7    ; ... % electric generator power-to-weight ratio (kW/kg), continuous
-      1    ,   3    ; ... % propulsion architecture, discrete
-     40    ,  80    ; ... % battery cells in series (for HTE), discrete
-      4    ,  12    ; ... % takeoff power split (for HTE), continuous
-      0    ,   3    ; ... % climb power split (for HTE), continuous
-      1    ,   6    ; ... % propulsors on half of the DTE propulsion system, discrete
-      2    ,   6    ; ... % L/D benefit for DEP systems, continuous
-     22    ,  26    ; ... % cruise l/d, continuous
-     17.6  ,  20.8  ; ... % climb l/d, continuous
-    ]';
-
-% define the number of design variables
-k = length(Range);
 
 % define the number of levels along each dimension
 p = 10;
 
-% number of random orientations - keep as is from textbook
-r = 20;
-
 % define the step length factor - keep as is from textbook
 xi = 1;
 
-% create a screening plan (from uniform distribution)
-UnifX = screeningplan(k, p, xi, r);
+% check if the DOE should be run
+if (RunDOE == 1)
 
-% get the number of samples
-nsamp = size(UnifX, 1);
+    % define the range of values for each variable
+    Range = [ ...
+         80    , 100    ; ... % passengers, discrete
+        650    , 850    ; ... % design range (m), continuous
+          0.55 ,   0.65 ; ... % cruise speed (mach), continuous
+          8    ,  12    ; ... % maximum r/c (m/s), continuous
+          0.120,   0.600; ... % battery specific energy (kWh/kg), continuous
+          3    ,   7    ; ... % electric motor power-to-weight ratio (kW/kg), continuous
+          3    ,   7    ; ... % electric generator power-to-weight ratio (kW/kg), continuous
+          1    ,   3    ; ... % propulsion architecture, discrete
+         40    ,  80    ; ... % battery cells in series (for HTE), discrete
+          4    ,  12    ; ... % takeoff power split (for HTE), continuous
+          0    ,   3    ; ... % climb power split (for HTE), continuous
+          1    ,   6    ; ... % propulsors on half of the DTE propulsion system, discrete
+          2    ,   6    ; ... % L/D benefit for DEP systems, continuous
+         22    ,  26    ; ... % cruise l/d, continuous
+         17.6  ,  20.8  ; ... % climb l/d, continuous
+        ]';
 
-% reset discrete variable values
-UnifX(:, [1, 8, 9, 12]) = rand(nsamp, 4);
-
-% get the design data
-X = Range(1, :) + (Range(2, :) - Range(1, :)) .* UnifX;
-
-% ensure the discrete variables are integer values
-X(:, [1, 8, 9, 12]) = round(X(:, [1, 8, 9, 12]));
-
-% allocate memory for the function evaluations
-F = zeros(nsamp, 1);
-W = zeros(nsamp, 1);
-
-% loop through all the samples
-parfor isamp = 1:nsamp
+    % define the number of design variables
+    k = length(Range);
     
-    % try to run it
-    try
+    % number of random orientations - keep as is from textbook
+    r = 20;
+
+    % create a screening plan (from uniform distribution)
+    UnifX = screeningplan(k, p, xi, r);
+    
+    % get the number of samples
+    nsamp = size(UnifX, 1);
+    
+    % reset discrete variable values
+    UnifX(:, [1, 8, 9, 12]) = rand(nsamp, 4);
+    
+    % get the design data
+    X = Range(1, :) + (Range(2, :) - Range(1, :)) .* UnifX;
+    
+    % ensure the discrete variables are integer values
+    X(:, [1, 8, 9, 12]) = round(X(:, [1, 8, 9, 12]));
+    
+    % allocate memory for the function evaluations
+    F = zeros(nsamp, 1);
+    W = zeros(nsamp, 1);
+    
+    % loop through all the samples
+    parfor isamp = 1:nsamp
         
-        % get the aircraft
-        AC = AircraftSpecsPkg.RegionalTurboprop(0);
-        
-        % set the number of passengers
-        AC.Specs.TLAR.MaxPax = X(isamp, 1);
-        
-        % set the design range
-        AC.Specs.Performance.Range = X(isamp, 2) * 1000;
-        
-        % set the cruise speed
-        AC.Specs.Performance.Vels.Crs = X(isamp, 3);
-        
-        % set the maximum rate of climb
-        AC.Specs.Performance.RCMax = X(isamp, 4);
-        
-        % set the battery gravimetric specific energy
-        AC.Specs.Power.SpecEnergy.Batt = X(isamp, 5);
-        
-        % set the electric motor and generator power-to-weight ratios
-        AC.Specs.Power.P_W.EM = X(isamp, 6);
-        AC.Specs.Power.P_W.EG = X(isamp, 7);
-        
-        % get the propulsion system architecture
-        iarch = X(isamp, 8);
-        
-        % check the propulsion architecture
-        if     (iarch == 2)
+        % try to run it
+        try
             
-            % set the number of battery cells in series
-            AC.Specs.Power.Battery.SerCells = X(isamp, 9);
+            % get the aircraft
+            AC = AircraftSpecsPkg.RegionalTurboprop(0);
             
-            % set the takeoff and climb power splits
-            AC.Specs.Power.LamDwn.SLS = X(isamp, 10);
-            AC.Specs.Power.LamDwn.Tko = X(isamp, 10);
-            AC.Specs.Power.LamDwn.Clb = X(isamp, 11);
+            % set the number of passengers
+            AC.Specs.TLAR.MaxPax = X(isamp, 1);
             
-        elseif (iarch == 3)
+            % set the design range
+            AC.Specs.Performance.Range = X(isamp, 2) * 1000;
             
-            % set the number of distributed propulsors
-            AC.Specs.Propulsion.NumDTE = X(isamp, 12) * 2;
+            % set the cruise speed
+            AC.Specs.Performance.Vels.Crs = X(isamp, 3);
+            
+            % set the maximum rate of climb
+            AC.Specs.Performance.RCMax = X(isamp, 4);
+            
+            % set the battery gravimetric specific energy
+            AC.Specs.Power.SpecEnergy.Batt = X(isamp, 5);
+            
+            % set the electric motor and generator power-to-weight ratios
+            AC.Specs.Power.P_W.EM = X(isamp, 6);
+            AC.Specs.Power.P_W.EG = X(isamp, 7);
+            
+            % get the propulsion system architecture
+            iarch = X(isamp, 8);
+            
+            % check the propulsion architecture
+            if     (iarch == 2)
+                
+                % set the number of battery cells in series
+                AC.Specs.Power.Battery.SerCells = X(isamp, 9);
+                
+                % set the takeoff and climb power splits
+                AC.Specs.Power.LamDwn.SLS = X(isamp, 10);
+                AC.Specs.Power.LamDwn.Tko = X(isamp, 10);
+                AC.Specs.Power.LamDwn.Clb = X(isamp, 11);
+                
+            elseif (iarch == 3)
+                
+                % set the number of distributed propulsors
+                AC.Specs.Propulsion.NumDTE = X(isamp, 12) * 2;
+                
+            end
+            
+            % set the lift-to-drag ratios
+            if (iarch == 3)
+                
+                % get the multiplicative factor
+                LDMult = 1 + X(isamp, 13) / 100;
+                
+            else
+                
+                % no multiplicative factor
+                LDMult = 1;
+                
+            end
+            
+            % set the lift-to-drag ratios
+            AC.Specs.Aero.L_D.Crs = X(isamp, 14) * LDMult;
+            AC.Specs.Aero.L_D.Clb = X(isamp, 15) * LDMult;
+            AC.Specs.Aero.L_D.Des = X(isamp, 15) * LDMult;
+            
+            % create the propulsion architecture
+            AC = AircraftSpecsPkg.RegionalTurbopropPropulsion(AC, iarch);
+            
+            % size the aircraft
+            ACOut = Main(AC, @MissionProfilesPkg.RegionalTurbopropMission);
+            
+            % get the fuel burn
+            F(isamp) = ACOut.Specs.Weight.Fuel;
+            W(isamp) = ACOut.Specs.Weight.MTOW;
+            
+        catch
+            
+            % sample failed
+            F(isamp) = NaN;
+            W(isamp) = NaN;
             
         end
-        
-        % set the lift-to-drag ratios
-        if (iarch == 3)
-            
-            % get the multiplicative factor
-            LDMult = 1 + X(isamp, 13) / 100;
-            
-        else
-            
-            % no multiplicative factor
-            LDMult = 1;
-            
-        end
-        
-        % set the lift-to-drag ratios
-        AC.Specs.Aero.L_D.Crs = X(isamp, 14) * LDMult;
-        AC.Specs.Aero.L_D.Clb = X(isamp, 15) * LDMult;
-        AC.Specs.Aero.L_D.Des = X(isamp, 15) * LDMult;
-        
-        % create the propulsion architecture
-        AC = AircraftSpecsPkg.RegionalTurbopropPropulsion(AC, iarch);
-        
-        % size the aircraft
-        ACOut = Main(AC, @MissionProfilesPkg.RegionalTurbopropMission);
-        
-        % get the fuel burn
-        F(isamp) = ACOut.Specs.Weight.Fuel;
-        W(isamp) = ACOut.Specs.Weight.MTOW;
-        
-    catch
-        
-        % sample failed
-        F(isamp) = NaN;
-        W(isamp) = NaN;
-        
-    end    
+    end
+    
+    % filter out NaN
+    idx = isnan(F) | isnan(W);
+    
+    % remove all NaN
+    X(idx, :) = [];
+    F(idx, :) = [];
+    W(idx, :) = [];
+    
+    % save the data
+    save("MorrisScreening.mat", "X", "F", "W");
+
+else
+    
+    % load the screening data
+    Temp = load("MorrisScreening.mat");
+    
+    % get the variables
+    X = Temp.X;
+    F = Temp.F;
+    W = Temp.W;
+    
 end
-
-% filter out NaN
-idx = isnan(F) | isnan(W);
-
-% remove all NaN
-X(idx, :) = [];
-F(idx, :) = [];
-W(idx, :) = [];
-
-% save the data
-save("MorrisScreening.mat", "X", "F", "W");
 
 % create a screening plot for fuel burn
 screening_plot(X, F, xi, p, ...
@@ -175,6 +197,9 @@ screening_plot(X, F, xi, p, ...
      'k_{(L/D)}', 'L/D_{Crs}', 'L/D_{Clb}' ...
     });
 
+% align axes
+axis([-800, 700, 1400, 2300]);
+
 % create a screening plot for MTOW
 screening_plot(X, W, xi, p, ...
     {'Pax','R','M_{Crs}','R/C','e_{batt}', ...
@@ -182,6 +207,9 @@ screening_plot(X, W, xi, p, ...
      '\lambda_{Tko}', '\lambda_{Clb}', 'n_{prop}', ...
      'k_{(L/D)}', 'L/D_{Crs}', 'L/D_{Clb}' ...
     });
+
+% align axes
+axis([-7000, 8000, 12000, 23000])
 
 % ----------------------------------------------------------
 
