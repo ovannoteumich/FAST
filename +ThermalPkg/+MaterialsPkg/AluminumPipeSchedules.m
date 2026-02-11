@@ -254,26 +254,51 @@ legend(ldg)
 xlabel('Pipe Inner Diameter (m)')
 ylabel('Pipe Thickness (m)')
 
+Schedules = fieldnames(Mat);
+for ii = 1:length(Schedules)
+
+    
+    data = Mat.(Schedules{ii});
+
+    fitted = fitlm(data(:,3),data(:,4));
+
+    Fit.(Schedules{ii}) =[fitted.Coefficients.Estimate(2),fitted.Coefficients.Estimate(1)];
+
+end
+
+
+
+
+
+
 
 figure(2)
-
-data = Mat.S80
-
-fitlm(data(:,3),data(:,4))
-
-p1 = [0.050881 0.0031385];
-
-IDs = linspace(0,12 * 0.026);
-Ts = polyval(p1,IDs);
-
-scatter(data(:,3),data(:,4),'b')
 hold on
-plot(IDs,Ts,'k')
-grid on
+IDs = linspace(0,12 * 0.026);
 
+for ii = 1:length(Schedules)
+
+    if Schedules{ii} == "S20" || Schedules{ii} == "S140"
+        continue
+    end
+
+
+    data = Mat.(Schedules{ii});
+    p1 = Fit.(Schedules{ii});
+    
+    Ts = polyval(p1,IDs);
+    
+    scatter(data(:,3),data(:,4))
+    
+    plot(IDs,Ts,'k')
+
+end
+
+
+grid on
 xlabel('Pipe Inner Diameter (m)')
 ylabel('Pipe Thickness (m)')
-legend("Raw Schedule 80 Data","Linear Fit",'location','best')
+% legend("Raw Schedule 80 Data","Linear Fit",'location','best')
 
 
 
