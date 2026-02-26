@@ -20,18 +20,18 @@ function geom = HW1()
   Wing.NumCtrlPts = 4; % number of spanwise control points on each half of wing
   Wing.Spacing = 1.5; % 0: uniform, 1: concentrated at root and tip evenly, -1: concentrated at center evenly, >1: concentration towards the tip at the power specified, <-1: concentration towards the root at the negative of the power specified
 
-  Wing.Span = 20; % (m)
+  Wing.Span = 25; % (m)
 
   Wing.RootX = 15; % (m) downstream from tip, these snap to the outside of the fuselage basically, and calculate span from there in z direction
   Wing.RootY = 0.85; % (m) above the centerline of fuselage cylinder
   Wing.RootBase = 0.25; % 0, means centered on leading edge, 1 means centered on trailing edge, defaults to 0.25
 
-  Wing.Hedral = [3 3 3 30]; % (deg), no base, as it is all around the chord as a rotation axis.  // distributions can maybe be made to add winglets if you are a tryhard
+  Wing.Hedral = 3; % (deg), no base, as it is all around the chord as a rotation axis.  // distributions can maybe be made to add winglets if you are a tryhard
   
-  Wing.Sweep = 30; % (deg)
+  Wing.Sweep = 30; % (deg) scalar only supported for now.
   Wing.SweepBase = 0; % from root so the leading edge is a straight line;
 
-  Wing.Chord = [12, 3, 2, 1]; % (m) no base, as everything is handled by taper base
+  Wing.Chord = [5, 3, 2, 1]; % (m) no base, as everything is handled by taper base
   Wing.ChordSmoothing = 'linear'; % argument for interp1, i.e. 'linear', 'cubic', 'pchip', 'makima'
 
   Wing.Twist = [3, 2, 1, -1]; % (deg) 0 is aligned with fuselage, note: there is no default AoA, this handles it by default.

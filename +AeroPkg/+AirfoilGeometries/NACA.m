@@ -1,5 +1,5 @@
 function coords = NACA(series)
-% returns coords of the open naca 4 or 5 series airfoil
+% returns coords of the CLOSED naca 4 or 5 series airfoil
 %   takes it in as an int :/
   if series < 1 || series > 99999 || mod(series,1) ~= 0
     error(['Invalid NACA Series Airfoil ' num2str(series)]);
@@ -9,7 +9,7 @@ function coords = NACA(series)
   
   x = 0:1e-2:1;
   x = 6*x.^5 - 15*x.^4 + 10*x.^3;
-  y = 5*t*(0.2969*sqrt(x) - 0.1260*x - 0.3516*x.^2 + 0.2843*x.^3 - 0.1015*x.^4);
+  y = 5*t*(0.2969*sqrt(x) - 0.1260*x - 0.3516*x.^2 + 0.2843*x.^3 - 0.1036*x.^4);
   
   coords.x = [flip(x),x(2:end)];
   coords.y = [flip(y),-y(2:end)];

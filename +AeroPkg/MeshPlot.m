@@ -6,7 +6,7 @@ function [] = MeshPlot(geom,data)
   
   switch data
     case 'points'
-      scatter3(geom.Mesh.Node(:,1),-geom.Mesh.Node(:,3),geom.Mesh.Node(:,2));
+      scatter3(geom.Mesh.Node(:,1),-geom.Mesh.Node(:,3),geom.Mesh.Node(:,2),1,"filled");
       axis equal
       xlabel("x")
       ylabel("-z")
