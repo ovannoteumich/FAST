@@ -10,57 +10,100 @@ function geom = MeshGeneration(geom, BaseSize)
   TubeLen = geom.Fuselage.CylBaseLength + (geom.Fuselage.RowSpacing*ceil(geom.Pax/geom.Fuselage.PaxRow));
   TailLen = geom.Fuselage.Tail.XPos(end)*geom.Fuselage.Diameter/2;
 
-  %% --- BUILD FUSELAGE ---
-  CylSegs = ceil((pi*geom.Fuselage.Diameter/2)/BaseSize);
-  CylThetas = linspace(0,pi,CylSegs);
+  %% BUILD FUSELAGE Vertical
+  CylSegs = 2*ceil(pi/(4*(BaseSize/geom.Fuselage.Diameter)))+1;
+  VertSegs = -cos(linspace(0,pi,CylSegs));
   geom.Mesh.Node = [0, geom.Fuselage.Nose.YPos(end)*geom.Fuselage.Diameter/2, 0];
   TipIdx = 1;
 
   % Nose/Tube/Tail Hoops
   NoseSegs = ceil((1 + sqrt(-BaseSize/NoseLen + 1))/(BaseSize/NoseLen));
-  x_nose = (linspace(0,1,NoseSegs)'.^2)*NoseLen; x_nose = x_nose(2:end);
+  x_nose = (linspace(0,1,NoseSegs)'.^2)*NoseLen;
+  x_nose = x_nose(2:end);
   [rc_nose, yc_nose] = GetFuselageState(x_nose,geom,NoseLen,TubeLen);
   for i = 1:NoseSegs-1
-    geom.Mesh.Node = [geom.Mesh.Node; x_nose(i)*ones(size(CylThetas))', yc_nose(i)+rc_nose(i)*cos(CylThetas'), rc_nose(i)*sin(CylThetas')];
+    geom.Mesh.Node = [geom.Mesh.Node; x_nose(i)*ones(size(VertSegs))', yc_nose(i)+rc_nose(i)*VertSegs', zeros(size(VertSegs))'];
   end
   TubeSegs = ceil(TubeLen/BaseSize);
   x_tube = linspace(NoseLen, TubeLen+NoseLen, TubeSegs);
   [rc_tube, yc_tube] = GetFuselageState(x_tube(2:end-1),geom,NoseLen,TubeLen);
   for i = 1:TubeSegs-2
-    geom.Mesh.Node = [geom.Mesh.Node; x_tube(i+1)*ones(size(CylThetas))', yc_tube(i)+rc_tube(i)*cos(CylThetas'), rc_tube(i)*sin(CylThetas')];
+    geom.Mesh.Node = [geom.Mesh.Node; x_tube(i+1)*ones(size(VertSegs))', yc_tube(i)+rc_tube(i)*VertSegs', zeros(size(VertSegs))'];
   end
   TailSegs = ceil((1 + sqrt(-BaseSize/TailLen + 1))/(BaseSize/TailLen));
   x_tail = ((1-linspace(1,0,TailSegs)'.^2))*TailLen + TubeLen + NoseLen;
   [rc_tail, yc_tail] = GetFuselageState(x_tail(1:end-1),geom,NoseLen,TubeLen);
   for i = 1:TailSegs-1
-    geom.Mesh.Node = [geom.Mesh.Node; x_tail(i)*ones(size(CylThetas))', yc_tail(i)+rc_tail(i)*cos(CylThetas'), rc_tail(i)*sin(CylThetas')];
+    geom.Mesh.Node = [geom.Mesh.Node; x_tail(i)*ones(size(VertSegs))', yc_tail(i)+rc_tail(i)*VertSegs', zeros(size(VertSegs))'];
   end
 
   % Elements
   NumHoops = (NoseSegs-1) + (TubeSegs-2) + (TailSegs-1);
-  PtsPerHoop = length(CylThetas);
+  PtsPerHoop = length(VertSegs);
   for j = 1:PtsPerHoop-1
     geom.Mesh.Elem = [geom.Mesh.Elem; TipIdx, TipIdx+j, TipIdx+j+1, TipIdx+j+1];
     geom.Mesh.Type = [geom.Mesh.Type; 0];
   end
   for i = 1:NumHoops-1
-    c_h = 1 + (i-1)*PtsPerHoop; n_h = 1 + i*PtsPerHoop;
+    c_h = 1 + (i-1)*PtsPerHoop;
+    n_h = 1 + i*PtsPerHoop;
     for j = 1:PtsPerHoop-1
       geom.Mesh.Elem = [geom.Mesh.Elem; c_h+j, n_h+j, n_h+j+1, c_h+j+1];
       geom.Mesh.Type = [geom.Mesh.Type; 0];
     end
   end
 
+  %% BUILD FUSELAGE Horizontal
+  HorzSegs = VertSegs(ceil(CylSegs/2):end);
+  TipIdx = length(geom.Mesh.Node)+1;
+
+  NoseIdx = find(abs(rc_nose)>abs(yc_nose),1,"first");
+  horz_nose_x = x_nose(NoseIdx) - (abs(rc_nose(NoseIdx))-abs(yc_nose(NoseIdx)))/(((abs(rc_nose(NoseIdx))-abs(yc_nose(NoseIdx)))-(abs(rc_nose(NoseIdx-1))-abs(yc_nose(NoseIdx-1))))/(x_nose(NoseIdx)-x_nose(NoseIdx-1)));
+  geom.Mesh.Node = [geom.Mesh.Node; horz_nose_x, 0, 0];
+
+  % Nose/Tube/Tail Hoops
+  for i = 1:NoseSegs-1
+    if abs(rc_nose(i)) > abs(yc_nose(i))
+      geom.Mesh.Node = [geom.Mesh.Node; x_nose(i)*ones(size(HorzSegs))', zeros(size(HorzSegs))', sqrt(rc_nose(i)^2-yc_nose(i)^2)*HorzSegs'];
+    end
+  end
+  for i = 1:TubeSegs-2
+    geom.Mesh.Node = [geom.Mesh.Node; x_tube(i+1)*ones(size(HorzSegs))', zeros(size(HorzSegs))', rc_tube(i)*HorzSegs'];
+  end
+  TailSegCount = 0;
+  for i = 1:TailSegs-1
+    if abs(rc_tail(i)) > abs(yc_tail(i))
+      TailSegCount = TailSegCount + 1;
+      geom.Mesh.Node = [geom.Mesh.Node; x_tail(i)*ones(size(HorzSegs))', zeros(size(HorzSegs))', sqrt(rc_tail(i)^2-yc_tail(i)^2)*HorzSegs'];
+    end
+  end
+
+  % Elements
+  NumHoops = (NoseSegs-NoseIdx+1) + (TubeSegs-2) + (TailSegCount-1);
+  PtsPerHoop = length(HorzSegs);
+  for j = 1:PtsPerHoop-1
+    geom.Mesh.Elem = [geom.Mesh.Elem; TipIdx, TipIdx+j, TipIdx+j+1, TipIdx+j+1];
+    geom.Mesh.Type = [geom.Mesh.Type; 0.5];
+  end
+  for i = 1:NumHoops-1
+    c_h = TipIdx + (i-1)*PtsPerHoop;
+    n_h = TipIdx + i*PtsPerHoop;
+    for j = 1:PtsPerHoop-1
+      geom.Mesh.Elem = [geom.Mesh.Elem; c_h+j, n_h+j, n_h+j+1, c_h+j+1];
+      geom.Mesh.Type = [geom.Mesh.Type; 0.5];
+    end
+  end
+
   %% --- BUILD VERTICAL TAIL ---
   VTailStartIdx = size(geom.Mesh.Node, 1) + 1;
-  coords_v = AeroPkg.AirfoilGeometries.NACA(geom.VTail.Thicc);
+  coords_v = AeroPkg.AirfoilGeometries.NACA(8);
   S_v = [0;cumsum(sqrt(diff(coords_v.x').^2 + diff(coords_v.y').^2))];
-  Npts_v = ceil((pi * S_v(end)/2) / (BaseSize/geom.VTail.Chord(1)));
+  Npts_v = ceil((pi * S_v(end)/4) / (BaseSize/geom.VTail.Chord(1)));
   [~,SLE_v] = min(coords_v.x'); SLE_v = S_v(SLE_v);
   sc_v = (SLE_v/2)*(1-cos(linspace(0,pi,Npts_v)'));
   xc_v_base = interp1(S_v, coords_v.x', sc_v, 'pchip');
   zc_v_base = interp1(S_v, coords_v.y', sc_v, 'pchip');
-  NVTail = ceil(1.5*geom.VTail.Height/BaseSize) + 1;
+  NVTail = ceil(geom.VTail.Height/BaseSize) + 1;
   s_v_span = linspace(0, 1, NVTail);
   VTail_TE_Nodes = [];
   
@@ -79,22 +122,17 @@ function geom = MeshGeneration(geom, BaseSize)
       [rc_f, yc_f] = GetFuselageState(xc_v,geom,NoseLen,TubeLen);
       zc_v = max(zc_v, sqrt(max(0, rc_f.^2 - (yc_v - yc_f).^2)));
     end
-    geom.Mesh.Node = [geom.Mesh.Node; xc_v(:), yc_v(:), zc_v(:)];
-    VTail_TE_Nodes = [VTail_TE_Nodes; size(geom.Mesh.Node, 1) - length(xc_v) + 1, size(geom.Mesh.Node, 1)];
+    % geom.Mesh.Node = [geom.Mesh.Node; xc_v(:), yc_v(:), zc_v(:)];
+    % VTail_TE_Nodes = [VTail_TE_Nodes; size(geom.Mesh.Node, 1) - length(xc_v) + 1, size(geom.Mesh.Node, 1)];
   end
   for i = 1:NVTail-1
     c_s = VTailStartIdx-1+(i-1)*length(xc_v_base);
     n_s = VTailStartIdx-1+i*length(xc_v_base);
     for j = 1:length(xc_v_base)-1
-      geom.Mesh.Elem = [geom.Mesh.Elem; c_s+j, n_s+j, n_s+j+1, c_s+j+1];
-      geom.Mesh.Type = [geom.Mesh.Type; 0];
+      % geom.Mesh.Elem = [geom.Mesh.Elem; c_s+j, n_s+j, n_s+j+1, c_s+j+1];
+      % geom.Mesh.Type = [geom.Mesh.Type; 0];
     end
   end
-  geom.Mesh.Node = [geom.Mesh.Node; xc_v(2:end-1), yc_v(2:end-1), zeros(size(xc_v(2:end-1)))];
-  nN = length(geom.Mesh.Node);
-  geom.Mesh.Elem = [geom.Mesh.Elem; (nN:-1:(nN-length(xc_v_base)+4))', (nN:-1:(nN-length(xc_v_base)+4))'-1, (nN:-1:(nN-length(xc_v_base)+4))'-length(xc_v_base), (nN:-1:(nN-length(xc_v_base)+4))'-length(xc_v_base)+1];
-  geom.Mesh.Elem = [geom.Mesh.Elem; nN,nN-length(xc_v_base)+1,nN-length(xc_v_base)+2,nN-length(xc_v_base)+2];
-  geom.Mesh.Elem = [geom.Mesh.Elem; nN-length(xc_v_base)+3,nN-2*length(xc_v_base)+4,nN-2*length(xc_v_base)+3,nN-2*length(xc_v_base)+3];
 
   %% --- BUILD HORIZONTAL SURFACES ---
   TE_Wakes = cell(length(geom.Surfaces), 1);
@@ -122,7 +160,7 @@ function geom = MeshGeneration(geom, BaseSize)
     if ~isfield(surf, "HedralSmoothing"); surf.HedralSmoothing = 'next'; end
 
     S = [0;cumsum(sqrt(diff(surf.Airfoil.x').^2 + diff(surf.Airfoil.y').^2))];
-    Npts = ceil((pi*S(end)/2)/(BaseSize/surf.Chord(1)));
+    Npts = ceil((pi*S(end)/4)/(BaseSize/surf.Chord(1)));
     [~,SLE] = min(surf.Airfoil.x'); SLE = S(SLE);
     sc = unique([(SLE/2)*(1-cos(linspace(0,pi,Npts)'));SLE+((S(end)-SLE)/2)*(1-cos(linspace(0,pi,Npts)'))]);
     xc_b = interp1(S, surf.Airfoil.x', sc, 'pchip');
@@ -144,7 +182,7 @@ function geom = MeshGeneration(geom, BaseSize)
     end
     s_ctrl = unique(s_ctrl);
     
-    NumSpanPts = 1+ceil(max(diff(s_ctrl)).*surf.Span*1.5/BaseSize)*(surf.NumCtrlPts-1);
+    NumSpanPts = 1+ceil(max(diff(s_ctrl)).*surf.Span/BaseSize)*(surf.NumCtrlPts-1);
     s_loc = linspace(0,1,NumSpanPts);
     
     % SPACING LOGIC (AGAIN)
@@ -169,31 +207,31 @@ function geom = MeshGeneration(geom, BaseSize)
     hedral_s = [0, (hedral_s(1:end-1)+hedral_s(2:end))/2];
 
     for i = 1:NumSpanPts
-      geom.Mesh.Node = [geom.Mesh.Node; ((xc_b-surf.TwistBase)*cosd(twist_s(i)) + yc_b*thicc_s(i)*sind(twist_s(i)) + surf.TwistBase - surf.SweepBase)*chord_s(i) + (s_loc(i)*tand(surf.Sweep) + surf.SweepBase - surf.RootBase)*chord_s(1) + surf.RootX, (((xc_b-surf.TwistBase)*sind(twist_s(i)) + yc_b*thicc_s(i)*cosd(twist_s(i)))*cosd(hedral_s(i)))*chord_s(i) + hedral_y(i) + surf.RootY, ones(size(xc_b))*s_loc(i)*surf.Span + (((xc_b-surf.TwistBase)*sind(twist_s(i)) + yc_b*thicc_s(i)*cosd(twist_s(i)))*sind(-hedral_s(i)))*chord_s(i)];
+      % geom.Mesh.Node = [geom.Mesh.Node; ((xc_b-surf.TwistBase)*cosd(twist_s(i)) + yc_b*thicc_s(i)*sind(twist_s(i)) + surf.TwistBase - surf.SweepBase)*chord_s(i) + (s_loc(i)*tand(surf.Sweep) + surf.SweepBase - surf.RootBase)*chord_s(1) + surf.RootX, (((xc_b-surf.TwistBase)*sind(twist_s(i)) + yc_b*thicc_s(i)*cosd(twist_s(i)))*cosd(hedral_s(i)))*chord_s(i) + hedral_y(i) + surf.RootY, ones(size(xc_b))*s_loc(i)*surf.Span + (((xc_b-surf.TwistBase)*sind(twist_s(i)) + yc_b*thicc_s(i)*cosd(twist_s(i)))*sind(-hedral_s(i)))*chord_s(i)];
     end
     
     for i = 1:NumSpanPts
       c_s = VTailStartIdx-1+(i-1)*length(xc_v_base);
       n_s = VTailStartIdx-1+i*length(xc_v_base);
       for j = 1:length(xc_v_base)-1
-        geom.Mesh.Elem = [geom.Mesh.Elem; c_s+j, n_s+j, n_s+j+1, c_s+j+1];
-        geom.Mesh.Type = [geom.Mesh.Type; 0];
+        % geom.Mesh.Elem = [geom.Mesh.Elem; c_s+j, n_s+j, n_s+j+1, c_s+j+1];
+        % geom.Mesh.Type = [geom.Mesh.Type; 0];
       end
     end
     
   end
 
   %% --- FUSELAGE WAKE (Type -100) ---
-  FuseWakeStart = size(geom.Mesh.Node, 1) + 1;
-  HoopIdx = 1 + (NumHoops-1)*PtsPerHoop;
+  % FuseWakeStart = size(geom.Mesh.Node, 1) + 1;
+  % HoopIdx = 1 + (NumHoops-1)*PtsPerHoop;
   for j = 1:PtsPerHoop
-    node = geom.Mesh.Node(HoopIdx+j-1, :);
+    % node = geom.Mesh.Node(HoopIdx+j-1, :);
     for w = 1:20
       % geom.Mesh.Node = [geom.Mesh.Node; node(1)+w*BaseSize*5, node(2), node(3)];
     end
   end
   for j = 1:PtsPerHoop-1
-    r1 = FuseWakeStart + (j-1)*20; r2 = FuseWakeStart + j*20;
+    % r1 = FuseWakeStart + (j-1)*20; r2 = FuseWakeStart + j*20;
     for w = 1:19
       % geom.Mesh.Elem = [geom.Mesh.Elem; r1+w-1, r2+w-1, r2+w, r1+w];
       % geom.Mesh.Type = [geom.Mesh.Type; -100];

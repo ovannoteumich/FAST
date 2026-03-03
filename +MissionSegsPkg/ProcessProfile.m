@@ -57,18 +57,21 @@ for isegs = 1:nsegs
         % get number of points in takeoff
         SegPts(isegs) = Aircraft.Settings.TkoPoints;
                 
-    elseif  (strcmpi(SegName, "Climb"          ) == 1)
+    elseif  ((strcmpi(SegName, "Climb"          ) == 1) || ...
+             (strcmpi(SegName, "ClimbVLM"       ) == 1))
         
         % get number of points in climb
         SegPts(isegs) = Aircraft.Settings.ClbPoints;
         
     elseif ((strcmpi(SegName, "Cruise"         ) == 1) || ...
+            (strcmpi(SegName, "CruiseVLM"      ) == 1) || ...
             (strcmpi(SegName, "CruiseBRE"      ) == 1) )
         
         % get number of points in cruise
         SegPts(isegs) = Aircraft.Settings.CrsPoints;
         
-    elseif  (strcmpi(SegName, "Descent"        ) == 1)
+    elseif  ((strcmpi(SegName, "Descent"        ) == 1) || ...
+             (strcmpi(SegName, "DescentVLM"     ) == 1))
         
         % get number of points in descent
         SegPts(isegs) = Aircraft.Settings.DesPoints;

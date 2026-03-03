@@ -109,7 +109,11 @@ Type = Aircraft.Settings.Analysis.Type;
 MaxIter = Aircraft.Settings.Analysis.MaxIter;
     
 % analyze the aircraft without any optimization
-Aircraft = EAPAnalysis(Aircraft, Type, MaxIter);
+if isfield(Aircraft,"Geometry")
+  Aircraft = EAPAnalysisVLM(Aircraft, Type, MaxIter);
+else
+  Aircraft = EAPAnalysis(Aircraft, Type, MaxIter);
+end
 
 
 %% MISSION PROFILE PLOTTING %%

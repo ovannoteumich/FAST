@@ -91,7 +91,8 @@ while abs(Power1-DesPower)/DesPower > tol && i < 10
     MDot2 = MDot1*(1 - (Power1-DesPower)/DesPower);
 
     if imag(MDot2) > 0 || MDot2 < 0
-        error('Non-physical value for Mass flow')
+        warning(['Non-physical value for Mass flow', num2str(MDot2)])
+        MDot2 = 1e-20;
 %     elseif MDot2 < 0
 %         MDot2 = 0.5*MDot1;
 %         MDot0 = 0.5*MDot0;
