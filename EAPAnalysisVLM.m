@@ -220,8 +220,6 @@ while (iter < MaxIter)
         
     end
     
-    Aircraft.Specs.Weight.MTOW = abs(Aircraft.Specs.Weight.MTOW);
-    Aircraft.Specs.Weight.Fuel = abs(Aircraft.Specs.Weight.Fuel);
     % get the updated MTOW
     MTOW = Aircraft.Specs.Weight.MTOW;
 
@@ -234,9 +232,6 @@ while (iter < MaxIter)
 
     % fly the mission
     Aircraft = MissionSegsPkg.FlyMission(Aircraft);
-    
-    Aircraft.Specs.Weight.MTOW = abs(Aircraft.Specs.Weight.MTOW);
-    Aircraft.Specs.Weight.Fuel = abs(Aircraft.Specs.Weight.Fuel);
 
     % get stabilities
     conditions.alpha = 5; % (deg) guess of alpha for newton solver initialization, the closer the better...

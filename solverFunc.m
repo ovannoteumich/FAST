@@ -52,12 +52,17 @@ function [MTOW,SMP,SMY,scaled] = solverFunc(loc,grid)
   Aircraft.Geometry.Surfaces{2}.Span = Aircraft.Geometry.Surfaces{2}.Span*sqrt(htailarea/HSold);
   Aircraft.Geometry.Surfaces{2}.Chord = Aircraft.Geometry.Surfaces{2}.Chord*sqrt(htailarea/HSold);
 
-  [Aircraft,~] = Main(Aircraft,@MissionProfilesPkg.HW1VLM);
-
-  MTOW = Aircraft.Specs.Weight.MTOW;
-  SMP = Aircraft.Specs.Stability.SMp;
-  SMY = Aircraft.Specs.Stability.SMy;
-
+  try
+    [Aircraft,~] = Main(Aircraft,@MissionProfilesPkg.HW1VLM);
+  
+    MTOW = Aircraft.Specs.Weight.MTOW;
+    SMP = Aircraft.Specs.Stability.SMp;
+    SMY = Aircraft.Specs.Stability.SMy;
+  catch
+    MTOW = nan;
+    SMP = nan;
+    SMY = nan;
+  end
 end
 
 function out = scale(in,bounds)
