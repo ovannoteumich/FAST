@@ -30,9 +30,9 @@ function [MTOW,SMP,SMY,scaled] = solverFunc(loc,grid)
 
   Aircraft.Geometry.Props.Number = round(nprop/2);
   Aircraft.Geometry.Props.Diameter = propdiam;
-  Aircraft.Geometry.Props.X = wingroot-1.2 + (1:round(nprop/2))*0.4;
-  Aircraft.Geometry.Props.Y = 1.1 + (1:round(nprop/2))*0.15*propdiam;
-  Aircraft.Geometry.Props.Z = 4 + (1:round(nprop/2))*1.5*propdiam;
+  Aircraft.Geometry.Props.X = wingroot-1.2 + ((1:round(nprop/2))-1)*0.4;
+  Aircraft.Geometry.Props.Y = 1.1 + ((1:round(nprop/2))-1)*0.15*propdiam;
+  Aircraft.Geometry.Props.Z = 4 + ((1:round(nprop/2))-1)*1.5*propdiam;
 
   Aircraft.Geometry.Surfaces{1}.RootX = wingroot;
 
@@ -53,6 +53,8 @@ function [MTOW,SMP,SMY,scaled] = solverFunc(loc,grid)
   Aircraft.Geometry.Surfaces{2}.Chord = Aircraft.Geometry.Surfaces{2}.Chord*sqrt(htailarea/HSold);
 
   try
+    warning('off','all');
+    % Aircraft = test();
     [Aircraft,~] = Main(Aircraft,@MissionProfilesPkg.HW1VLM);
   
     MTOW = Aircraft.Specs.Weight.MTOW;
@@ -67,4 +69,12 @@ end
 
 function out = scale(in,bounds)
   out = in*(max(bounds) - min(bounds)) + min(bounds);
+end
+
+function [Aircraft] = test
+  t = randi(10);
+  pause(t)
+  Aircraft.Specs.Weight.MTOW = 30;
+  Aircraft.Specs.Stability.SMp = 40;
+  Aircraft.Specs.Stability.SMy = 50;
 end

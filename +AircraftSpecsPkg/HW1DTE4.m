@@ -292,13 +292,13 @@ Aircraft.Settings.CrsPoints = NaN;
 Aircraft.Settings.DesPoints = NaN;
 
 % maximum number of iterations during oew estimation
-Aircraft.Settings.OEW.MaxIter = 50;
+Aircraft.Settings.OEW.MaxIter = 20;
 
 % oew relative tolerance for convergence
-Aircraft.Settings.OEW.Tol = 1e-12;
+Aircraft.Settings.OEW.Tol = 1e-6;
 
 % maximum number of iterations during aircraft sizing
-Aircraft.Settings.Analysis.MaxIter = 30;
+Aircraft.Settings.Analysis.MaxIter = 20;
 
 % analysis type, either:
 %     +1 for on -design mode (aircraft performance and sizing)
@@ -313,7 +313,7 @@ Aircraft.Settings.Plotting = 0;
 % make a tble of mission history
 %     1 for make table
 %     0 for no table
-Aircraft.Settings.Table = 1;
+Aircraft.Settings.Table = 0;
 
 % ----------------------------------------------------------
 
